@@ -29,19 +29,19 @@ class WallTheme extends Theme {
         return L;
     }
 
-    function decorate(dc as Graphics.Dc, light as Boolean) as Void {
+    function decorate(dc as Graphics.Dc, light as Boolean, s as Float) as Void {
         var grey  = light ? 0xA2ABB7 : 0x404750;  // even columns
         var greyd = light ? 0xBEC5CE : 0x2b3037;  // odd columns
         var cols = [6, 28, 50, 72, 94, 116, 260, 282, 304, 326, 348, 370];
-        var w = 17;
-        var radius = 8;
+        var w = scN(17, s);
+        var radius = scN(8, s);
         for (var i = 0; i < cols.size(); i++) {
-            var x = cols[i];
+            var x = scN(cols[i], s);
             var even = (i % 2 == 0);
-            var gapC = even ? 130 : 260;       // gap centre offset between columns
+            var gapC = scN(even ? 130 : 260, s);   // gap centre offset between columns
             dc.setColor(even ? grey : greyd, Graphics.COLOR_TRANSPARENT);
-            pill(dc, x, 3, gapC - 7, w, radius);
-            pill(dc, x, gapC + 7, 387, w, radius);
+            pill(dc, x, scN(3, s), gapC - scN(7, s), w, radius);
+            pill(dc, x, gapC + scN(7, s), scN(387, s), w, radius);
         }
     }
 

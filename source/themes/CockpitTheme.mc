@@ -31,40 +31,41 @@ class CockpitTheme extends Theme {
         return L;
     }
 
-    function decorate(dc as Graphics.Dc, light as Boolean) as Void {
+    function decorate(dc as Graphics.Dc, light as Boolean, s as Float) as Void {
         var ground   = light ? 0xEADFC8 : 0x0d0a07;
         var rim      = light ? 0xB9A988 : 0x1f4954;
         var reticle  = light ? 0x1E7088 : 0x3fb6d6;
         var scanDim  = light ? 0xC7B89B : 0x2c6675;
         var scanBrt  = light ? 0x1E7088 : 0x4fc8ec;
+        var cx = scN(195, s); var cy = scN(195, s);
 
-        // dashed rim (SVG dasharray "1 9" ~ a fine dotted ring) at r=180
+        // dashed rim (fine dotted ring) at r=180
         dc.setColor(rim, Graphics.COLOR_TRANSPARENT);
         var n = 120;
-        var r = 180.0;
+        var r = 180.0 * s;
         for (var i = 0; i < n; i++) {
             var a = (Math.PI * 2.0 * i) / n;
-            dc.drawPoint((195 + r * Math.cos(a)).toNumber(), (195 + r * Math.sin(a)).toNumber());
+            dc.drawPoint((cx + r * Math.cos(a)).toNumber(), (cy + r * Math.sin(a)).toNumber());
         }
 
         // four diagonal corner reticle brackets
         dc.setColor(reticle, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(3);
-        dc.drawLine(84, 60, 60, 60);   dc.drawLine(60, 60, 60, 84);
-        dc.drawLine(306, 60, 330, 60); dc.drawLine(330, 60, 330, 84);
-        dc.drawLine(84, 330, 60, 330); dc.drawLine(60, 330, 60, 306);
-        dc.drawLine(306, 330, 330, 330); dc.drawLine(330, 330, 330, 306);
+        dc.setPenWidth(scP(3, s));
+        dc.drawLine(scN(84,s), scN(60,s), scN(60,s), scN(60,s));   dc.drawLine(scN(60,s), scN(60,s), scN(60,s), scN(84,s));
+        dc.drawLine(scN(306,s),scN(60,s), scN(330,s),scN(60,s));   dc.drawLine(scN(330,s),scN(60,s), scN(330,s),scN(84,s));
+        dc.drawLine(scN(84,s), scN(330,s),scN(60,s), scN(330,s));  dc.drawLine(scN(60,s), scN(330,s),scN(60,s), scN(306,s));
+        dc.drawLine(scN(306,s),scN(330,s),scN(330,s),scN(330,s));  dc.drawLine(scN(330,s),scN(330,s),scN(330,s),scN(306,s));
 
         // broken centre scan line: dim full-width, bright middle, masked gap
         dc.setColor(scanDim, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(1);
-        dc.drawLine(58, 181, 332, 181);
+        dc.setPenWidth(scP(1, s));
+        dc.drawLine(scN(58,s), scN(181,s), scN(332,s), scN(181,s));
         dc.setColor(scanBrt, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(2);
-        dc.drawLine(150, 181, 240, 181);
+        dc.setPenWidth(scP(2, s));
+        dc.drawLine(scN(150,s), scN(181,s), scN(240,s), scN(181,s));
         dc.setColor(ground, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(9);
-        dc.drawLine(186, 181, 204, 181);
+        dc.setPenWidth(scP(9, s));
+        dc.drawLine(scN(186,s), scN(181,s), scN(204,s), scN(181,s));
         dc.setPenWidth(1);
     }
 }

@@ -30,25 +30,26 @@ class BridgeTheme extends Theme {
         return L;
     }
 
-    function decorate(dc as Graphics.Dc, light as Boolean) as Void {
+    function decorate(dc as Graphics.Dc, light as Boolean, s as Float) as Void {
         var band  = light ? 0xEAD2CE : 0x2a1210;
         var frame = light ? 0xBE3A2C : 0xB0392E;
         var fw    = light ? 3 : 2;
 
         // console bars centred on the two label rows
         dc.setColor(band, Graphics.COLOR_TRANSPARENT);
-        dc.fillRectangle(40, 98, 310, 26);
-        dc.fillRectangle(40, 267, 310, 26);
+        dc.fillRectangle(scN(40,s), scN(98,s),  scN(310,s), scN(26,s));
+        dc.fillRectangle(scN(40,s), scN(267,s), scN(310,s), scN(26,s));
 
         // octagon frame (radius 176, flat-top via +22.5° offset)
         dc.setColor(frame, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(fw);
-        var r = 176.0;
+        dc.setPenWidth(scP(fw, s));
+        var r = 176.0 * s;
+        var cx = scN(195, s); var cy = scN(195, s);
         var prevX = 0; var prevY = 0; var firstX = 0; var firstY = 0;
         for (var k = 0; k < 8; k++) {
             var a = (Math.PI * (k * 45 + 22.5)) / 180.0;
-            var x = (195 + r * Math.cos(a)).toNumber();
-            var y = (195 + r * Math.sin(a)).toNumber();
+            var x = (cx + r * Math.cos(a)).toNumber();
+            var y = (cy + r * Math.sin(a)).toNumber();
             if (k == 0) {
                 firstX = x; firstY = y;
             } else {

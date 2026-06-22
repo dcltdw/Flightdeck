@@ -8,6 +8,13 @@ import Toybox.WatchUi;
 // four-corner metric grid + hero clock identically for all themes, so adding a
 // theme is "subclass Theme", not new layout code.
 
+// Scale + round a reference-design (@390) coordinate to the active screen.
+function scN(v as Number, s as Float) as Number { return rnd(v * s); }
+// Scale a pen width, never below 1px.
+function scP(v as Number, s as Float) as Number { var w = rnd(v * s); return w < 1 ? 1 : w; }
+// Round a Float to nearest Number.
+function rnd(v as Float) as Number { return (v + 0.5).toNumber(); }
+
 // ---------------------------------------------------------------------------
 // Loaded font resources, shared by all themes (load once in the view).
 class Fonts {
@@ -94,6 +101,15 @@ class Layout {
     public var title as String?;
 
     function initialize() {}
+
+    // Scale every geometric field from the 390 reference to this screen.
+    function scale(s as Float) as Void {
+        colL = rnd(colL * s); colR = rnd(colR * s); ctr = rnd(ctr * s);
+        lblY1 = rnd(lblY1 * s); valY1 = rnd(valY1 * s); heroY = rnd(heroY * s);
+        lblY2 = rnd(lblY2 * s); valY2 = rnd(valY2 * s);
+        lblAsc = rnd(lblAsc * s); valAsc = rnd(valAsc * s); heroAsc = rnd(heroAsc * s);
+        titleY = rnd(titleY * s); titleAsc = rnd(titleAsc * s);
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -110,17 +126,19 @@ class Theme {
     }
 
     // Theme-specific background art, drawn after clear, before the metrics.
-    function decorate(dc as Graphics.Dc, light as Boolean) as Void {}
+    function decorate(dc as Graphics.Dc, light as Boolean, s as Float) as Void {}
 
     // Lay the whole face. Called from the view's onUpdate.
     function draw(dc as Graphics.Dc, m as Metrics, fonts as Fonts, light as Boolean) as Void {
         var p = buildPalette(light);
         var L = buildLayout(fonts);
+        var s = dc.getWidth() / 390.0;
+        L.scale(s);
 
         dc.setColor(Graphics.COLOR_WHITE, p.ground);
         dc.clear();
 
-        decorate(dc, light);
+        decorate(dc, light, s);
 
         var lf = L.lblFont;
         var vf = L.valFont;
