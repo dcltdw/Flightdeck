@@ -10,6 +10,8 @@ There is no version field in the Connect IQ manifest; the git tag is the version
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-06-22
+
 - Initial public, trademark-clean variant: four themes (Cockpit / Bridge /
   Bulkhead / Phosphor) × dark/light, selectable via app settings; live metrics
   from `Activity.Info` (session pace/distance, elapsed hero, lap pace/time);
@@ -18,3 +20,4 @@ There is no version field in the Connect IQ manifest; the git tag is the version
   390×390, 360×360, 416×416, and 454×454 (Forerunner 70/165/170/265/265s/965/970,
   Fenix 8, Epix 2, Venu 3/3s). Layout and bitmap fonts scale from a 390 reference;
   each device bundles only its resolution's assets.
+- Per-device exact-size launcher icons (no scaling warning across the roster).
