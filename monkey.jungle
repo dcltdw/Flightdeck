@@ -1,3 +1,10 @@
 # Build configuration for Flightdeck.
-# Source defaults to source/ and resources are auto-discovered from resources/.
+# Base resources (strings/settings/icon) are shared; each device also gets its
+# resolution bucket folder appended so it bundles only its own fonts + watermark.
 project.manifest = manifest.xml
+
+# Resolution bucket folders (one set of fonts + watermark each).
+res390 = resources-390x390
+
+# 390x390 AMOLED runners.
+fr70.resourcePath = $(fr70.resourcePath);$(res390)
