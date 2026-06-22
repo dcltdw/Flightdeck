@@ -21,10 +21,10 @@ class BridgeTheme extends Theme {
     function buildLayout(fonts as Fonts) as Layout {
         var L = new Layout();
         L.colL = 112; L.colR = 278; L.ctr = 195;
-        L.titleY = 74; L.titleAsc = 12; L.titleFont = fonts.title; L.title = "COMBAT CONSOLE";
-        L.lblY1 = 121; L.valY1 = 154;
-        L.heroY = 234;
-        L.lblY2 = 290; L.valY2 = 322;
+        L.titleY = 58; L.titleAsc = 12; L.titleFont = fonts.title; L.title = "COMBAT CONSOLE";
+        L.lblY1 = 118; L.valY1 = 150;
+        L.heroY = 217;
+        L.lblY2 = 256; L.valY2 = 288;
         L.lblAsc = 28; L.valAsc = 31; L.heroAsc = 55;
         L.lblFont = fonts.label; L.valFont = fonts.value; L.heroFont = fonts.hero;
         return L;
@@ -37,8 +37,8 @@ class BridgeTheme extends Theme {
 
         // console bars centred on the two label rows
         dc.setColor(band, Graphics.COLOR_TRANSPARENT);
-        dc.fillRectangle(scN(40,s), scN(98,s),  scN(310,s), scN(26,s));
-        dc.fillRectangle(scN(40,s), scN(267,s), scN(310,s), scN(26,s));
+        dc.fillRectangle(scN(40,s), scN(95,s),  scN(310,s), scN(26,s));
+        dc.fillRectangle(scN(40,s), scN(233,s), scN(310,s), scN(26,s));
 
         // octagon frame (radius 176, flat-top via +22.5° offset)
         dc.setColor(frame, Graphics.COLOR_TRANSPARENT);
