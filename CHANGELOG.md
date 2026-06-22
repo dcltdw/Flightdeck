@@ -14,5 +14,7 @@ There is no version field in the Connect IQ manifest; the git tag is the version
   Bulkhead / Phosphor) × dark/light, selectable via app settings; live metrics
   from `Activity.Info` (session pace/distance, elapsed hero, lap pace/time);
   custom bitmap fonts; procedural radar watermark for Phosphor.
-- Responsive multi-device support (in progress) — target is Garmin running
-  watches that can render the graphics.
+- Responsive multi-device support: renders across AMOLED running watches at
+  390×390, 360×360, 416×416, and 454×454 (Forerunner 70/165/170/265/265s/965/970,
+  Fenix 8, Epix 2, Venu 3/3s). Layout and bitmap fonts scale from a 390 reference;
+  each device bundles only its resolution's assets.

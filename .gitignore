@@ -17,3 +17,6 @@ docs/mockups/scripts/.build/
 # OS / editor
 .DS_Store
 *.swp
+
+# Subagent-driven-development scratch (ledger, briefs, reports)
+.superpowers/

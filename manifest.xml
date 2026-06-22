@@ -3,7 +3,8 @@
     <!--
       Flightdeck: a full-screen run data field. Additive run page (the user adds
       it to a run profile and swipes to it); it does not replace native screens.
-      Targets the Forerunner 70 only.
+      Targets AMOLED running watches across 390x390, 360x360, 416x416, and 454x454
+      (Forerunner 70/165/170/265/265s/965/970, Fenix 8, Epix 2, Venu 3/3s).
     -->
     <iq:application
         entry="FlightdeckApp"
@@ -13,7 +14,24 @@
         type="datafield"
         minApiLevel="3.2.0">
         <iq:products>
+            <!-- 390x390 -->
             <iq:product id="fr70"/>
+            <iq:product id="fr165"/>
+            <iq:product id="fr165m"/>
+            <iq:product id="fr170"/>
+            <iq:product id="fr170m"/>
+            <iq:product id="venu3s"/>
+            <!-- 360x360 -->
+            <iq:product id="fr265s"/>
+            <!-- 416x416 -->
+            <iq:product id="fr265"/>
+            <iq:product id="fenix843mm"/>
+            <iq:product id="epix2"/>
+            <!-- 454x454 -->
+            <iq:product id="fr965"/>
+            <iq:product id="fr970"/>
+            <iq:product id="fenix847mm"/>
+            <iq:product id="venu3"/>
         </iq:products>
         <iq:permissions/>
         <iq:languages>

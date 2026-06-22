@@ -25,7 +25,7 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.normpath(os.path.join(HERE, "..", "resources", "fonts"))
+RES_ROOT = os.path.normpath(os.path.join(HERE, ".."))
 
 FONT_TTF = os.environ.get(
     "FLIGHTDECK_FONT", "/System/Library/Fonts/Supplemental/Andale Mono.ttf"
@@ -34,15 +34,16 @@ FONT_TTF = os.environ.get(
 DIGITS = "0123456789"
 UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ "
 
-# id, pixel size, glyph set, stroke. Sizes match the design language
-# (how-the-faces doc). A non-zero stroke fakes a bold weight by outlining the
-# glyph (Andale Mono ships only one weight); used by the Bulkhead theme.
-SPECS = [
+# Reference design sizes @390. Per-bucket size = round(size * bucketW / 390).
+REF_W = 390
+BUCKETS = [390, 360, 416, 454]
+
+# id, reference pixel size @390, glyph set, stroke.
+REF_SPECS = [
     ("hero", 60, DIGITS + ":", 0),
     ("value", 34, DIGITS + ":.-", 0),
     ("label", 30, UPPER, 0),
     ("title", 13, UPPER, 0),
-    # bold (Bulkhead) — very light stroke; only the hero is outlined
     ("herob", 72, DIGITS + ":", 1),
     ("valueb", 42, DIGITS + ":.-", 0),
     ("labelb", 36, UPPER, 0),
@@ -144,7 +145,7 @@ def write_fnt(path, face, size, ascent, descent, atlas_size, chars, png_name):
         fh.write("\n".join(lines) + "\n")
 
 
-def build_one(fid, size, glyph_set, stroke=0):
+def build_one(fid, size, glyph_set, stroke, outdir):
     if not os.path.exists(FONT_TTF):
         raise SystemExit(
             "Source font not found: %s\nSet FLIGHTDECK_FONT to a monospace TTF." % FONT_TTF
@@ -170,9 +171,9 @@ def build_one(fid, size, glyph_set, stroke=0):
         )
 
     png_name = "%s.png" % fid
-    atlas.save(os.path.join(OUT, png_name))
+    atlas.save(os.path.join(outdir, png_name))
     write_fnt(
-        os.path.join(OUT, "%s.fnt" % fid),
+        os.path.join(outdir, "%s.fnt" % fid),
         os.path.basename(FONT_TTF),
         size,
         ascent,
@@ -188,11 +189,15 @@ def build_one(fid, size, glyph_set, stroke=0):
 
 
 def main():
-    os.makedirs(OUT, exist_ok=True)
     print("Generating bitmap fonts from %s" % FONT_TTF)
-    for fid, size, glyph_set, stroke in SPECS:
-        build_one(fid, size, glyph_set, stroke)
-    print("Done -> %s" % OUT)
+    for bw in BUCKETS:
+        outdir = os.path.join(RES_ROOT, "resources-%dx%d" % (bw, bw), "fonts")
+        os.makedirs(outdir, exist_ok=True)
+        print("bucket %dx%d -> %s" % (bw, bw, outdir))
+        for fid, ref_size, glyph_set, stroke in REF_SPECS:
+            size = round(ref_size * bw / REF_W)
+            build_one(fid, size, glyph_set, stroke, outdir)
+    print("Done.")
 
 
 if __name__ == "__main__":

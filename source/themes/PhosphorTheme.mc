@@ -54,7 +54,7 @@ class PhosphorTheme extends Theme {
         return L;
     }
 
-    function decorate(dc as Graphics.Dc, light as Boolean) as Void {
+    function decorate(dc as Graphics.Dc, light as Boolean, s as Float) as Void {
         // radar watermark, centred by its own size
         var art = PhosphorArt.scope(light);
         dc.drawBitmap((dc.getWidth() - art.getWidth()) / 2,
