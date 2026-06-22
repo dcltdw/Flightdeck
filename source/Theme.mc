@@ -147,32 +147,44 @@ class Theme {
             return; // misconfigured layout; nothing to draw
         }
 
+        var C = Graphics.TEXT_JUSTIFY_CENTER;
         var tf = L.titleFont;
         var tt = L.title;
         if (tf != null && tt != null) {
-            txt(dc, L.ctr, L.titleY, L.titleAsc, tf, p.title, tt);
+            txt(dc, L.ctr, L.titleY, L.titleAsc, tf, p.title, tt, C);
         }
 
+        // Corner values are edge-justified so they grow toward centre (never off
+        // the round edge): right column right-justified, left column left-
+        // justified. The anchor sits at a 4-char value's current edge (half a
+        // 4-char value from the column centre), so typical values stay put.
+        // Labels remain centred on the column.
+        var vHalf = dc.getTextWidthInPixels("0:00", vf) / 2;
+        var L_ = Graphics.TEXT_JUSTIFY_LEFT;
+        var R_ = Graphics.TEXT_JUSTIFY_RIGHT;
+
         // top row — session
-        txt(dc, L.colL, L.lblY1, L.lblAsc, lf, p.label, "PACE");
-        txt(dc, L.colL, L.valY1, L.valAsc, vf, p.sval,  m.sessionPace);
-        txt(dc, L.colR, L.lblY1, L.lblAsc, lf, p.label, "DIST");
-        txt(dc, L.colR, L.valY1, L.valAsc, vf, p.sval,  m.sessionDist);
+        txt(dc, L.colL, L.lblY1, L.lblAsc, lf, p.label, "PACE", C);
+        txt(dc, L.colL - vHalf, L.valY1, L.valAsc, vf, p.sval, m.sessionPace, L_);
+        txt(dc, L.colR, L.lblY1, L.lblAsc, lf, p.label, "DIST", C);
+        txt(dc, L.colR + vHalf, L.valY1, L.valAsc, vf, p.sval, m.sessionDist, R_);
 
         // hero — elapsed
-        txt(dc, L.ctr, L.heroY, L.heroAsc, hf, p.hero, m.heroTime);
+        txt(dc, L.ctr, L.heroY, L.heroAsc, hf, p.hero, m.heroTime, C);
 
         // bottom row — lap
-        txt(dc, L.colL, L.lblY2, L.lblAsc, lf, p.label, "PACE");
-        txt(dc, L.colL, L.valY2, L.valAsc, vf, p.lap,   m.lapPace);
-        txt(dc, L.colR, L.lblY2, L.lblAsc, lf, p.label, "TIME");
-        txt(dc, L.colR, L.valY2, L.valAsc, vf, p.lap,   m.lapTime);
+        txt(dc, L.colL, L.lblY2, L.lblAsc, lf, p.label, "PACE", C);
+        txt(dc, L.colL - vHalf, L.valY2, L.valAsc, vf, p.lap, m.lapPace, L_);
+        txt(dc, L.colR, L.lblY2, L.lblAsc, lf, p.label, "TIME", C);
+        txt(dc, L.colR + vHalf, L.valY2, L.valAsc, vf, p.lap, m.lapTime, R_);
     }
 
-    // Draw `s` centred on x with its baseline at design `baseY`.
+    // Draw `str` with its baseline at design `baseY`, justified per `just`
+    // about the anchor `x` (centre / left-edge / right-edge).
     function txt(dc as Graphics.Dc, x as Number, baseY as Number, ascent as Number,
-                 font as WatchUi.FontResource, color as Number, s as String) as Void {
+                 font as WatchUi.FontResource, color as Number, str as String,
+                 just as Graphics.TextJustification) as Void {
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(x, baseY - ascent, font, s, Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(x, baseY - ascent, font, str, just);
     }
 }
