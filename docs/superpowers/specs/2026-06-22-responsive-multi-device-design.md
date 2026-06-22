@@ -132,6 +132,5 @@ bundles only its own.
 
 ## Out of this spec
 
-Cutting the v0.1.1 release (tag + GitHub Release) and archiving `swarsy-face`
-follow separately, per the project's release process and the recorded resume
-state.
+Cutting the v0.1.1 release (tag + GitHub Release) follows separately, per the
+project's release process.
