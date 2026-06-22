@@ -172,7 +172,7 @@ def build_one(fid, size, glyph_set, stroke, outdir):
         if ch == ":":
             shrink = int(round(xadv * 0.4))
             xoff -= shrink // 2
-            xadv -= shrink
+            xadv = max(1, xadv - shrink)  # clamp guards hypothetical tiny sizes
         chars.append(
             dict(id=ord(ch), x=x, y=y, w=w, h=h, xoff=xoff, yoff=yoff, xadv=xadv)
         )
