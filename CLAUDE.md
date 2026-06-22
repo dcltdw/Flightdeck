@@ -38,8 +38,9 @@ SDK=~/Library/Application\ Support/Garmin/ConnectIQ/Sdks/<your-sdk>
 "$SDK/bin/monkeyc" -f monkey.jungle -o /tmp/check.prg -y <developer_key> -d <device> -w
 ```
 
-Regenerate assets: `pip install Pillow` then `python3 tools/gen_fonts.py` /
-`python3 tools/gen_icon.py`; `tools/gen_phosphor_watermark.sh` needs ImageMagick.
+Regenerate assets: `python3 tools/gen_fonts.py` (needs `pip install Pillow`);
+`python3 tools/gen_icon.py` (pure stdlib, emits per-size launcher SVGs);
+`tools/gen_phosphor_watermark.sh` needs ImageMagick.
 
 ## Versioning & releases
 
