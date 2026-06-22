@@ -17,7 +17,7 @@
   export PATH="/usr/local/opt/openjdk/bin:$PATH"
   SDK="/Users/dcltdw/Library/Application Support/Garmin/ConnectIQ/Sdks/connectiq-sdk-mac-9.1.0-2026-03-09-6a872a80b"
   cd /Users/dcltdw/Github/Flightdeck
-  "$SDK/bin/monkeyc" -f monkey.jungle -o /tmp/fd-<dev>.prg -y ~/Github/swarsy-face/developer_key.der -d <dev> -w
+  "$SDK/bin/monkeyc" -f monkey.jungle -o /tmp/fd-<dev>.prg -y <developer_key> -d <dev> -w
   ```
 - **Success criterion beyond `BUILD SUCCESSFUL`:** the build output must **no longer contain** `launcher icon ... isn't compatible ... will be scaled`. Capture and check the text; the warning is not `-w`-promoted. Verified fact: an icon whose declared size equals the device's required size clears the warning; a mismatch (any format, incl. SVG) warns.
 - Icon size → device map (each device's icon folder must match this):
@@ -221,7 +221,7 @@ SDK="/Users/dcltdw/Library/Application Support/Garmin/ConnectIQ/Sdks/connectiq-s
 cd /Users/dcltdw/Github/Flightdeck
 for d in fr70 fr265 fr965 venu3; do
   echo "=== $d ==="
-  "$SDK/bin/monkeyc" -f monkey.jungle -o /tmp/fd-$d.prg -y ~/Github/swarsy-face/developer_key.der -d $d -w 2>&1 | grep -iE "launcher|isn't compatible|BUILD"
+  "$SDK/bin/monkeyc" -f monkey.jungle -o /tmp/fd-$d.prg -y <developer_key> -d $d -w 2>&1 | grep -iE "launcher|isn't compatible|BUILD"
 done
 ```
 Expected: each device prints `BUILD SUCCESSFUL` and **no** `launcher icon ... isn't compatible` line. (fr70=54, fr265=60, fr965=65, venu3=70 — each now matches its icon folder.)

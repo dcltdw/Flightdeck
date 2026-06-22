@@ -18,9 +18,9 @@ These apply to **every** task:
   export PATH="/usr/local/opt/openjdk/bin:$PATH"
   SDK="/Users/dcltdw/Library/Application Support/Garmin/ConnectIQ/Sdks/connectiq-sdk-mac-9.1.0-2026-03-09-6a872a80b"
   cd /Users/dcltdw/Github/Flightdeck
-  "$SDK/bin/monkeyc" -f monkey.jungle -o /tmp/fd-<dev>.prg -y ~/Github/swarsy-face/developer_key.der -d <dev> -w
+  "$SDK/bin/monkeyc" -f monkey.jungle -o /tmp/fd-<dev>.prg -y <developer_key> -d <dev> -w
   ```
-  Expected on success: `BUILD SUCCESSFUL` (exit 0). The developer key lives in the sibling `swarsy-face` repo and must never be copied into this repo (`.gitignore` blocks `*.der`/`*.pem`).
+  Expected on success: `BUILD SUCCESSFUL` (exit 0). The developer key lives outside this repo and must never be copied into it (`.gitignore` blocks `*.der`/`*.pem`).
 - **390 invariant:** at 390×390, `s == 1.0`; every scaled value must round back to its original. Any 390 render change is a regression.
 - **Scope:** round AMOLED only. No rectangle/edge handling, no MIP devices.
 - **Font ids never change** (`HeroFont`, `ValueFont`, `LabelFont`, `TitleFont`, `HeroBoldFont`, `ValueBoldFont`, `LabelBoldFont`) — only the underlying atlas sizes differ per bucket.

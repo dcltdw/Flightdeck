@@ -18,7 +18,7 @@
   export PATH="/usr/local/opt/openjdk/bin:$PATH"
   SDK="/Users/dcltdw/Library/Application Support/Garmin/ConnectIQ/Sdks/connectiq-sdk-mac-9.1.0-2026-03-09-6a872a80b"
   cd /Users/dcltdw/Github/Flightdeck
-  "$SDK/bin/monkeyc" -f monkey.jungle -o /tmp/cap-<face>.prg -y ~/Github/swarsy-face/developer_key.der -d fr965 -w
+  "$SDK/bin/monkeyc" -f monkey.jungle -o /tmp/cap-<face>.prg -y <developer_key> -d fr965 -w
   ```
 - **Capture device:** fr965 (454×454). Every screenshot is normalized to 454×454.
 - **The 8 faces (all distinct):**
@@ -60,7 +60,7 @@ Write `/tmp/cap-build.sh`:
 set -euo pipefail
 export PATH="/usr/local/opt/openjdk/bin:$PATH"
 SDK="/Users/dcltdw/Library/Application Support/Garmin/ConnectIQ/Sdks/connectiq-sdk-mac-9.1.0-2026-03-09-6a872a80b"
-KEY=~/Github/swarsy-face/developer_key.der
+KEY=<developer_key>
 cd /Users/dcltdw/Github/Flightdeck
 # args: face theme(0-3) light(true|false)
 build() {
