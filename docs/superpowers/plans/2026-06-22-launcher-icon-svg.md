@@ -1,71 +1,84 @@
-# Launcher Icon (Vector SVG) Implementation Plan
+# Per-Size Launcher Icons Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Replace the raster 54×54 launcher icon with a single vector `launcher_icon.svg` so every device gets a crisp, exact-size icon with no Connect IQ scaling warning.
+**Goal:** Provide a launcher icon at each device's exact expected size (54/60/65/70) so Connect IQ no longer warns that the icon must be scaled.
 
-**Architecture:** Connect IQ rasterizes a vector launcher icon at each device's expected size. Repoint `gen_icon.py` to emit the same HUD-reticle art as SVG, declare it with `dithering="none"`, drop the PNG. No folders, jungle, or manifest changes (mirrors the Understated peer project).
+**Architecture:** Per-size vector `launcher_icon.svg` (each declared at its own size) in icon-size resource folders `resources-icon{54,60,65,70}/`, wired per-device in the jungle as a second `resourcePath` append (after the resolution bucket). The icon declaration moves out of base into the folders. Mirrors the font/watermark bucketing, keyed by icon size.
 
-**Tech Stack:** SVG (basic shapes), Python (generator, no Pillow needed anymore), Connect IQ resources.
+**Tech Stack:** SVG (basic shapes), Python (generator), Connect IQ jungle resource paths.
+
+**Starting state:** the branch currently has a single `resources/drawables/launcher_icon.svg` + the old `launcher_icon.png`, with `LauncherIcon` declared in base `resources/drawables/drawables.xml`. This plan restructures that into per-size icon folders.
 
 ## Global Constraints
 
-- No Monkey C unit-test framework. The gate is `monkeyc -w` (warnings-as-errors). Build command (substitute `<dev>`):
+- No Monkey C unit-test framework. Gate is `monkeyc -w`. Build command (substitute `<dev>`):
   ```sh
   export PATH="/usr/local/opt/openjdk/bin:$PATH"
   SDK="/Users/dcltdw/Library/Application Support/Garmin/ConnectIQ/Sdks/connectiq-sdk-mac-9.1.0-2026-03-09-6a872a80b"
   cd /Users/dcltdw/Github/Flightdeck
   "$SDK/bin/monkeyc" -f monkey.jungle -o /tmp/fd-<dev>.prg -y ~/Github/swarsy-face/developer_key.der -d <dev> -w
   ```
-- **Success criterion beyond `BUILD SUCCESSFUL`:** the build output must **no longer contain** `launcher icon ... isn't compatible ... will be scaled`. That warning is not `-w`-promoted, so check for its *absence* explicitly.
-- Artwork unchanged: dark dial `#0D0A07`, teal ring `#3FB6D6`, amber centre `#FFC890`, transparent background.
-- `drawables.xml` declaration uses `dithering="none"` (matches Understated).
-- No `monkey.jungle` or `manifest.xml` changes; `LauncherIcon` stays in base `resources/drawables/`.
+- **Success criterion beyond `BUILD SUCCESSFUL`:** the build output must **no longer contain** `launcher icon ... isn't compatible ... will be scaled`. Capture and check the text; the warning is not `-w`-promoted. Verified fact: an icon whose declared size equals the device's required size clears the warning; a mismatch (any format, incl. SVG) warns.
+- Icon size → device map (each device's icon folder must match this):
+  - 54: fr70, fr165, fr165m, fr170, fr170m
+  - 60: fr265s, fr265, fenix843mm, epix2
+  - 65: fr965, fr970, fenix847mm
+  - 70: venu3s, venu3
+- Artwork/colours unchanged: dark dial `#0D0A07`, teal ring `#3FB6D6`, amber centre `#FFC890`, transparent background.
+- Icon `drawables.xml` declaration uses `dithering="none"`.
+- No `manifest.xml` change (`launcherIcon="@Drawables.LauncherIcon"` stays).
 - Never copy the developer key into the repo. `.superpowers/` is gitignored — don't stage it. Scan diffs for secrets. Stamp commits `Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>`.
 
 ## File Structure
 
-- `tools/gen_icon.py` (modify) — emit `launcher_icon.svg` instead of `.png`.
-- `resources/drawables/launcher_icon.svg` (new, generated) — the vector icon.
-- `resources/drawables/launcher_icon.png` (deleted).
-- `resources/drawables/drawables.xml` (modify) — point `LauncherIcon` at the SVG.
+- `tools/gen_icon.py` (modify) — loop sizes; emit `resources-icon<N>/drawables/launcher_icon.svg` + `drawables.xml` per size.
+- `resources-icon{54,60,65,70}/drawables/launcher_icon.svg` (new, generated).
+- `resources-icon{54,60,65,70}/drawables/drawables.xml` (new, generated).
+- `resources/drawables/launcher_icon.svg`, `resources/drawables/launcher_icon.png`, `resources/drawables/drawables.xml` (deleted — base no longer carries the icon).
+- `monkey.jungle` (modify) — second per-device `resourcePath` append for the icon folder.
 
 ---
 
-## Task 1: Rewrite gen_icon.py to emit SVG and generate the asset
+## Task 1: Generate per-size icons into icon folders
 
 **Files:**
 - Modify: `tools/gen_icon.py`
-- Create (generated): `resources/drawables/launcher_icon.svg`
+- Create (generated): `resources-icon{54,60,65,70}/drawables/launcher_icon.svg` and `.../drawables.xml`
 
 **Interfaces:**
-- Produces: `resources/drawables/launcher_icon.svg` — a `54×54` viewBox SVG with the HUD-reticle art; consumed by Task 2's `drawables.xml`.
+- Produces: four `resources-icon<N>/drawables/` folders, each with a `launcher_icon.svg` declared at size `<N>` and a `drawables.xml` declaring `LauncherIcon`. Consumed by Task 2's jungle wiring.
 
-- [ ] **Step 1: Replace `tools/gen_icon.py` with the SVG generator**
+- [ ] **Step 1: Replace `tools/gen_icon.py` with the per-size generator**
 
 Full new file contents:
 
 ```python
 #!/usr/bin/env python3
-"""Generate the Flightdeck launcher icon as a vector SVG.
+"""Generate the Flightdeck launcher icon as per-size vector SVGs.
 
 An abstract cockpit-HUD reticle in the Cockpit (dark) palette: a dark dial, a
-teal ring with corner ticks, and an amber centre. Vector, so Connect IQ
-rasterizes it at each device's exact launcher-icon size (no scaling warning).
+teal ring with corner ticks, and an amber centre. One SVG per device launcher-
+icon size, each DECLARED at that size so Connect IQ does not warn/scale. Each
+lands in resources-icon<N>/drawables/ with a matching drawables.xml.
 Reproducible like the other assets.
-
-Output: resources/drawables/launcher_icon.svg
 """
 
 import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.normpath(os.path.join(HERE, "..", "resources", "drawables"))
+RES_ROOT = os.path.normpath(os.path.join(HERE, ".."))
 
-S = 54.0  # viewBox size (preserves the original icon proportions)
+SIZES = [54, 60, 65, 70]
 DIAL = "#0D0A07"
 TEAL = "#3FB6D6"
 AMBER = "#FFC890"
+
+DRAWABLES_XML = (
+    "<resources>\n"
+    '    <bitmap id="LauncherIcon" filename="launcher_icon.svg" dithering="none"/>\n'
+    "</resources>\n"
+)
 
 
 def f(x):
@@ -73,16 +86,15 @@ def f(x):
     return ("%.3f" % x).rstrip("0").rstrip(".")
 
 
-def main():
-    os.makedirs(OUT, exist_ok=True)
+def svg_for(size):
+    S = float(size)
     c = S / 2.0
     stroke = 0.045 * S
     off = 0.27 * S
     tick = 0.12 * S
-
     parts = [
-        '<svg xmlns="http://www.w3.org/2000/svg" width="%s" height="%s" '
-        'viewBox="0 0 %s %s" fill="none">' % (f(S), f(S), f(S), f(S)),
+        '<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d" '
+        'viewBox="0 0 %d %d" fill="none">' % (size, size, size, size),
         '<circle cx="%s" cy="%s" r="%s" fill="%s"/>'
         % (f(c), f(c), f(0.48 * S), DIAL),
         '<circle cx="%s" cy="%s" r="%s" fill="none" stroke="%s" stroke-width="%s"/>'
@@ -105,11 +117,18 @@ def main():
         % (f(c), f(c), f(0.10 * S), AMBER)
     )
     parts.append("</svg>")
-    svg = "\n".join(parts) + "\n"
+    return "\n".join(parts) + "\n"
 
-    with open(os.path.join(OUT, "launcher_icon.svg"), "w") as fh:
-        fh.write(svg)
-    print("wrote %s/launcher_icon.svg (viewBox %sx%s)" % (OUT, f(S), f(S)))
+
+def main():
+    for size in SIZES:
+        out = os.path.join(RES_ROOT, "resources-icon%d" % size, "drawables")
+        os.makedirs(out, exist_ok=True)
+        with open(os.path.join(out, "launcher_icon.svg"), "w") as fh:
+            fh.write(svg_for(size))
+        with open(os.path.join(out, "drawables.xml"), "w") as fh:
+            fh.write(DRAWABLES_XML)
+        print("wrote %s/launcher_icon.svg + drawables.xml (%dx%d)" % (out, size, size))
 
 
 if __name__ == "__main__":
@@ -118,86 +137,108 @@ if __name__ == "__main__":
 
 - [ ] **Step 2: Run the generator**
 
-Run:
 ```sh
 cd /Users/dcltdw/Github/Flightdeck
 python3 tools/gen_icon.py
 ```
-Expected: `wrote .../resources/drawables/launcher_icon.svg (viewBox 54x54)`.
+Expected: four `wrote .../resources-icon<N>/drawables/launcher_icon.svg + drawables.xml (<N>x<N>)` lines for 54, 60, 65, 70.
 
-- [ ] **Step 3: Verify the SVG is well-formed and has the expected shapes**
+- [ ] **Step 3: Verify each SVG declares its own size and is well-formed**
 
-Run:
 ```sh
-python3 -c "import xml.dom.minidom,sys; d=xml.dom.minidom.parse('resources/drawables/launcher_icon.svg'); print('circles', len(d.getElementsByTagName('circle')), 'lines', len(d.getElementsByTagName('line')))"
+for n in 54 60 65 70; do
+  echo -n "icon$n: "; head -1 resources-icon$n/drawables/launcher_icon.svg | grep -o "width=\"$n\" height=\"$n\" viewBox=\"0 0 $n $n\"" || echo "WRONG SIZE";
+done
+python3 -c "import glob,xml.dom.minidom; [xml.dom.minidom.parse(p) for p in glob.glob('resources-icon*/drawables/launcher_icon.svg')]; print('all well-formed')"
 ```
-Expected: `circles 3 lines 8` (dial + ring + centre = 3 circles; 4 corners × 2 = 8 lines). Well-formed parse = no XML error.
+Expected: each line echoes its matching `width="N" height="N" viewBox="0 0 N N"`, then `all well-formed`.
 
 - [ ] **Step 4: Commit**
 
 ```sh
-git add tools/gen_icon.py resources/drawables/launcher_icon.svg
-git commit -m "gen_icon: emit vector launcher_icon.svg (HUD reticle, same art)
+git add tools/gen_icon.py resources-icon54 resources-icon60 resources-icon65 resources-icon70
+git commit -m "gen_icon: emit per-size launcher SVGs (54/60/65/70) into icon folders
 
 Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
 ```
 
 ---
 
-## Task 2: Point LauncherIcon at the SVG, drop the PNG, verify warning-free
+## Task 2: Remove base icon, wire jungle per-device, verify warning-free
 
 **Files:**
-- Modify: `resources/drawables/drawables.xml`
-- Delete: `resources/drawables/launcher_icon.png`
+- Delete: `resources/drawables/launcher_icon.svg`, `resources/drawables/launcher_icon.png`, `resources/drawables/drawables.xml`
+- Modify: `monkey.jungle`
 
 **Interfaces:**
-- Consumes: `resources/drawables/launcher_icon.svg` (Task 1).
+- Consumes: the four `resources-icon<N>/drawables/` folders from Task 1.
 
-- [ ] **Step 1: Repoint the LauncherIcon declaration**
+- [ ] **Step 1: Remove the base icon files and declaration**
 
-In `resources/drawables/drawables.xml`, replace the line:
-```xml
-    <bitmap id="LauncherIcon" filename="launcher_icon.png"/>
-```
-with:
-```xml
-    <bitmap id="LauncherIcon" filename="launcher_icon.svg" dithering="none"/>
-```
-
-- [ ] **Step 2: Delete the old raster icon**
+Base `resources/drawables/` held only the launcher icon, so remove the whole folder's contents:
 
 ```sh
 cd /Users/dcltdw/Github/Flightdeck
-git rm resources/drawables/launcher_icon.png
+git rm resources/drawables/launcher_icon.svg resources/drawables/launcher_icon.png resources/drawables/drawables.xml
+```
+(`LauncherIcon` is now declared only in the icon folders. `manifest.xml` still references `@Drawables.LauncherIcon` — unchanged.)
+
+- [ ] **Step 2: Add icon-size vars + second per-device append in `monkey.jungle`**
+
+After the existing `res454 = ...` line, add the icon-size variables:
+
+```
+icon54 = resources-icon54
+icon60 = resources-icon60
+icon65 = resources-icon65
+icon70 = resources-icon70
 ```
 
-- [ ] **Step 3: Build one device per former icon-size class and capture warnings**
+Then append the matching icon folder to each device's existing `resourcePath` line (append `;$(iconNN)` to what is already there — do not drop the resolution bucket). Final state per device:
 
-Run (using the Global build command), for `<dev>` = `fr70`, `fr265`, `fr965`, `venu3`, capturing output:
+```
+fr70.resourcePath       = $(fr70.resourcePath);$(res390);$(icon54)
+fr165.resourcePath      = $(fr165.resourcePath);$(res390);$(icon54)
+fr165m.resourcePath     = $(fr165m.resourcePath);$(res390);$(icon54)
+fr170.resourcePath      = $(fr170.resourcePath);$(res390);$(icon54)
+fr170m.resourcePath     = $(fr170m.resourcePath);$(res390);$(icon54)
+venu3s.resourcePath     = $(venu3s.resourcePath);$(res390);$(icon70)
+fr265s.resourcePath     = $(fr265s.resourcePath);$(res360);$(icon60)
+fr265.resourcePath      = $(fr265.resourcePath);$(res416);$(icon60)
+fenix843mm.resourcePath = $(fenix843mm.resourcePath);$(res416);$(icon60)
+epix2.resourcePath      = $(epix2.resourcePath);$(res416);$(icon60)
+fr965.resourcePath      = $(fr965.resourcePath);$(res454);$(icon65)
+fr970.resourcePath      = $(fr970.resourcePath);$(res454);$(icon65)
+fenix847mm.resourcePath = $(fenix847mm.resourcePath);$(res454);$(icon65)
+venu3.resourcePath      = $(venu3.resourcePath);$(res454);$(icon70)
+```
+
+- [ ] **Step 3: Build one device per icon size and check for the warning**
+
 ```sh
 export PATH="/usr/local/opt/openjdk/bin:$PATH"
 SDK="/Users/dcltdw/Library/Application Support/Garmin/ConnectIQ/Sdks/connectiq-sdk-mac-9.1.0-2026-03-09-6a872a80b"
 cd /Users/dcltdw/Github/Flightdeck
 for d in fr70 fr265 fr965 venu3; do
-  "$SDK/bin/monkeyc" -f monkey.jungle -o /tmp/fd-$d.prg -y ~/Github/swarsy-face/developer_key.der -d $d -w 2>&1 | sed "s/^/[$d] /"
+  echo "=== $d ==="
+  "$SDK/bin/monkeyc" -f monkey.jungle -o /tmp/fd-$d.prg -y ~/Github/swarsy-face/developer_key.der -d $d -w 2>&1 | grep -iE "launcher|isn't compatible|BUILD"
 done
 ```
-Expected: each device prints `[<dev>] BUILD SUCCESSFUL` and **no** line containing `isn't compatible` / `launcher icon`.
+Expected: each device prints `BUILD SUCCESSFUL` and **no** `launcher icon ... isn't compatible` line. (fr70=54, fr265=60, fr965=65, venu3=70 — each now matches its icon folder.)
 
-> Contingency: if Connect IQ rejects an SVG primitive (stroke/line), the build will error here. Fallback within the same art: render the ring as two filled `<circle>`s (outer teal, inner dial-colour) and the corner ticks as thin filled `<rect>`s, then re-run. Note any such change in the report.
-
-- [ ] **Step 4: Confirm no residual PNG reference**
+- [ ] **Step 4: Confirm base icon fully gone, no stale references**
 
 ```sh
-grep -rn "launcher_icon.png" resources/ manifest.xml monkey.jungle ; echo "exit $?"
+ls resources/drawables 2>&1   # expect: no such file/dir, or empty
+grep -rn "launcher_icon" resources resources-icon* manifest.xml monkey.jungle | grep -v "resources-icon"; echo "exit $?"
 ```
-Expected: no matches (grep exit 1).
+Expected: `resources/drawables` gone/empty; the only `launcher_icon` references are inside `resources-icon*` (grep of the rest exits 1 / no matches).
 
 - [ ] **Step 5: Commit**
 
 ```sh
 git add -A
-git commit -m "Use vector launcher_icon.svg; drop the 54x54 PNG (no scaling warning)
+git commit -m "Per-device exact-size launcher icons via icon folders + jungle wiring
 
 Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
 ```
@@ -206,6 +247,6 @@ Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
 
 ## Self-Review (completed by plan author)
 
-- **Spec coverage:** Generator→SVG → Task 1. drawables.xml repoint + PNG delete → Task 2. Warning-absence verification on fr70/fr265/fr965/venu3 → Task 2 Step 3. No jungle/manifest change → honored (not touched). Artwork colours/transparency → Task 1 code. `dithering="none"` → Task 2 Step 1. All spec sections covered.
-- **Placeholder scan:** none — full generator code and exact commands/expected output provided; the contingency names a concrete fallback, not a TODO.
-- **Type consistency:** the SVG filename `launcher_icon.svg` and shape counts (3 circles / 8 lines) are consistent between Task 1's output and Task 2's consumption/verification.
+- **Spec coverage:** per-size generator → Task 1; icon folders + drawables.xml → Task 1; base removal → Task 2 Step 1; jungle 2nd append per device (size map) → Task 2 Step 2; warning-absence verification on fr70/fr265/fr965/venu3 → Task 2 Step 3; manifest unchanged → honored. All spec sections covered.
+- **Placeholder scan:** none — full generator code, exact jungle lines for all 14 devices, exact verification commands/expected output.
+- **Type/name consistency:** folder names `resources-icon{54,60,65,70}` and jungle vars `icon54/60/65/70` are consistent between Task 1 (creates them) and Task 2 (references them); the icon→device map matches the Global Constraints table.
