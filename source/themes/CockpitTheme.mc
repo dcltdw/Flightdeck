@@ -21,11 +21,11 @@ class CockpitTheme extends Theme {
 
     function buildLayout(fonts as Fonts) as Layout {
         var L = new Layout();
-        L.colL = 112; L.colR = 278; L.ctr = 195;
-        L.titleY = 74;  L.titleAsc = 12; L.titleFont = fonts.title; L.title = "FLIGHT OPS";
-        L.lblY1 = 121; L.valY1 = 154;
-        L.heroY = 234;
-        L.lblY2 = 290; L.valY2 = 322;
+        L.colL = 127; L.colR = 263; L.ctr = 195;
+        L.titleY = 62;  L.titleAsc = 12; L.titleFont = fonts.title; L.title = "FLIGHT OPS";
+        L.lblY1 = 116; L.valY1 = 148;
+        L.heroY = 222;
+        L.lblY2 = 263; L.valY2 = 295;
         L.lblAsc = 28; L.valAsc = 31; L.heroAsc = 55;
         L.lblFont = fonts.label; L.valFont = fonts.value; L.heroFont = fonts.hero;
         return L;
@@ -51,10 +51,10 @@ class CockpitTheme extends Theme {
         // four diagonal corner reticle brackets
         dc.setColor(reticle, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(scP(3, s));
-        dc.drawLine(scN(84,s), scN(60,s), scN(60,s), scN(60,s));   dc.drawLine(scN(60,s), scN(60,s), scN(60,s), scN(84,s));
-        dc.drawLine(scN(306,s),scN(60,s), scN(330,s),scN(60,s));   dc.drawLine(scN(330,s),scN(60,s), scN(330,s),scN(84,s));
-        dc.drawLine(scN(84,s), scN(330,s),scN(60,s), scN(330,s));  dc.drawLine(scN(60,s), scN(330,s),scN(60,s), scN(306,s));
-        dc.drawLine(scN(306,s),scN(330,s),scN(330,s),scN(330,s));  dc.drawLine(scN(330,s),scN(330,s),scN(330,s),scN(306,s));
+        dc.drawLine(scN(104,s),scN(80,s),  scN(80,s), scN(80,s));   dc.drawLine(scN(80,s), scN(80,s),  scN(80,s), scN(104,s));
+        dc.drawLine(scN(286,s),scN(80,s),  scN(310,s),scN(80,s));   dc.drawLine(scN(310,s),scN(80,s),  scN(310,s),scN(104,s));
+        dc.drawLine(scN(104,s),scN(310,s), scN(80,s), scN(310,s));  dc.drawLine(scN(80,s), scN(310,s), scN(80,s), scN(286,s));
+        dc.drawLine(scN(286,s),scN(310,s), scN(310,s),scN(310,s));  dc.drawLine(scN(310,s),scN(310,s), scN(310,s),scN(286,s));
 
         // broken centre scan line: dim full-width, bright middle, masked gap
         dc.setColor(scanDim, Graphics.COLOR_TRANSPARENT);

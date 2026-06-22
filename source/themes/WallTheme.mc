@@ -19,7 +19,7 @@ class WallTheme extends Theme {
 
     function buildLayout(fonts as Fonts) as Layout {
         var L = new Layout();
-        L.colL = 98; L.colR = 292; L.ctr = 195;
+        L.colL = 103; L.colR = 287; L.ctr = 195;
         // no title
         L.lblY1 = 94; L.valY1 = 134;
         L.heroY = 216;
