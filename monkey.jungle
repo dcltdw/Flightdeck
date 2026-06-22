@@ -5,10 +5,28 @@ project.manifest = manifest.xml
 
 # Resolution bucket folders (one set of fonts + watermark each).
 res390 = resources-390x390
+res360 = resources-360x360
 res416 = resources-416x416
+res454 = resources-454x454
 
 # 390x390 AMOLED runners.
-fr70.resourcePath = $(fr70.resourcePath);$(res390)
+fr70.resourcePath    = $(fr70.resourcePath);$(res390)
+fr165.resourcePath   = $(fr165.resourcePath);$(res390)
+fr165m.resourcePath  = $(fr165m.resourcePath);$(res390)
+fr170.resourcePath   = $(fr170.resourcePath);$(res390)
+fr170m.resourcePath  = $(fr170m.resourcePath);$(res390)
+venu3s.resourcePath  = $(venu3s.resourcePath);$(res390)
+
+# 360x360 AMOLED runners.
+fr265s.resourcePath  = $(fr265s.resourcePath);$(res360)
 
 # 416x416 AMOLED runners.
-fr265.resourcePath = $(fr265.resourcePath);$(res416)
+fr265.resourcePath      = $(fr265.resourcePath);$(res416)
+fenix843mm.resourcePath = $(fenix843mm.resourcePath);$(res416)
+epix2.resourcePath      = $(epix2.resourcePath);$(res416)
+
+# 454x454 AMOLED runners.
+fr965.resourcePath      = $(fr965.resourcePath);$(res454)
+fr970.resourcePath      = $(fr970.resourcePath);$(res454)
+fenix847mm.resourcePath = $(fenix847mm.resourcePath);$(res454)
+venu3.resourcePath      = $(venu3.resourcePath);$(res454)
