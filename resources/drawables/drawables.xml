@@ -1,0 +1,6 @@
+<resources>
+    <bitmap id="LauncherIcon" filename="launcher_icon.png"/>
+    <!-- Phosphor radar watermark (loaded lazily by the theme) -->
+    <bitmap id="PhosphorDark" filename="phosphor_dark.png"/>
+    <bitmap id="PhosphorLight" filename="phosphor_light.png"/>
+</resources>

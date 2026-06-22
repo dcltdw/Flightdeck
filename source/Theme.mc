@@ -1,0 +1,160 @@
+import Toybox.Graphics;
+import Toybox.Lang;
+import Toybox.WatchUi;
+
+// Theme framework shared by every face. A concrete theme supplies a Palette
+// (colours for the active mode), a Layout (geometry + which fonts each slot
+// uses), and optional decorate() background art. The base draw() lays the
+// four-corner metric grid + hero clock identically for all themes, so adding a
+// theme is "subclass Theme", not new layout code.
+
+// ---------------------------------------------------------------------------
+// Loaded font resources, shared by all themes (load once in the view).
+class Fonts {
+    public var label as WatchUi.FontResource;  // regular, 30px  (ascent 28)
+    public var value as WatchUi.FontResource;  // regular, 34px  (ascent 31)
+    public var hero  as WatchUi.FontResource;  // regular, 60px  (ascent 55)
+    public var title as WatchUi.FontResource;  // regular, 13px  (ascent 12)
+
+    // Bold weights (Wall) are larger and loaded lazily — only when a theme that
+    // needs them is actually selected, to spare the 256 KB data-field budget.
+    private var _heroB as WatchUi.FontResource?;
+    private var _valueB as WatchUi.FontResource?;
+    private var _labelB as WatchUi.FontResource?;
+
+    function initialize() {
+        label = WatchUi.loadResource(Rez.Fonts.LabelFont) as WatchUi.FontResource;
+        value = WatchUi.loadResource(Rez.Fonts.ValueFont) as WatchUi.FontResource;
+        hero  = WatchUi.loadResource(Rez.Fonts.HeroFont)  as WatchUi.FontResource;
+        title = WatchUi.loadResource(Rez.Fonts.TitleFont) as WatchUi.FontResource;
+    }
+
+    function heroB() as WatchUi.FontResource {
+        var f = _heroB;
+        if (f == null) { f = WatchUi.loadResource(Rez.Fonts.HeroBoldFont) as WatchUi.FontResource; _heroB = f; }
+        return f;
+    }
+
+    function valueB() as WatchUi.FontResource {
+        var f = _valueB;
+        if (f == null) { f = WatchUi.loadResource(Rez.Fonts.ValueBoldFont) as WatchUi.FontResource; _valueB = f; }
+        return f;
+    }
+
+    function labelB() as WatchUi.FontResource {
+        var f = _labelB;
+        if (f == null) { f = WatchUi.loadResource(Rez.Fonts.LabelBoldFont) as WatchUi.FontResource; _labelB = f; }
+        return f;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Colour roles for one theme in one mode. Decorative colours (reticles, frame,
+// stripes, ...) live in each theme's decorate(); these are the shared roles.
+class Palette {
+    public var ground as Number;  // the colour the screen is cleared to
+    public var label  as Number;
+    public var sval   as Number;  // session value (top row)
+    public var lap    as Number;  // lap value (bottom row) — == sval for most themes
+    public var hero   as Number;
+    public var title  as Number;
+
+    function initialize(ground as Number, label as Number, sval as Number,
+                        lap as Number, hero as Number, title as Number) {
+        self.ground = ground;
+        self.label = label;
+        self.sval = sval;
+        self.lap = lap;
+        self.hero = hero;
+        self.title = title;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Geometry + font selection for the metric grid. Baselines are SVG-style (the
+// glyph baseline); the per-font ascent converts each to a drawText cell-top.
+class Layout {
+    public var colL as Number = 112;
+    public var colR as Number = 278;
+    public var ctr  as Number = 195;
+    public var lblY1 as Number = 0;
+    public var valY1 as Number = 0;
+    public var heroY as Number = 0;
+    public var lblY2 as Number = 0;
+    public var valY2 as Number = 0;
+    public var lblAsc as Number = 0;
+    public var valAsc as Number = 0;
+    public var heroAsc as Number = 0;
+    public var titleY as Number = 0;
+    public var titleAsc as Number = 0;
+    public var lblFont as WatchUi.FontResource?;
+    public var valFont as WatchUi.FontResource?;
+    public var heroFont as WatchUi.FontResource?;
+    public var titleFont as WatchUi.FontResource?;
+    public var title as String?;
+
+    function initialize() {}
+}
+
+// ---------------------------------------------------------------------------
+// Base theme. Subclasses override buildPalette / buildLayout / decorate.
+class Theme {
+
+    // Subclass hooks (base returns harmless defaults).
+    function buildPalette(light as Boolean) as Palette {
+        return new Palette(0x000000, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF);
+    }
+
+    function buildLayout(fonts as Fonts) as Layout {
+        return new Layout();
+    }
+
+    // Theme-specific background art, drawn after clear, before the metrics.
+    function decorate(dc as Graphics.Dc, light as Boolean) as Void {}
+
+    // Lay the whole face. Called from the view's onUpdate.
+    function draw(dc as Graphics.Dc, m as Metrics, fonts as Fonts, light as Boolean) as Void {
+        var p = buildPalette(light);
+        var L = buildLayout(fonts);
+
+        dc.setColor(Graphics.COLOR_WHITE, p.ground);
+        dc.clear();
+
+        decorate(dc, light);
+
+        var lf = L.lblFont;
+        var vf = L.valFont;
+        var hf = L.heroFont;
+        if (lf == null || vf == null || hf == null) {
+            return; // misconfigured layout; nothing to draw
+        }
+
+        var tf = L.titleFont;
+        var tt = L.title;
+        if (tf != null && tt != null) {
+            txt(dc, L.ctr, L.titleY, L.titleAsc, tf, p.title, tt);
+        }
+
+        // top row — session
+        txt(dc, L.colL, L.lblY1, L.lblAsc, lf, p.label, "PACE");
+        txt(dc, L.colL, L.valY1, L.valAsc, vf, p.sval,  m.sessionPace);
+        txt(dc, L.colR, L.lblY1, L.lblAsc, lf, p.label, "DIST");
+        txt(dc, L.colR, L.valY1, L.valAsc, vf, p.sval,  m.sessionDist);
+
+        // hero — elapsed
+        txt(dc, L.ctr, L.heroY, L.heroAsc, hf, p.hero, m.heroTime);
+
+        // bottom row — lap
+        txt(dc, L.colL, L.lblY2, L.lblAsc, lf, p.label, "PACE");
+        txt(dc, L.colL, L.valY2, L.valAsc, vf, p.lap,   m.lapPace);
+        txt(dc, L.colR, L.lblY2, L.lblAsc, lf, p.label, "TIME");
+        txt(dc, L.colR, L.valY2, L.valAsc, vf, p.lap,   m.lapTime);
+    }
+
+    // Draw `s` centred on x with its baseline at design `baseY`.
+    function txt(dc as Graphics.Dc, x as Number, baseY as Number, ascent as Number,
+                 font as WatchUi.FontResource, color as Number, s as String) as Void {
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(x, baseY - ascent, font, s, Graphics.TEXT_JUSTIFY_CENTER);
+    }
+}

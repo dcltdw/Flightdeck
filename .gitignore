@@ -1,0 +1,19 @@
+# Connect IQ / Monkey C build artifacts
+bin/
+dist/
+*.prg
+*.iq
+*.debug.xml
+
+# Developer keys / secrets — never commit
+*.der
+developer_key
+developer_key.pem
+*.pem
+
+# Mockup generation intermediates
+docs/mockups/scripts/.build/
+
+# OS / editor
+.DS_Store
+*.swp

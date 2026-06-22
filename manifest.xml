@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<iq:manifest xmlns:iq="http://www.garmin.com/xml/connectiq" version="3">
+    <!--
+      Flightdeck: a full-screen run data field. Additive run page (the user adds
+      it to a run profile and swipes to it); it does not replace native screens.
+      Targets the Forerunner 70 only.
+    -->
+    <iq:application
+        entry="FlightdeckApp"
+        id="bf0fd821a1e7440c803b4d5fd9016582"
+        launcherIcon="@Drawables.LauncherIcon"
+        name="@Strings.AppName"
+        type="datafield"
+        minApiLevel="3.2.0">
+        <iq:products>
+            <iq:product id="fr70"/>
+        </iq:products>
+        <iq:permissions/>
+        <iq:languages>
+            <iq:language>eng</iq:language>
+        </iq:languages>
+    </iq:application>
+</iq:manifest>

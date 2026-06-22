@@ -1,0 +1,13 @@
+<resources>
+    <string id="AppName">Flightdeck</string>
+
+    <!-- settings -->
+    <string id="SettingTheme">Theme</string>
+    <string id="SettingMode">Mode</string>
+    <string id="ThemeCockpit">Cockpit</string>
+    <string id="ThemeBridge">Bridge</string>
+    <string id="ThemeWall">Bulkhead</string>
+    <string id="ThemePhosphor">Phosphor</string>
+    <string id="ModeDark">Dark</string>
+    <string id="ModeLight">Light</string>
+</resources>

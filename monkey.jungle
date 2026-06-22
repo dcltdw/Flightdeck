@@ -1,0 +1,3 @@
+# Build configuration for Flightdeck.
+# Source defaults to source/ and resources are auto-discovered from resources/.
+project.manifest = manifest.xml

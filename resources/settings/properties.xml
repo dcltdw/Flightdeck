@@ -1,0 +1,8 @@
+<resources>
+    <properties>
+        <!-- 0 Cockpit, 1 Bridge, 2 Bulkhead, 3 Phosphor -->
+        <property id="theme" type="number">0</property>
+        <!-- 0 dark, 1 light -->
+        <property id="mode" type="number">0</property>
+    </properties>
+</resources>
