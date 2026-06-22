@@ -166,6 +166,13 @@ def build_one(fid, size, glyph_set, stroke, outdir):
             x = y = w = h = 0
         else:
             x, y, w, h = places[ch]
+        # Tighten the colon: the monospace cell leaves wide side bearing, so pull
+        # the advance in ~40% and recentre the glyph — digits close up on both
+        # sides of ":" (e.g. in 5:14 / 4:59:59) without affecting other glyphs.
+        if ch == ":":
+            shrink = int(round(xadv * 0.4))
+            xoff -= shrink // 2
+            xadv = max(1, xadv - shrink)  # clamp guards hypothetical tiny sizes
         chars.append(
             dict(id=ord(ch), x=x, y=y, w=w, h=h, xoff=xoff, yoff=yoff, xadv=xadv)
         )
