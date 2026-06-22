@@ -2,8 +2,8 @@
 
 Assets for the Connect IQ store listing.
 
-## `description.md`
-Listing copy (cut-and-paste). Its tail carries the **What's changed** release
+## `description.txt`
+Listing copy (plain text, cut-and-paste). Its tail carries the **What's changed** release
 notes — there is no separate changelog in the listing.
 
 ## `hero.png` — 1440×720 store banner
