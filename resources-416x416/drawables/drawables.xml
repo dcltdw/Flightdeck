@@ -1,0 +1,5 @@
+<resources>
+    <!-- Phosphor radar watermark @390 (loaded lazily by the theme) -->
+    <bitmap id="PhosphorDark" filename="phosphor_dark.png"/>
+    <bitmap id="PhosphorLight" filename="phosphor_light.png"/>
+</resources>

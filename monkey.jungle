@@ -5,6 +5,10 @@ project.manifest = manifest.xml
 
 # Resolution bucket folders (one set of fonts + watermark each).
 res390 = resources-390x390
+res416 = resources-416x416
 
 # 390x390 AMOLED runners.
 fr70.resourcePath = $(fr70.resourcePath);$(res390)
+
+# 416x416 AMOLED runners.
+fr265.resourcePath = $(fr265.resourcePath);$(res416)
