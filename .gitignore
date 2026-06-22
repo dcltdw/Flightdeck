@@ -1,6 +1,5 @@
 # Connect IQ / Monkey C build artifacts
 bin/
-dist/
 *.prg
 *.iq
 *.debug.xml

@@ -2,8 +2,8 @@
 
 Assets for the Connect IQ store listing.
 
-## `description.md`
-Listing copy (cut-and-paste). Its tail carries the **What's changed** release
+## `description.txt`
+Listing copy (plain text, cut-and-paste). Its tail carries the **What's changed** release
 notes — there is no separate changelog in the listing.
 
 ## `hero.png` — 1440×720 store banner
@@ -34,12 +34,14 @@ and capture the simulator window with `screencapture` (Screen Recording
 permission) or **File → Save Screen Shot**; crop to the round screen and
 normalize to 454×454. The forced edits are never committed.
 
-## App package (`.iq`) — release-time, not in this directory
-The multi-device store package is a build artifact (git-ignored). Build from
-`main` and upload it with the screenshots above:
+## App package (`.iq`) — built here at release time (git-ignored)
+`tools/release.sh vX.Y.Z` builds the signed multi-device package to
+`store/flightdeck-vX.Y.Z.iq` (the `.iq` is git-ignored) and attaches it to the
+GitHub Release. Upload that `.iq` to the store with the screenshots above. To
+build one manually:
 
 ```sh
 export PATH="$(brew --prefix openjdk)/bin:$PATH"
 SDK="$HOME/Library/Application Support/Garmin/ConnectIQ/Sdks/<sdk>"
-"$SDK/bin/monkeyc" -e -f monkey.jungle -o flightdeck.iq -y developer_key.der -w
+"$SDK/bin/monkeyc" -e -f monkey.jungle -o store/flightdeck.iq -y developer_key.der -w
 ```
