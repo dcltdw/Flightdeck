@@ -26,18 +26,16 @@ for f in "${faces[@]}"; do
   magick "$SRC/$f.png" -resize ${D}x${D} "$tmp/f$i.png"; i=$((i+1))
 done
 
-magick -size 1440x720 "xc:$BG" "$tmp/base.png"
-
-# three circles evenly spaced: x = 45 / 510 / 975, y = 250
-magick "$tmp/base.png" \
+# One pipeline, no intermediate PNG: a written pure-black canvas is re-read as a
+# grayscale image, which flattens the composited colour faces to grey. So force
+# the canvas to sRGB and composite the three faces (evenly spaced at x=45/510/975,
+# y=250) + annotate the wordmark/tagline in a single pass, writing 24-bit RGB.
+magick -size 1440x720 "xc:$BG" -colorspace sRGB \
   "$tmp/f0.png" -geometry +45+250  -composite \
   "$tmp/f1.png" -geometry +510+250 -composite \
   "$tmp/f2.png" -geometry +975+250 -composite \
-  "$tmp/comp.png"
-
-magick "$tmp/comp.png" \
   -font "$FONT" -fill "$INK"    -gravity North -pointsize 96 -annotate +0+70  "FLIGHTDECK" \
   -font "$FONT" -fill "$ACCENT" -gravity North -pointsize 30 -annotate +0+185 "$TAGLINE" \
-  "$OUT"
+  -type TrueColor PNG24:"$OUT"
 
 echo "wrote $OUT ($(magick identify -format '%wx%h' "$OUT"))"
