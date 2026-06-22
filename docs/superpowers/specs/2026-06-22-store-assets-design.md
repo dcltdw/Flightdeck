@@ -63,7 +63,8 @@ store/
 ## Hero banner (`hero.png`, 1440×720)
 
 Dark banner. Left/over: the **FLIGHTDECK** wordmark and the tagline
-**"Full-screen run metrics — four ways to fly."** Right/across: the 3 hero faces
+**"Full-screen run metrics — four ways to fly casual, four ways to stay on target."**
+Right/across: the 3 hero faces
 (Cockpit Dark, Bulkhead Dark, Bridge Light) arranged to tell the
 "four themes, dark or light" story. Built by `gen_hero.sh` (ImageMagick) from the
 3 `screenshots/hero/` captures, so it is reproducible; 1440×720 is the store's
