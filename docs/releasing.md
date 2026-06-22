@@ -35,7 +35,8 @@ feature branch merges.
    ```
 
    The script verifies the tree is clean and on `main`, builds
-   `dist/flightdeck-vX.Y.Z.iq` (signed with `developer_key.der`), creates the
+   `store/flightdeck-vX.Y.Z.iq` (signed with `developer_key.der`; git-ignored),
+   creates the
    annotated tag, pushes it, and publishes the GitHub Release with the `.iq`
    attached. Toolchain is auto-detected; override with `CIQ_SDK`, `JAVA_BIN`, or
    `DEV_KEY` env vars if needed.

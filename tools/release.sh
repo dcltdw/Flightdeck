@@ -71,8 +71,8 @@ DEV_KEY="${DEV_KEY:-developer_key.der}"
 [[ -f "$DEV_KEY" ]] || { echo "developer key not found: $DEV_KEY" >&2; exit 1; }
 
 # --- build -------------------------------------------------------------------
-mkdir -p dist
-IQ="dist/flightdeck-${VERSION}.iq"
+mkdir -p store
+IQ="store/flightdeck-${VERSION}.iq"
 echo ">> building $IQ with SDK $(basename "$CIQ_SDK")"
 "$CIQ_SDK/bin/monkeyc" -e -f monkey.jungle -o "$IQ" -y "$DEV_KEY" -w
 echo ">> BUILD OK"
