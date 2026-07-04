@@ -16,7 +16,7 @@ class CockpitTheme extends Theme {
             // parchment ground approximated as a solid (mockup uses a radial gradient)
             return new Palette(0xEADFC8, 0x8A6A3A, 0xB5530E, 0x1F7A45, 0xA8460A, 0x1E7088);
         }
-        return new Palette(0x0d0a07, 0x9a6428, 0xFFB066, 0x5FD98E, 0xFFC890, 0x6FAFC2);
+        return new Palette(0x0d0a07, 0x9a6428, 0xFFFFFF, 0x3BE06E, 0xFFC890, 0x6FAFC2);
     }
 
     function buildLayout(fonts as Fonts) as Layout {

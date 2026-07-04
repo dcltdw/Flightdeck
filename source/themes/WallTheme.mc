@@ -14,7 +14,7 @@ class WallTheme extends Theme {
         if (light) {
             return new Palette(0xE7EBF0, 0x2F6076, 0xC62828, 0xC62828, 0xB06A0C, 0x000000);
         }
-        return new Palette(0x060709, 0x8AA9C2, 0xE63A28, 0xE63A28, 0xE0A23A, 0x000000);
+        return new Palette(0x060709, 0x8AA9C2, 0xFFFFFF, 0xFF6B52, 0xFFC890, 0x000000);
     }
 
     function buildLayout(fonts as Fonts) as Layout {

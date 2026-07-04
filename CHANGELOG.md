@@ -10,6 +10,16 @@ There is no version field in the Connect IQ manifest; the git tag is the version
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-07-04
+
+- Brighter, more legible metric values on the dark faces: the session (top) row
+  is now white and the lap (bottom) row a distinct per-theme accent — Cockpit
+  green, Bridge yellow, Bulkhead red, Phosphor cyan — with a shared warm-white
+  elapsed-time hero across all four. Light modes unchanged.
+- Fixed lap pace/time not resetting at structured-workout step boundaries
+  (interval transitions fire `onWorkoutStepComplete`, now handled alongside
+  `onTimerLap`).
+
 ## [0.1.1] - 2026-06-22
 
 - Initial public, trademark-clean variant: four themes (Cockpit / Bridge /

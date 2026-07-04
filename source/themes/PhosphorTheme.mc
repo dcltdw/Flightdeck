@@ -39,7 +39,7 @@ class PhosphorTheme extends Theme {
         if (light) {
             return new Palette(0xE6ECF0, 0x1F7A45, 0x1E6E86, 0x1E6E86, 0x0E7488, 0x000000);
         }
-        return new Palette(0x03110a, 0x4CF08C, 0xBFE9EE, 0xBFE9EE, 0x45CFE0, 0x000000);
+        return new Palette(0x03110a, 0x4CF08C, 0xFFFFFF, 0x00FFFF, 0xFFC890, 0x000000);
     }
 
     function buildLayout(fonts as Fonts) as Layout {

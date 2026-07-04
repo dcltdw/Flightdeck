@@ -61,8 +61,8 @@ class Fonts {
 class Palette {
     public var ground as Number;  // the colour the screen is cleared to
     public var label  as Number;
-    public var sval   as Number;  // session value (top row)
-    public var lap    as Number;  // lap value (bottom row) — == sval for most themes
+    public var sval   as Number;  // session value (top row) — white on the dark faces
+    public var lap    as Number;  // lap value (bottom row) — a per-theme accent colour
     public var hero   as Number;
     public var title  as Number;
 
