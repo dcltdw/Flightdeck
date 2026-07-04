@@ -27,4 +27,6 @@ During a run, scroll to it like any other data page.
 
 What's changed
 
+0.1.2 — Brighter, easier-to-read metric values on the dark themes: white session values up top, a distinct accent colour for each theme's lap values (Cockpit green, Bridge yellow, Bulkhead red, Phosphor cyan), and a consistent elapsed-time colour across all four. Also fixes lap pace and lap time not resetting during structured (interval) workouts.
+
 0.1.1 — Initial public release. Four themes (Cockpit / Bridge / Bulkhead / Phosphor) × dark/light; live session pace & distance, elapsed time, and lap pace/time; responsive rendering across AMOLED running watches (390×390, 360×360, 416×416, 454×454); custom bitmap fonts; per-device launcher icons.
