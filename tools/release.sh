@@ -57,6 +57,15 @@ if [[ -z "${CHANGELOG_NOTES//[[:space:]]/}" ]]; then
     exit 1
 fi
 
+# The store description carries its own "What's changed" history (separate from
+# CHANGELOG.md — it's the store-facing copy). Require an entry for this version
+# so the listing text ships in sync with the build. See docs/releasing.md.
+if ! grep -qE "^${VER_NUM}[[:space:][:punct:]]" store/description.txt 2>/dev/null; then
+    echo "store/description.txt has no \"What's changed\" entry for ${VER_NUM}." >&2
+    echo "Add a '${VER_NUM} — <summary>' line under \"What's changed\" first." >&2
+    exit 1
+fi
+
 # --- toolchain ---------------------------------------------------------------
 JAVA_BIN="${JAVA_BIN:-$(brew --prefix openjdk 2>/dev/null)/bin}"
 export PATH="$JAVA_BIN:$PATH"

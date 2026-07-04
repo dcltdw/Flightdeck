@@ -22,12 +22,28 @@ source of truth.
 deliberate, owner-initiated step — not something done automatically when a
 feature branch merges.
 
+## Before releasing — listing assets
+
+Release notes and store assets live in **three** places; keep them in sync
+*before* cutting the tag, so the tagged tree matches the shipped build (don't
+refresh them after the fact — that forces a tag re-cut):
+
+- **`CHANGELOG.md`** — the GitHub Release notes source. Add a `## [X.Y.Z]`
+  section (move items out of `Unreleased`). *`release.sh` refuses to run
+  without it.*
+- **`store/description.txt`** — the store-facing "What's changed" history
+  (separate copy from CHANGELOG). Add a `X.Y.Z — <summary>` line at the top of
+  the "What's changed" section. *`release.sh` refuses to run without it.*
+- **`store/screenshots/` + `store/hero.png`** — regenerate if the app's
+  appearance changed this version, then rebuild the hero (`store/gen_hero.sh`).
+  Not machine-checkable — this one is on you.
+
 ## Cutting a release
 
-1. Land the work for the version on `main` (via PRs) and pull it locally.
-2. Add a `## [X.Y.Z] — DATE` section to `CHANGELOG.md` (move items out of
-   `Unreleased`), and merge that. **Required:** `release.sh` refuses to run if
-   there's no CHANGELOG section matching the version (it's the notes source).
+1. Land the work for the version on `main` (via PRs) and pull it locally,
+   including the listing-asset updates above.
+2. Merge the `CHANGELOG.md` + `store/description.txt` entries for this version.
+   **Required:** `release.sh` refuses to run unless *both* carry the version.
 3. From a clean, up-to-date `main`:
 
    ```sh
