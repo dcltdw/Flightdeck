@@ -32,6 +32,32 @@ battery-smart choice on AMOLED.
 - **Theme** — Cockpit / Bridge / Bulkhead / Phosphor
 - **Mode** — Dark / Light
 
+Set these from the Garmin Connect app (**Connect IQ Store → Flightdeck →
+Settings**) or the Connect IQ store app, then sync.
+
+## Adding it to a run
+
+Flightdeck is a **data field**, not a watch face or a full app — you add it to
+an activity profile's data screens. Because it's full-screen, give it a screen of
+its own (a **single-field** layout).
+
+**On the watch:**
+
+1. Hold **MENU** → **Settings** → **Activities & Apps**.
+2. Pick your run profile (e.g. **Run**) → open its settings.
+3. **Data Screens** → **Add New** (or edit an existing screen).
+4. **Layout** → choose the **single field** layout — this is what lets Flightdeck
+   fill the screen.
+5. Select that field → **Connect IQ Fields** → **Flightdeck**.
+
+**From the Garmin Connect phone app:** your device → **Activities & App Settings**
+→ the run profile → **Data Screens** → add a **single-field** screen → set it to
+**Connect IQ → Flightdeck**, then sync.
+
+During a run it sits in your data-screen rotation — scroll/swipe to it like any
+other page. If **Flightdeck** doesn't appear in the Connect IQ Fields list, open
+Connect IQ in the phone app, confirm it's installed, and re-sync.
+
 ## Building
 
 A standard Connect IQ build (`monkeyc` needs a Java runtime and the Connect IQ
