@@ -15,7 +15,7 @@ class BridgeTheme extends Theme {
         if (light) {
             return new Palette(0xE7EBF0, 0x2F6076, 0x16202A, 0x16202A, 0xB06A0C, 0xB0392E);
         }
-        return new Palette(0x080b12, 0x8AA9C2, 0xFFFFFF, 0xFFFFFF, 0xE0A23A, 0xC8554A);
+        return new Palette(0x080b12, 0x8AA9C2, 0xFFFFFF, 0xFFFF00, 0xFFC890, 0xC8554A);
     }
 
     function buildLayout(fonts as Fonts) as Layout {
