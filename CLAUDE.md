@@ -47,8 +47,10 @@ Regenerate assets: `python3 tools/gen_fonts.py` (needs `pip install Pillow`);
 Versions are semver git tags (`vX.Y.Z`); there is no version field in the CIQ
 manifest. Each release also gets a GitHub Release with the built `.iq` attached
 for fast rollback. Cut one with `tools/release.sh vX.Y.Z` — **only when
-explicitly asked**. It requires a matching `CHANGELOG.md` section. Full process:
-[docs/releasing.md](docs/releasing.md).
+explicitly asked**. It requires matching `CHANGELOG.md` and
+`store/description.txt` "What's changed" entries for the version (and, if the
+look changed, regenerated `store/screenshots/` — see the checklist in
+[docs/releasing.md](docs/releasing.md)). Full process: docs/releasing.md.
 
 ## AI-collaboration conventions
 
