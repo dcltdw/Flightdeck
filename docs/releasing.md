@@ -50,12 +50,11 @@ refresh them after the fact — that forces a tag re-cut):
    tools/release.sh v0.1.1
    ```
 
-   The script verifies the tree is clean and on `main`, builds
-   `store/flightdeck-vX.Y.Z.iq` (signed with `developer_key.der`; git-ignored),
-   creates the
-   annotated tag, pushes it, and publishes the GitHub Release with the `.iq`
-   attached. Toolchain is auto-detected; override with `CIQ_SDK`, `JAVA_BIN`, or
-   `DEV_KEY` env vars if needed.
+   The script verifies the tree is clean and on `main`, **verifies the signing
+   key** (below), builds `store/flightdeck-vX.Y.Z.iq` (signed with the key;
+   git-ignored), creates the annotated tag, pushes it, and publishes the GitHub
+   Release with the `.iq` attached. Toolchain is auto-detected; override with
+   `CIQ_SDK`, `JAVA_BIN`, or `DEV_KEY` env vars if needed.
 
 ## Rolling back
 
@@ -68,3 +67,12 @@ refresh them after the fact — that forces a tag re-cut):
 Releases are signed with `developer_key.der`. It is gitignored and must stay
 private and backed up: it is the app's identity for the store **and** the
 credential for publishing updates.
+
+The Connect IQ store binds the app to the key pair of its **first** published
+version and rejects any build signed with a different key — and Flightdeck's key
+lives outside this repo, so "wrong key" is an easy mistake. `release.sh`
+therefore verifies the key automatically (per the shared
+`garmin-release.md`): it RSA-modulus-matches `DEV_KEY` against the earliest
+published Release `.iq` (the store anchor) *before* building, and re-checks the
+built `.iq` afterward. A mismatch aborts the release; if no prior release exists
+(a hypothetical first cut) the pre-build check is skipped with a warning.
