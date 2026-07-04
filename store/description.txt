@@ -15,8 +15,8 @@ Pick your theme and dark/light mode from the Garmin Connect app.
 
 Adding it to a run:
 Flightdeck is a data field, not a watch face — add it to a run profile's data screens, and give it a screen of its own (a single-field layout) so it can fill the display:
-• On the watch: MENU > Settings > Activities & Apps > your run profile > Data Screens > Add New > Layout: single field > Connect IQ Fields > Flightdeck.
-• In Garmin Connect: your device > Activities & App Settings > run profile > Data Screens > add a single-field screen > Connect IQ > Flightdeck, then sync.
+• On the watch: MENU → Settings → Activities & Apps → your run profile → Data Screens → Add New → Layout: single field → Connect IQ Fields → Flightdeck.
+• In Garmin Connect: your device → Activities & App Settings → run profile → Data Screens → add a single-field screen → Connect IQ → Flightdeck, then sync.
 During a run, scroll to it like any other data page.
 
 • Custom bitmap typography for a crisp, distinctive look
