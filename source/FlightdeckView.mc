@@ -30,7 +30,18 @@ class FlightdeckView extends WatchUi.DataField {
         readSettings();
     }
 
+    // A manual/auto lap and a structured-workout step boundary (e.g. an interval
+    // fast->recovery transition) are distinct CIQ events but both start a fresh
+    // "lap" for our bottom-row metrics, so re-baseline on either.
     function onTimerLap() as Void {
+        markLap();
+    }
+
+    function onWorkoutStepComplete() as Void {
+        markLap();
+    }
+
+    private function markLap() as Void {
         if (_info != null) {
             _m.onLap(_info);
         }

@@ -4,7 +4,8 @@ import Toybox.System;
 
 // Pulls the four-corner + hero metrics out of Activity.Info and keeps them as
 // ready-to-draw strings. Pace/distance honour the device's unit setting; lap
-// figures are derived from a baseline captured on each lap (onTimerLap).
+// figures are derived from a baseline captured at each lap boundary — a manual/
+// auto lap or a structured-workout step (see FlightdeckView.markLap).
 //
 // Field map (matches the Cockpit mockup):
 //   top-left  PACE  = session (average) pace      top-right DIST = session distance
