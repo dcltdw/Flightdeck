@@ -266,12 +266,12 @@ class Theme {
             if (sz == 104) { f = bold ? fonts.value104B() : fonts.value104(); a = 95; }
             else if (sz == 76) { f = bold ? fonts.value76B() : fonts.value76(); a = 69; }
             else if (sz == 52) { f = bold ? fonts.value52B() : fonts.value52(); a = 48; }
-            else { f = bold ? fonts.valueB() : fonts.value; a = (bold ? 39 : 28); }
+            else { f = bold ? fonts.valueB() : fonts.value; a = (bold ? 39 : 31); }
             if (dc.getTextWidthInPixels(str, f) <= budgetPx) { return [f, a]; }
         }
         // even the floor overflows: use the floor (34) and let it clip minimally
         var f0 = bold ? fonts.valueB() : fonts.value;
-        return [f0, (bold ? 39 : 28)];
+        return [f0, (bold ? 39 : 31)];
     }
 
     private function drawPreset(dc as Graphics.Dc, p as Palette, L as Layout, s as Float,
