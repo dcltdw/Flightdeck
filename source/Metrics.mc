@@ -1,6 +1,7 @@
 import Toybox.Activity;
 import Toybox.Lang;
 import Toybox.System;
+import Toybox.UserProfile;
 
 enum {
     METRIC_OFF = 0,
@@ -75,6 +76,17 @@ class Metrics {
             case METRIC_PACE:  return formatPace(info.averageSpeed);
             case METRIC_LPACE: return lapPaceStr(info);
             case METRIC_CPACE: return formatPace(info.currentSpeed);
+            case METRIC_CLOCK: return formatClockTime();
+            case METRIC_SPEED: return formatSpeed(info.averageSpeed);
+            case METRIC_CSPD:  return formatSpeed(info.currentSpeed);
+            case METRIC_HR:    return formatInt(info.currentHeartRate);
+            case METRIC_AHR:   return formatInt(info.averageHeartRate);
+            case METRIC_ZONE:  return hrZone(info.currentHeartRate);
+            case METRIC_CAD:   return formatInt(info.currentCadence);
+            case METRIC_ACAD:  return formatInt(info.averageCadence);
+            case METRIC_CAL:   return formatInt(info.calories);
+            case METRIC_ASC:   return formatElevation(info.totalAscent);
+            case METRIC_ALT:   return formatElevation(info.altitude);
             default:           return "--";
         }
     }
@@ -112,6 +124,44 @@ class Metrics {
             return formatPace(lapDist / (lapMs / 1000.0));
         }
         return "--:--";
+    }
+
+    private function formatSpeed(speed as Float or Null) as String {
+        if (speed == null || speed < 0.0) { return "--"; }
+        var unit = _statute ? 2.236936 : 3.6; // m/s -> mph / km/h
+        return (speed * unit).format("%.1f");
+    }
+
+    private function formatInt(v as Number or Null) as String {
+        return (v == null) ? "--" : v.format("%d");
+    }
+
+    private function formatElevation(m as Lang.Numeric or Null) as String {
+        if (m == null) { return "--"; }
+        var v = _statute ? (m * 3.28084) : m;
+        return v.toNumber().format("%d");
+    }
+
+    private function formatClockTime() as String {
+        var t = System.getClockTime();
+        var h = t.hour;
+        if (!System.getDeviceSettings().is24Hour) {
+            h = h % 12;
+            if (h == 0) { h = 12; }
+        }
+        return h.format("%d") + ":" + t.min.format("%02d");
+    }
+
+    private function hrZone(hr as Number or Null) as String {
+        if (hr == null) { return "--"; }
+        var z = UserProfile.getHeartRateZones(UserProfile.HR_ZONE_SPORT_RUNNING);
+        if (z == null || z.size() < 2) { return "--"; }
+        var zone = 1;
+        for (var i = 1; i < z.size() && i <= 5; i++) {
+            if (hr >= z[i]) { zone = i + 1; }
+        }
+        if (zone > 5) { zone = 5; }
+        return zone.format("%d");
     }
 
     private function timerMs(info as Activity.Info) as Number {
