@@ -12,5 +12,7 @@
         <property id="slot4" type="number">5</property>
         <!-- show short metric labels -->
         <property id="showLabels" type="boolean">false</property>
+        <!-- field-count layout preset: 5,4,3,2,1 -->
+        <property id="layout" type="number">5</property>
     </properties>
 </resources>
