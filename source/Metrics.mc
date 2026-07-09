@@ -2,6 +2,14 @@ import Toybox.Activity;
 import Toybox.Lang;
 import Toybox.System;
 
+enum {
+    METRIC_OFF = 0,
+    METRIC_TIMER, METRIC_CLOCK, METRIC_DIST, METRIC_LDIST, METRIC_LTIME,
+    METRIC_PACE, METRIC_LPACE, METRIC_CPACE, METRIC_SPEED, METRIC_CSPD,
+    METRIC_HR, METRIC_AHR, METRIC_ZONE, METRIC_CAD, METRIC_ACAD,
+    METRIC_CAL, METRIC_ASC, METRIC_ALT
+}
+
 // Pulls the four-corner + hero metrics out of Activity.Info and keeps them as
 // ready-to-draw strings. Pace/distance honour the device's unit setting; lap
 // figures are derived from a baseline captured at each lap boundary — a manual/
@@ -22,6 +30,7 @@ class Metrics {
     private const _STOPPED_SPEED = 0.2; // m/s; below this we show no pace
 
     private var _statute as Boolean = false;
+    private var _info as Activity.Info?;
     private var _lapStartMs as Number = 0;
     private var _lapStartDist as Float = 0.0;
 
@@ -37,6 +46,7 @@ class Metrics {
     }
 
     function update(info as Activity.Info) as Void {
+        _info = info;
         var totalMs = timerMs(info);
         var totalDist = distM(info);
 
@@ -54,7 +64,55 @@ class Metrics {
         }
     }
 
+    function format(id as Number) as String {
+        var info = _info;
+        if (info == null) { return "--"; }
+        switch (id) {
+            case METRIC_TIMER: return formatClock(timerMs(info));
+            case METRIC_DIST:  return formatDistance(distM(info));
+            case METRIC_LDIST: return formatDistance(distM(info) - _lapStartDist);
+            case METRIC_LTIME: return formatClock(timerMs(info) - _lapStartMs);
+            case METRIC_PACE:  return formatPace(info.averageSpeed);
+            case METRIC_LPACE: return lapPaceStr(info);
+            case METRIC_CPACE: return formatPace(info.currentSpeed);
+            default:           return "--";
+        }
+    }
+
+    function label(id as Number) as String {
+        switch (id) {
+            case METRIC_TIMER: return "TIMER";
+            case METRIC_CLOCK: return "CLOCK";
+            case METRIC_DIST:  return "DIST";
+            case METRIC_LDIST: return "LDIST";
+            case METRIC_LTIME: return "LTIME";
+            case METRIC_PACE:  return "PACE";
+            case METRIC_LPACE: return "LPACE";
+            case METRIC_CPACE: return "CPACE";
+            case METRIC_SPEED: return "SPEED";
+            case METRIC_CSPD:  return "CSPD";
+            case METRIC_HR:    return "HR";
+            case METRIC_AHR:   return "AHR";
+            case METRIC_ZONE:  return "ZONE";
+            case METRIC_CAD:   return "CAD";
+            case METRIC_ACAD:  return "ACAD";
+            case METRIC_CAL:   return "CAL";
+            case METRIC_ASC:   return "ASC";
+            case METRIC_ALT:   return "ALT";
+            default:           return "";
+        }
+    }
+
     // ---- helpers ----
+
+    private function lapPaceStr(info as Activity.Info) as String {
+        var lapMs = timerMs(info) - _lapStartMs;
+        var lapDist = distM(info) - _lapStartDist;
+        if (lapMs > 0 && lapDist > 0.0) {
+            return formatPace(lapDist / (lapMs / 1000.0));
+        }
+        return "--:--";
+    }
 
     private function timerMs(info as Activity.Info) as Number {
         var t = info.timerTime;
