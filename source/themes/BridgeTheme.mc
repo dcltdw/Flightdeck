@@ -22,15 +22,15 @@ class BridgeTheme extends Theme {
         var L = new Layout();
         L.colL = 112; L.colR = 278; L.ctr = 195;
         L.titleY = 58; L.titleAsc = 12; L.titleFont = fonts.title; L.title = "COMBAT CONSOLE";
-        L.lblY1 = 118; L.valY1 = 150;
+        L.lblY1 = 103; L.valY1 = 135;
         L.heroY = 217;
-        L.lblY2 = 256; L.valY2 = 288;
-        L.lblAsc = 28; L.valAsc = 31; L.heroAsc = 55;
-        L.lblFont = fonts.label; L.valFont = fonts.value; L.heroFont = fonts.hero;
+        L.lblY2 = 273; L.valY2 = 305;
+        L.lblAsc = 28; L.valAsc = 48; L.heroAsc = 55;
+        L.lblFont = fonts.label; L.valFont = fonts.value52(); L.heroFont = fonts.hero;
         return L;
     }
 
-    function decorate(dc as Graphics.Dc, light as Boolean, s as Float) as Void {
+    function decorate(dc as Graphics.Dc, light as Boolean, s as Float, layout as Number) as Void {
         var band  = light ? 0xEAD2CE : 0x2a1210;
         var frame = light ? 0xBE3A2C : 0xB0392E;
         var fw    = light ? 3 : 2;
@@ -58,6 +58,13 @@ class BridgeTheme extends Theme {
             prevX = x; prevY = y;
         }
         dc.drawLine(prevX, prevY, firstX, firstY);
+
+        // >< centre targeting reticle (two chevrons pointing inward)
+        dc.setPenWidth(scP(2, s));
+        dc.drawLine(scN(140,s),scN(173,s), scN(162,s),scN(195,s)); dc.drawLine(scN(162,s),scN(195,s), scN(140,s),scN(217,s));
+        dc.drawLine(scN(250,s),scN(173,s), scN(228,s),scN(195,s)); dc.drawLine(scN(228,s),scN(195,s), scN(250,s),scN(217,s));
         dc.setPenWidth(1);
+
+        drawBlips(dc, s, layout, light ? 0x2F6076 : 0x8AA9C2); // two diamond blips, layout-positioned
     }
 }

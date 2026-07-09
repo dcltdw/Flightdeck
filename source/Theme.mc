@@ -28,6 +28,14 @@ class Fonts {
     private var _heroB as WatchUi.FontResource?;
     private var _valueB as WatchUi.FontResource?;
     private var _labelB as WatchUi.FontResource?;
+    private var _v52 as WatchUi.FontResource?;
+    private var _v76 as WatchUi.FontResource?;
+    private var _v104 as WatchUi.FontResource?;
+    private var _v52b as WatchUi.FontResource?;
+    private var _v76b as WatchUi.FontResource?;
+    private var _v104b as WatchUi.FontResource?;
+    private var _v64 as WatchUi.FontResource?;
+    private var _v64b as WatchUi.FontResource?;
 
     function initialize() {
         label = WatchUi.loadResource(Rez.Fonts.LabelFont) as WatchUi.FontResource;
@@ -53,6 +61,15 @@ class Fonts {
         if (f == null) { f = WatchUi.loadResource(Rez.Fonts.LabelBoldFont) as WatchUi.FontResource; _labelB = f; }
         return f;
     }
+
+    function value52()  as WatchUi.FontResource { if (_v52 == null)  { _v52  = WatchUi.loadResource(Rez.Fonts.Value52Font)  as WatchUi.FontResource; } return _v52; }
+    function value76()  as WatchUi.FontResource { if (_v76 == null)  { _v76  = WatchUi.loadResource(Rez.Fonts.Value76Font)  as WatchUi.FontResource; } return _v76; }
+    function value104() as WatchUi.FontResource { if (_v104 == null) { _v104 = WatchUi.loadResource(Rez.Fonts.Value104Font) as WatchUi.FontResource; } return _v104; }
+    function value52B()  as WatchUi.FontResource { if (_v52b == null)  { _v52b  = WatchUi.loadResource(Rez.Fonts.Value52BoldFont)  as WatchUi.FontResource; } return _v52b; }
+    function value76B()  as WatchUi.FontResource { if (_v76b == null)  { _v76b  = WatchUi.loadResource(Rez.Fonts.Value76BoldFont)  as WatchUi.FontResource; } return _v76b; }
+    function value104B() as WatchUi.FontResource { if (_v104b == null) { _v104b = WatchUi.loadResource(Rez.Fonts.Value104BoldFont) as WatchUi.FontResource; } return _v104b; }
+    function value64()  as WatchUi.FontResource { if (_v64 == null)  { _v64  = WatchUi.loadResource(Rez.Fonts.Value64Font)  as WatchUi.FontResource; } return _v64; }
+    function value64B() as WatchUi.FontResource { if (_v64b == null) { _v64b = WatchUi.loadResource(Rez.Fonts.Value64BoldFont) as WatchUi.FontResource; } return _v64b; }
 }
 
 // ---------------------------------------------------------------------------
@@ -113,6 +130,27 @@ class Layout {
 }
 
 // ---------------------------------------------------------------------------
+// One field slot within a preset: which config slot it draws, where, at what
+// size/role. x/baseY/asc/widthBudget/labelX/labelY are @390 (scaled at draw).
+class PresetSlot {
+    public var slot as Number;      // config slot index 0..4
+    public var x as Number;
+    public var baseY as Number;
+    public var asc as Number;
+    public var font as WatchUi.FontResource;
+    public var widthBudget as Number;
+    public var role as Number;       // 0=hero(warm) 1=sval(white) 2=lap(accent)
+    public var just as Graphics.TextJustification;
+    public var labelX as Number;
+    public var labelBaseY as Number;
+    function initialize(slot, x, baseY, asc, font, widthBudget, role, just, labelX, labelBaseY) {
+        self.slot = slot; self.x = x; self.baseY = baseY; self.asc = asc;
+        self.font = font; self.widthBudget = widthBudget; self.role = role;
+        self.just = just; self.labelX = labelX; self.labelBaseY = labelBaseY;
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Base theme. Subclasses override buildPalette / buildLayout / decorate.
 class Theme {
 
@@ -126,20 +164,88 @@ class Theme {
     }
 
     // Theme-specific background art, drawn after clear, before the metrics.
-    function decorate(dc as Graphics.Dc, light as Boolean, s as Float) as Void {}
+    function decorate(dc as Graphics.Dc, light as Boolean, s as Float, layout as Number) as Void {}
+
+    // Two small diamond "blips" at a layout-dependent y (Cockpit/Bridge use them).
+    // @390, scaled at draw. Returns 0 only for unknown layouts (none drawn).
+    function blipCy(layout as Number) as Number {
+        if (layout == 5) { return 248; } // between hero and bottom row
+        if (layout == 4) { return 205; }
+        if (layout == 3) { return 140; } // above the middle (centre) field
+        if (layout == 2) { return 180; }
+        if (layout == 1) { return 110; } // above the single centre value
+        return 0;
+    }
+    function drawBlips(dc as Graphics.Dc, s as Float, layout as Number, color as Number) as Void {
+        var cy = blipCy(layout);
+        if (cy == 0) { return; }
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+        var y = scN(cy, s); var r = scP(7, s); var gap = scN(15, s); var cx = scN(195, s); var stag = scN(9, s);
+        for (var k = -1; k <= 1; k += 2) {
+            var bx = cx + k * gap;
+            var by = y + k * stag; // vertical stagger: left up, right down
+            dc.fillPolygon([[bx, by - r], [bx + r, by], [bx, by + r], [bx - r, by]]);
+        }
+    }
+
+    // Whether this theme's preset value font should be the bold weight
+    // (Bulkhead only; base false).
+    function usesBold() as Boolean { return false; }
+
+    // Shared preset geometry (4/3/2/1). @390; scaled at draw. Positions are
+    // starting values tuned in the sim. role: 0 hero/warm, 1 white, 2 accent.
+    function presetSlots(layout as Number, fonts as Fonts, bold as Boolean) as Array<PresetSlot> {
+        var C = Graphics.TEXT_JUSTIFY_CENTER;
+        if (layout == 4) {
+            var vf = bold ? fonts.value64B() : fonts.value64(); var a = 59;
+            return [
+                new PresetSlot(0, 108, 146, a, vf, 170, 1, C, 108, 94),
+                new PresetSlot(1, 282, 146, a, vf, 170, 1, C, 282, 94),
+                new PresetSlot(2, 108, 300, a, vf, 170, 2, C, 108, 248),
+                new PresetSlot(3, 282, 300, a, vf, 170, 2, C, 282, 248),
+            ];
+        } else if (layout == 3) {
+            var vf = bold ? fonts.value76B() : fonts.value76(); var a = 69;
+            return [
+                new PresetSlot(0, 195, 118, a, vf, 360, 0, C, 195, 70),
+                new PresetSlot(1, 195, 218, a, vf, 360, 1, C, 195, 170),
+                new PresetSlot(2, 195, 318, a, vf, 360, 2, C, 195, 270),
+            ];
+        } else if (layout == 2) {
+            var vf = bold ? fonts.value104B() : fonts.value104(); var a = 95;
+            return [
+                new PresetSlot(0, 195, 160, a, vf, 360, 0, C, 195, 95),
+                new PresetSlot(1, 195, 285, a, vf, 360, 2, C, 195, 220),
+            ];
+        } else { // 1
+            var vf = bold ? fonts.value104B() : fonts.value104(); var a = 95;
+            return [
+                new PresetSlot(0, 195, 220, a, vf, 360, 0, C, 195, 120),
+            ];
+        }
+    }
 
     // Lay the whole face. Called from the view's onUpdate.
     function draw(dc as Graphics.Dc, m as Metrics, fonts as Fonts, light as Boolean,
-                  slots as Array<Number>, showLabels as Boolean) as Void {
+                  slots as Array<Number>, showLabels as Boolean, layout as Number) as Void {
         var p = buildPalette(light);
         var L = buildLayout(fonts);
         var s = dc.getWidth() / 390.0;
         L.scale(s);
-
         dc.setColor(Graphics.COLOR_WHITE, p.ground);
         dc.clear();
-        decorate(dc, light, s);
+        decorate(dc, light, s, layout);
 
+        if (layout == 5) {
+            drawGrid(dc, p, L, s, m, slots, showLabels, fonts);   // existing 5-field path
+        } else {
+            drawPreset(dc, p, L, s, m, slots, showLabels, layout, fonts);
+        }
+    }
+
+    private function drawGrid(dc as Graphics.Dc, p as Palette, L as Layout, s as Float,
+                              m as Metrics, slots as Array<Number>, showLabels as Boolean,
+                              fonts as Fonts) as Void {
         var lf = L.lblFont;
         var vf = L.valFont;
         var hf = L.heroFont;
@@ -148,8 +254,6 @@ class Theme {
         }
 
         var C = Graphics.TEXT_JUSTIFY_CENTER;
-        var Lj = Graphics.TEXT_JUSTIFY_LEFT;
-        var Rj = Graphics.TEXT_JUSTIFY_RIGHT;
 
         var tf = L.titleFont;
         var tt = L.title;
@@ -157,21 +261,97 @@ class Theme {
             txt(dc, L.ctr, L.titleY, L.titleAsc, tf, p.title, tt, C);
         }
 
-        // Values grow toward centre: the anchor sits half a 4-char value in
-        // from the column centre (left column left-justified, right right).
-        var vHalf = dc.getTextWidthInPixels("0:00", vf) / 2;
-
-        drawValue(dc, m, slots[0], L.ctr,          L.heroY, L.heroAsc, hf, p.hero, C);
-        drawValue(dc, m, slots[1], L.colL - vHalf, L.valY1, L.valAsc,  vf, p.sval, Lj);
-        drawValue(dc, m, slots[2], L.colR + vHalf, L.valY1, L.valAsc,  vf, p.sval, Rj);
-        drawValue(dc, m, slots[3], L.colL - vHalf, L.valY2, L.valAsc,  vf, p.lap,  Lj);
-        drawValue(dc, m, slots[4], L.colR + vHalf, L.valY2, L.valAsc,  vf, p.lap,  Rj);
+        // Hero is centred (always fits). Corners grow toward centre and
+        // auto-shrink (52->34) so a wide value (a >1h time, distance >=100)
+        // never collides with its same-row neighbour across the centre.
+        drawValue(dc, m, slots[0], L.ctr, L.heroY, L.heroAsc, hf, p.hero, C);
+        drawCorner(dc, s, m, slots[1], L.colL, L.ctr, true,  L.valY1, fonts, p.sval);
+        drawCorner(dc, s, m, slots[2], L.colR, L.ctr, false, L.valY1, fonts, p.sval);
+        drawCorner(dc, s, m, slots[3], L.colL, L.ctr, true,  L.valY2, fonts, p.lap);
+        drawCorner(dc, s, m, slots[4], L.colR, L.ctr, false, L.valY2, fonts, p.lap);
 
         if (showLabels) {
             drawLabel(dc, m, slots[1], L.colL, L.lblY1, L.lblAsc, lf, p.label);
             drawLabel(dc, m, slots[2], L.colR, L.lblY1, L.lblAsc, lf, p.label);
             drawLabel(dc, m, slots[3], L.colL, L.lblY2, L.lblAsc, lf, p.label);
             drawLabel(dc, m, slots[4], L.colR, L.lblY2, L.lblAsc, lf, p.label);
+        }
+    }
+
+    // One 5-field corner value. It grows toward the centre (left column
+    // left-justified, right column right-justified) with the anchor half a
+    // 4-char value in from the column centre. Pick value52; if the rendered
+    // value would cross a small centre gap, drop to the 34 floor. All maths in
+    // real device pixels: colX/ctr/baseY are already scaled, text widths are
+    // device px; the @390 ascent is scaled here.
+    private function drawCorner(dc as Graphics.Dc, s as Float, m as Metrics, id as Number,
+                                colX as Number, ctr as Number, growRight as Boolean,
+                                baseY as Number, fonts as Fonts, color as Number) as Void {
+        if (id == 0) { return; } // Off
+        var str = m.format(id);
+        var gapHalf = 8 * s;                    // half the min gap between the two corners
+        var f = fonts.value52();
+        var a = 48;
+        var vHalf = dc.getTextWidthInPixels("0:00", f) / 2.0;
+        var w = dc.getTextWidthInPixels(str, f);
+        var edge = growRight ? (colX - vHalf + w) : (colX + vHalf - w);
+        var clears = growRight ? (edge <= ctr - gapHalf) : (edge >= ctr + gapHalf);
+        if (!clears) {                          // 52 would collide: fall to the 34 floor
+            f = fonts.value;
+            a = 31;
+            vHalf = dc.getTextWidthInPixels("0:00", f) / 2.0;
+        }
+        var anchorX = growRight ? (colX - vHalf) : (colX + vHalf);
+        var just = growRight ? Graphics.TEXT_JUSTIFY_LEFT : Graphics.TEXT_JUSTIFY_RIGHT;
+        txt(dc, rnd(anchorX), baseY, rnd(a * s), f, color, str, just);
+    }
+
+    // Largest ladder size <= target whose rendered width fits budgetPx. Shrink-only.
+    // Returns [font, ascent390]. Ladder: 104,76,52,34 (bold variants for Bulkhead).
+    private function fitValueFont(dc as Graphics.Dc, str as String, budgetPx as Number,
+                                  startSize as Number, fonts as Fonts, bold as Boolean) as Array {
+        var sizes = [104, 76, 64, 52, 34];
+        for (var i = 0; i < sizes.size(); i++) {
+            var sz = sizes[i];
+            if (sz > startSize) { continue; }
+            var f; var a;
+            if (sz == 104) { f = bold ? fonts.value104B() : fonts.value104(); a = 95; }
+            else if (sz == 76) { f = bold ? fonts.value76B() : fonts.value76(); a = 69; }
+            else if (sz == 64) { f = bold ? fonts.value64B() : fonts.value64(); a = 59; }
+            else if (sz == 52) { f = bold ? fonts.value52B() : fonts.value52(); a = 48; }
+            else { f = bold ? fonts.valueB() : fonts.value; a = (bold ? 39 : 31); }
+            if (dc.getTextWidthInPixels(str, f) <= budgetPx) { return [f, a]; }
+        }
+        // even the floor overflows: use the floor (34) and let it clip minimally
+        var f0 = bold ? fonts.valueB() : fonts.value;
+        return [f0, (bold ? 39 : 31)];
+    }
+
+    private function drawPreset(dc as Graphics.Dc, p as Palette, L as Layout, s as Float,
+                                m as Metrics, slots as Array<Number>, showLabels as Boolean,
+                                layout as Number, fonts as Fonts) as Void {
+        // title banner (unchanged) so Cockpit/Bridge keep their header
+        var tf = L.titleFont; var tt = L.title;
+        if (tf != null && tt != null) {
+            txt(dc, L.ctr, L.titleY, L.titleAsc, tf, p.title, tt, Graphics.TEXT_JUSTIFY_CENTER);
+        }
+        var lf = L.lblFont;
+        var ps = presetSlots(layout, fonts, usesBold());
+        for (var i = 0; i < ps.size(); i++) {
+            var d = ps[i];
+            var id = slots[d.slot];
+            if (id == 0) { continue; } // Off
+            var color = (d.role == 0) ? p.hero : (d.role == 1 ? p.sval : p.lap);
+            var vstr = m.format(id);
+            var startSize = (d.font == fonts.value104() || d.font == fonts.value104B()) ? 104
+                          : (d.font == fonts.value76()  || d.font == fonts.value76B())  ? 76
+                          : (d.font == fonts.value64()  || d.font == fonts.value64B())  ? 64 : 52;
+            var fit = fitValueFont(dc, vstr, rnd(d.widthBudget * s), startSize, fonts, usesBold());
+            txt(dc, rnd(d.x * s), rnd(d.baseY * s), rnd((fit[1] as Number) * s), fit[0] as WatchUi.FontResource, color, vstr, d.just);
+            if (showLabels && lf != null) {
+                // L.lblAsc is already scaled by L.scale(s); d.labelX/labelBaseY are @390 so scale them.
+                txt(dc, rnd(d.labelX * s), rnd(d.labelBaseY * s), L.lblAsc, lf, p.label, m.label(id), Graphics.TEXT_JUSTIFY_CENTER);
+            }
         }
     }
 
