@@ -1,13 +1,13 @@
 import Toybox.Activity;
 import Toybox.Lang;
 import Toybox.System;
-import Toybox.UserProfile;
 
 enum {
     METRIC_OFF = 0,
     METRIC_TIMER, METRIC_CLOCK, METRIC_DIST, METRIC_LDIST, METRIC_LTIME,
     METRIC_PACE, METRIC_LPACE, METRIC_CPACE, METRIC_SPEED, METRIC_CSPD,
-    METRIC_HR, METRIC_AHR, METRIC_ZONE, METRIC_CAD, METRIC_ACAD,
+    METRIC_HR, METRIC_AHR, METRIC_ZONE, // reserved: HR zone dropped (needs UserProfile permission)
+    METRIC_CAD, METRIC_ACAD,
     METRIC_CAL, METRIC_ASC, METRIC_ALT
 }
 
@@ -81,7 +81,6 @@ class Metrics {
             case METRIC_CSPD:  return formatSpeed(info.currentSpeed);
             case METRIC_HR:    return formatInt(info.currentHeartRate);
             case METRIC_AHR:   return formatInt(info.averageHeartRate);
-            case METRIC_ZONE:  return hrZone(info.currentHeartRate);
             case METRIC_CAD:   return formatInt(info.currentCadence);
             case METRIC_ACAD:  return formatInt(info.averageCadence);
             case METRIC_CAL:   return formatInt(info.calories);
@@ -105,7 +104,6 @@ class Metrics {
             case METRIC_CSPD:  return "CSPD";
             case METRIC_HR:    return "HR";
             case METRIC_AHR:   return "AHR";
-            case METRIC_ZONE:  return "ZONE";
             case METRIC_CAD:   return "CAD";
             case METRIC_ACAD:  return "ACAD";
             case METRIC_CAL:   return "CAL";
@@ -150,18 +148,6 @@ class Metrics {
             if (h == 0) { h = 12; }
         }
         return h.format("%d") + ":" + t.min.format("%02d");
-    }
-
-    private function hrZone(hr as Number or Null) as String {
-        if (hr == null) { return "--"; }
-        var z = UserProfile.getHeartRateZones(UserProfile.HR_ZONE_SPORT_RUNNING);
-        if (z == null || z.size() < 2) { return "--"; }
-        var zone = 1;
-        for (var i = 1; i < z.size() && i <= 5; i++) {
-            if (hr >= z[i]) { zone = i + 1; }
-        }
-        if (zone > 5) { zone = 5; }
-        return zone.format("%d");
     }
 
     private function timerMs(info as Activity.Info) as Number {
