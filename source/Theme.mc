@@ -254,6 +254,26 @@ class Theme {
         }
     }
 
+    // Largest ladder size <= target whose rendered width fits budgetPx. Shrink-only.
+    // Returns [font, ascent390]. Ladder: 104,76,52,34 (bold variants for Bulkhead).
+    private function fitValueFont(dc as Graphics.Dc, str as String, budgetPx as Number,
+                                  startSize as Number, fonts as Fonts, bold as Boolean) as Array {
+        var sizes = [104, 76, 52, 34];
+        for (var i = 0; i < sizes.size(); i++) {
+            var sz = sizes[i];
+            if (sz > startSize) { continue; }
+            var f; var a;
+            if (sz == 104) { f = bold ? fonts.value104B() : fonts.value104(); a = 95; }
+            else if (sz == 76) { f = bold ? fonts.value76B() : fonts.value76(); a = 69; }
+            else if (sz == 52) { f = bold ? fonts.value52B() : fonts.value52(); a = 48; }
+            else { f = bold ? fonts.valueB() : fonts.value; a = (bold ? 39 : 28); }
+            if (dc.getTextWidthInPixels(str, f) <= budgetPx) { return [f, a]; }
+        }
+        // even the floor overflows: use the floor (34) and let it clip minimally
+        var f0 = bold ? fonts.valueB() : fonts.value;
+        return [f0, (bold ? 39 : 28)];
+    }
+
     private function drawPreset(dc as Graphics.Dc, p as Palette, L as Layout, s as Float,
                                 m as Metrics, slots as Array<Number>, showLabels as Boolean,
                                 layout as Number, fonts as Fonts) as Void {
@@ -269,7 +289,11 @@ class Theme {
             var id = slots[d.slot];
             if (id == 0) { continue; } // Off
             var color = (d.role == 0) ? p.hero : (d.role == 1 ? p.sval : p.lap);
-            txt(dc, rnd(d.x * s), rnd(d.baseY * s), rnd(d.asc * s), d.font, color, m.format(id), d.just);
+            var vstr = m.format(id);
+            var startSize = (d.font == fonts.value104() || d.font == fonts.value104B()) ? 104
+                          : (d.font == fonts.value76()  || d.font == fonts.value76B())  ? 76 : 52;
+            var fit = fitValueFont(dc, vstr, rnd(d.widthBudget * s), startSize, fonts, usesBold());
+            txt(dc, rnd(d.x * s), rnd(d.baseY * s), rnd((fit[1] as Number) * s), fit[0] as WatchUi.FontResource, color, vstr, d.just);
             if (showLabels && lf != null) {
                 // L.lblAsc is already scaled by L.scale(s); d.labelX/labelBaseY are @390 so scale them.
                 txt(dc, rnd(d.labelX * s), rnd(d.labelBaseY * s), L.lblAsc, lf, p.label, m.label(id), Graphics.TEXT_JUSTIFY_CENTER);
