@@ -4,5 +4,13 @@
         <property id="theme" type="number">0</property>
         <!-- 0 dark, 1 light -->
         <property id="mode" type="number">0</property>
+        <!-- field slots: metric id per position (0 = Off) -->
+        <property id="slot0" type="number">1</property>
+        <property id="slot1" type="number">6</property>
+        <property id="slot2" type="number">3</property>
+        <property id="slot3" type="number">7</property>
+        <property id="slot4" type="number">5</property>
+        <!-- show short metric labels -->
+        <property id="showLabels" type="boolean">false</property>
     </properties>
 </resources>

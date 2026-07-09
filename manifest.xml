@@ -33,7 +33,6 @@
             <iq:product id="fenix847mm"/>
             <iq:product id="venu3"/>
         </iq:products>
-        <iq:permissions/>
         <iq:languages>
             <iq:language>eng</iq:language>
         </iq:languages>

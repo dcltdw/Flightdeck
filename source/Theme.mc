@@ -129,7 +129,8 @@ class Theme {
     function decorate(dc as Graphics.Dc, light as Boolean, s as Float) as Void {}
 
     // Lay the whole face. Called from the view's onUpdate.
-    function draw(dc as Graphics.Dc, m as Metrics, fonts as Fonts, light as Boolean) as Void {
+    function draw(dc as Graphics.Dc, m as Metrics, fonts as Fonts, light as Boolean,
+                  slots as Array<Number>, showLabels as Boolean) as Void {
         var p = buildPalette(light);
         var L = buildLayout(fonts);
         var s = dc.getWidth() / 390.0;
@@ -137,7 +138,6 @@ class Theme {
 
         dc.setColor(Graphics.COLOR_WHITE, p.ground);
         dc.clear();
-
         decorate(dc, light, s);
 
         var lf = L.lblFont;
@@ -148,35 +148,46 @@ class Theme {
         }
 
         var C = Graphics.TEXT_JUSTIFY_CENTER;
+        var Lj = Graphics.TEXT_JUSTIFY_LEFT;
+        var Rj = Graphics.TEXT_JUSTIFY_RIGHT;
+
         var tf = L.titleFont;
         var tt = L.title;
         if (tf != null && tt != null) {
             txt(dc, L.ctr, L.titleY, L.titleAsc, tf, p.title, tt, C);
         }
 
-        // Corner values are edge-justified so they grow toward centre (never off
-        // the round edge): right column right-justified, left column left-
-        // justified. The anchor sits at a 4-char value's current edge (half a
-        // 4-char value from the column centre), so typical values stay put.
-        // Labels remain centred on the column.
+        // Values grow toward centre: the anchor sits half a 4-char value in
+        // from the column centre (left column left-justified, right right).
         var vHalf = dc.getTextWidthInPixels("0:00", vf) / 2;
-        var L_ = Graphics.TEXT_JUSTIFY_LEFT;
-        var R_ = Graphics.TEXT_JUSTIFY_RIGHT;
 
-        // top row — session
-        txt(dc, L.colL, L.lblY1, L.lblAsc, lf, p.label, "PACE", C);
-        txt(dc, L.colL - vHalf, L.valY1, L.valAsc, vf, p.sval, m.sessionPace, L_);
-        txt(dc, L.colR, L.lblY1, L.lblAsc, lf, p.label, "DIST", C);
-        txt(dc, L.colR + vHalf, L.valY1, L.valAsc, vf, p.sval, m.sessionDist, R_);
+        drawValue(dc, m, slots[0], L.ctr,          L.heroY, L.heroAsc, hf, p.hero, C);
+        drawValue(dc, m, slots[1], L.colL - vHalf, L.valY1, L.valAsc,  vf, p.sval, Lj);
+        drawValue(dc, m, slots[2], L.colR + vHalf, L.valY1, L.valAsc,  vf, p.sval, Rj);
+        drawValue(dc, m, slots[3], L.colL - vHalf, L.valY2, L.valAsc,  vf, p.lap,  Lj);
+        drawValue(dc, m, slots[4], L.colR + vHalf, L.valY2, L.valAsc,  vf, p.lap,  Rj);
 
-        // hero — elapsed
-        txt(dc, L.ctr, L.heroY, L.heroAsc, hf, p.hero, m.heroTime, C);
+        if (showLabels) {
+            drawLabel(dc, m, slots[1], L.colL, L.lblY1, L.lblAsc, lf, p.label);
+            drawLabel(dc, m, slots[2], L.colR, L.lblY1, L.lblAsc, lf, p.label);
+            drawLabel(dc, m, slots[3], L.colL, L.lblY2, L.lblAsc, lf, p.label);
+            drawLabel(dc, m, slots[4], L.colR, L.lblY2, L.lblAsc, lf, p.label);
+        }
+    }
 
-        // bottom row — lap
-        txt(dc, L.colL, L.lblY2, L.lblAsc, lf, p.label, "PACE", C);
-        txt(dc, L.colL - vHalf, L.valY2, L.valAsc, vf, p.lap, m.lapPace, L_);
-        txt(dc, L.colR, L.lblY2, L.lblAsc, lf, p.label, "TIME", C);
-        txt(dc, L.colR + vHalf, L.valY2, L.valAsc, vf, p.lap, m.lapTime, R_);
+    private function drawValue(dc as Graphics.Dc, m as Metrics, id as Number,
+                               x as Number, baseY as Number, ascent as Number,
+                               font as WatchUi.FontResource, color as Number,
+                               just as Graphics.TextJustification) as Void {
+        if (id == 0) { return; } // Off
+        txt(dc, x, baseY, ascent, font, color, m.format(id), just);
+    }
+
+    private function drawLabel(dc as Graphics.Dc, m as Metrics, id as Number,
+                               x as Number, baseY as Number, ascent as Number,
+                               font as WatchUi.FontResource, color as Number) as Void {
+        if (id == 0) { return; } // Off
+        txt(dc, x, baseY, ascent, font, color, m.label(id), Graphics.TEXT_JUSTIFY_CENTER);
     }
 
     // Draw `str` with its baseline at design `baseY`, justified per `just`
