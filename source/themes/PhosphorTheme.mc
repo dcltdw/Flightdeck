@@ -44,17 +44,17 @@ class PhosphorTheme extends Theme {
 
     function buildLayout(fonts as Fonts) as Layout {
         var L = new Layout();
-        L.colL = 98; L.colR = 292; L.ctr = 195;
+        L.colL = 112; L.colR = 278; L.ctr = 195;
         // no title
-        L.lblY1 = 98; L.valY1 = 134;
+        L.lblY1 = 103; L.valY1 = 135;
         L.heroY = 217;   // exactly centred
-        L.lblY2 = 277; L.valY2 = 313;
-        L.lblAsc = 28; L.valAsc = 31; L.heroAsc = 55;
-        L.lblFont = fonts.label; L.valFont = fonts.value; L.heroFont = fonts.hero;
+        L.lblY2 = 273; L.valY2 = 305;
+        L.lblAsc = 28; L.valAsc = 48; L.heroAsc = 55;
+        L.lblFont = fonts.label; L.valFont = fonts.value52(); L.heroFont = fonts.hero;
         return L;
     }
 
-    function decorate(dc as Graphics.Dc, light as Boolean, s as Float) as Void {
+    function decorate(dc as Graphics.Dc, light as Boolean, s as Float, layout as Number) as Void {
         // radar watermark, centred by its own size
         var art = PhosphorArt.scope(light);
         dc.drawBitmap((dc.getWidth() - art.getWidth()) / 2,

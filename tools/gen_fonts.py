@@ -50,9 +50,11 @@ REF_SPECS = [
     ("value52", 52, DIGITS + ":.-", 0),
     ("value76", 76, DIGITS + ":.-", 0),
     ("value104", 104, DIGITS + ":.-", 0),
+    ("value64", 64, DIGITS + ":.-", 0),
     ("valueb52", 52, DIGITS + ":.-", 1),
     ("valueb76", 76, DIGITS + ":.-", 1),
     ("valueb104", 104, DIGITS + ":.-", 1),
+    ("valueb64", 64, DIGITS + ":.-", 1),
 ]
 
 # transparent margin baked around each rendered glyph before trimming
@@ -172,11 +174,13 @@ def build_one(fid, size, glyph_set, stroke, outdir):
             x = y = w = h = 0
         else:
             x, y, w, h = places[ch]
-        # Tighten the colon: the monospace cell leaves wide side bearing, so pull
-        # the advance in ~40% and recentre the glyph — digits close up on both
-        # sides of ":" (e.g. in 5:14 / 4:59:59) without affecting other glyphs.
-        if ch == ":":
-            shrink = int(round(xadv * 0.4))
+        # Tighten the colon and period: the monospace cell leaves wide side
+        # bearing, so pull the advance in and recentre the glyph — digits close
+        # up on both sides of ":" / "." (e.g. 5:14, 8.20) without affecting other
+        # glyphs. The period is narrower, so tighten it harder.
+        if ch == ":" or ch == ".":
+            frac = 0.4 if ch == ":" else 0.55
+            shrink = int(round(xadv * frac))
             xoff -= shrink // 2
             xadv = max(1, xadv - shrink)  # clamp guards hypothetical tiny sizes
         chars.append(

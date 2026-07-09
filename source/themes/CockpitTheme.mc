@@ -21,17 +21,17 @@ class CockpitTheme extends Theme {
 
     function buildLayout(fonts as Fonts) as Layout {
         var L = new Layout();
-        L.colL = 127; L.colR = 263; L.ctr = 195;
+        L.colL = 112; L.colR = 278; L.ctr = 195;
         L.titleY = 62;  L.titleAsc = 12; L.titleFont = fonts.title; L.title = "FLIGHT OPS";
-        L.lblY1 = 116; L.valY1 = 148;
-        L.heroY = 222;
-        L.lblY2 = 263; L.valY2 = 295;
-        L.lblAsc = 28; L.valAsc = 31; L.heroAsc = 55;
-        L.lblFont = fonts.label; L.valFont = fonts.value; L.heroFont = fonts.hero;
+        L.lblY1 = 103; L.valY1 = 135;
+        L.heroY = 217;
+        L.lblY2 = 273; L.valY2 = 305;
+        L.lblAsc = 28; L.valAsc = 48; L.heroAsc = 55;
+        L.lblFont = fonts.label; L.valFont = fonts.value52(); L.heroFont = fonts.hero;
         return L;
     }
 
-    function decorate(dc as Graphics.Dc, light as Boolean, s as Float) as Void {
+    function decorate(dc as Graphics.Dc, light as Boolean, s as Float, layout as Number) as Void {
         var ground   = light ? 0xEADFC8 : 0x0d0a07;
         var rim      = light ? 0xB9A988 : 0x1f4954;
         var reticle  = light ? 0x1E7088 : 0x3fb6d6;
@@ -51,10 +51,10 @@ class CockpitTheme extends Theme {
         // four diagonal corner reticle brackets
         dc.setColor(reticle, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(scP(3, s));
-        dc.drawLine(scN(104,s),scN(80,s),  scN(80,s), scN(80,s));   dc.drawLine(scN(80,s), scN(80,s),  scN(80,s), scN(104,s));
-        dc.drawLine(scN(286,s),scN(80,s),  scN(310,s),scN(80,s));   dc.drawLine(scN(310,s),scN(80,s),  scN(310,s),scN(104,s));
-        dc.drawLine(scN(104,s),scN(310,s), scN(80,s), scN(310,s));  dc.drawLine(scN(80,s), scN(310,s), scN(80,s), scN(286,s));
-        dc.drawLine(scN(286,s),scN(310,s), scN(310,s),scN(310,s));  dc.drawLine(scN(310,s),scN(310,s), scN(310,s),scN(286,s));
+        dc.drawLine(scN(94,s),scN(70,s),  scN(70,s), scN(70,s));   dc.drawLine(scN(70,s), scN(70,s),  scN(70,s), scN(94,s));
+        dc.drawLine(scN(296,s),scN(70,s),  scN(320,s),scN(70,s));   dc.drawLine(scN(320,s),scN(70,s),  scN(320,s),scN(94,s));
+        dc.drawLine(scN(94,s),scN(320,s), scN(70,s), scN(320,s));  dc.drawLine(scN(70,s), scN(320,s), scN(70,s), scN(296,s));
+        dc.drawLine(scN(296,s),scN(320,s), scN(320,s),scN(320,s));  dc.drawLine(scN(320,s),scN(320,s), scN(320,s),scN(296,s));
 
         // broken centre scan line: dim full-width, bright middle, masked gap
         dc.setColor(scanDim, Graphics.COLOR_TRANSPARENT);
@@ -67,5 +67,7 @@ class CockpitTheme extends Theme {
         dc.setPenWidth(scP(9, s));
         dc.drawLine(scN(186,s), scN(181,s), scN(204,s), scN(181,s));
         dc.setPenWidth(1);
+
+        drawBlips(dc, s, layout, light ? 0xB5530E : 0xFF8C2B); // two diamond blips (warm, contrasts the teal)
     }
 }

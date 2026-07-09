@@ -34,6 +34,8 @@ class Fonts {
     private var _v52b as WatchUi.FontResource?;
     private var _v76b as WatchUi.FontResource?;
     private var _v104b as WatchUi.FontResource?;
+    private var _v64 as WatchUi.FontResource?;
+    private var _v64b as WatchUi.FontResource?;
 
     function initialize() {
         label = WatchUi.loadResource(Rez.Fonts.LabelFont) as WatchUi.FontResource;
@@ -66,6 +68,8 @@ class Fonts {
     function value52B()  as WatchUi.FontResource { if (_v52b == null)  { _v52b  = WatchUi.loadResource(Rez.Fonts.Value52BoldFont)  as WatchUi.FontResource; } return _v52b; }
     function value76B()  as WatchUi.FontResource { if (_v76b == null)  { _v76b  = WatchUi.loadResource(Rez.Fonts.Value76BoldFont)  as WatchUi.FontResource; } return _v76b; }
     function value104B() as WatchUi.FontResource { if (_v104b == null) { _v104b = WatchUi.loadResource(Rez.Fonts.Value104BoldFont) as WatchUi.FontResource; } return _v104b; }
+    function value64()  as WatchUi.FontResource { if (_v64 == null)  { _v64  = WatchUi.loadResource(Rez.Fonts.Value64Font)  as WatchUi.FontResource; } return _v64; }
+    function value64B() as WatchUi.FontResource { if (_v64b == null) { _v64b = WatchUi.loadResource(Rez.Fonts.Value64BoldFont) as WatchUi.FontResource; } return _v64b; }
 }
 
 // ---------------------------------------------------------------------------
@@ -160,7 +164,29 @@ class Theme {
     }
 
     // Theme-specific background art, drawn after clear, before the metrics.
-    function decorate(dc as Graphics.Dc, light as Boolean, s as Float) as Void {}
+    function decorate(dc as Graphics.Dc, light as Boolean, s as Float, layout as Number) as Void {}
+
+    // Two small diamond "blips" at a layout-dependent y (Cockpit/Bridge use them).
+    // @390, scaled at draw. Returns 0 for 5-field (no blips there).
+    function blipCy(layout as Number) as Number {
+        if (layout == 5) { return 248; } // between hero and bottom row
+        if (layout == 4) { return 205; }
+        if (layout == 3) { return 140; } // above the middle (centre) field
+        if (layout == 2) { return 180; }
+        if (layout == 1) { return 110; } // above the single centre value
+        return 0;
+    }
+    function drawBlips(dc as Graphics.Dc, s as Float, layout as Number, color as Number) as Void {
+        var cy = blipCy(layout);
+        if (cy == 0) { return; }
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+        var y = scN(cy, s); var r = scP(7, s); var gap = scN(15, s); var cx = scN(195, s); var stag = scN(9, s);
+        for (var k = -1; k <= 1; k += 2) {
+            var bx = cx + k * gap;
+            var by = y + k * stag; // vertical stagger: left up, right down
+            dc.fillPolygon([[bx, by - r], [bx + r, by], [bx, by + r], [bx - r, by]]);
+        }
+    }
 
     // Whether this theme's preset value font should be the bold weight
     // (Bulkhead only; base false).
@@ -171,12 +197,12 @@ class Theme {
     function presetSlots(layout as Number, fonts as Fonts, bold as Boolean) as Array<PresetSlot> {
         var C = Graphics.TEXT_JUSTIFY_CENTER;
         if (layout == 4) {
-            var vf = bold ? fonts.value52B() : fonts.value52(); var a = 48;
+            var vf = bold ? fonts.value64B() : fonts.value64(); var a = 59;
             return [
-                new PresetSlot(0, 108, 175, a, vf, 170, 1, C, 108, 120),
-                new PresetSlot(1, 282, 175, a, vf, 170, 1, C, 282, 120),
-                new PresetSlot(2, 108, 285, a, vf, 170, 2, C, 108, 230),
-                new PresetSlot(3, 282, 285, a, vf, 170, 2, C, 282, 230),
+                new PresetSlot(0, 108, 146, a, vf, 170, 1, C, 108, 94),
+                new PresetSlot(1, 282, 146, a, vf, 170, 1, C, 282, 94),
+                new PresetSlot(2, 108, 300, a, vf, 170, 2, C, 108, 248),
+                new PresetSlot(3, 282, 300, a, vf, 170, 2, C, 282, 248),
             ];
         } else if (layout == 3) {
             var vf = bold ? fonts.value76B() : fonts.value76(); var a = 69;
@@ -208,7 +234,7 @@ class Theme {
         L.scale(s);
         dc.setColor(Graphics.COLOR_WHITE, p.ground);
         dc.clear();
-        decorate(dc, light, s);
+        decorate(dc, light, s, layout);
 
         if (layout == 5) {
             drawGrid(dc, p, L, s, m, slots, showLabels);   // existing 5-field path
@@ -258,13 +284,14 @@ class Theme {
     // Returns [font, ascent390]. Ladder: 104,76,52,34 (bold variants for Bulkhead).
     private function fitValueFont(dc as Graphics.Dc, str as String, budgetPx as Number,
                                   startSize as Number, fonts as Fonts, bold as Boolean) as Array {
-        var sizes = [104, 76, 52, 34];
+        var sizes = [104, 76, 64, 52, 34];
         for (var i = 0; i < sizes.size(); i++) {
             var sz = sizes[i];
             if (sz > startSize) { continue; }
             var f; var a;
             if (sz == 104) { f = bold ? fonts.value104B() : fonts.value104(); a = 95; }
             else if (sz == 76) { f = bold ? fonts.value76B() : fonts.value76(); a = 69; }
+            else if (sz == 64) { f = bold ? fonts.value64B() : fonts.value64(); a = 59; }
             else if (sz == 52) { f = bold ? fonts.value52B() : fonts.value52(); a = 48; }
             else { f = bold ? fonts.valueB() : fonts.value; a = (bold ? 39 : 31); }
             if (dc.getTextWidthInPixels(str, f) <= budgetPx) { return [f, a]; }
@@ -291,7 +318,8 @@ class Theme {
             var color = (d.role == 0) ? p.hero : (d.role == 1 ? p.sval : p.lap);
             var vstr = m.format(id);
             var startSize = (d.font == fonts.value104() || d.font == fonts.value104B()) ? 104
-                          : (d.font == fonts.value76()  || d.font == fonts.value76B())  ? 76 : 52;
+                          : (d.font == fonts.value76()  || d.font == fonts.value76B())  ? 76
+                          : (d.font == fonts.value64()  || d.font == fonts.value64B())  ? 64 : 52;
             var fit = fitValueFont(dc, vstr, rnd(d.widthBudget * s), startSize, fonts, usesBold());
             txt(dc, rnd(d.x * s), rnd(d.baseY * s), rnd((fit[1] as Number) * s), fit[0] as WatchUi.FontResource, color, vstr, d.just);
             if (showLabels && lf != null) {

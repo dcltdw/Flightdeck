@@ -15,7 +15,9 @@
     <font id="Value52Font" filename="value52.fnt"/>
     <font id="Value76Font" filename="value76.fnt"/>
     <font id="Value104Font" filename="value104.fnt"/>
+    <font id="Value64Font" filename="value64.fnt"/>
     <font id="Value52BoldFont" filename="valueb52.fnt"/>
     <font id="Value76BoldFont" filename="valueb76.fnt"/>
     <font id="Value104BoldFont" filename="valueb104.fnt"/>
+    <font id="Value64BoldFont" filename="valueb64.fnt"/>
 </resources>

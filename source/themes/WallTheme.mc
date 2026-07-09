@@ -10,7 +10,7 @@ class WallTheme extends Theme {
         Theme.initialize();
     }
 
-    function usesBold() as Boolean { return true; }
+    function usesBold() as Boolean { return false; }
 
     function buildPalette(light as Boolean) as Palette {
         if (light) {
@@ -21,17 +21,17 @@ class WallTheme extends Theme {
 
     function buildLayout(fonts as Fonts) as Layout {
         var L = new Layout();
-        L.colL = 103; L.colR = 287; L.ctr = 195;
+        L.colL = 112; L.colR = 278; L.ctr = 195;
         // no title
-        L.lblY1 = 94; L.valY1 = 134;
-        L.heroY = 216;
-        L.lblY2 = 274; L.valY2 = 314;
-        L.lblAsc = 33; L.valAsc = 39; L.heroAsc = 66;  // bold .fnt base= values
-        L.lblFont = fonts.labelB(); L.valFont = fonts.valueB(); L.heroFont = fonts.heroB();
+        L.lblY1 = 103; L.valY1 = 135;
+        L.heroY = 217;
+        L.lblY2 = 273; L.valY2 = 305;
+        L.lblAsc = 28; L.valAsc = 48; L.heroAsc = 55;
+        L.lblFont = fonts.label; L.valFont = fonts.value52(); L.heroFont = fonts.hero;
         return L;
     }
 
-    function decorate(dc as Graphics.Dc, light as Boolean, s as Float) as Void {
+    function decorate(dc as Graphics.Dc, light as Boolean, s as Float, layout as Number) as Void {
         var grey  = light ? 0xA2ABB7 : 0x404750;  // even columns
         var greyd = light ? 0xBEC5CE : 0x2b3037;  // odd columns
         var cols = [6, 28, 50, 72, 94, 116, 260, 282, 304, 326, 348, 370];

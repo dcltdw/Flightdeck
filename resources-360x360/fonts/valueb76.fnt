@@ -13,5 +13,5 @@ char id=55 x=295 y=0 width=32 height=50 xoffset=5 yoffset=15 xadvance=42 page=0 
 char id=56 x=100 y=0 width=34 height=52 xoffset=4 yoffset=14 xadvance=42 page=0 chnl=15
 char id=57 x=135 y=0 width=33 height=52 xoffset=5 yoffset=14 xadvance=42 page=0 chnl=15
 char id=58 x=328 y=0 width=11 height=40 xoffset=7 yoffset=26 xadvance=25 page=0 chnl=15
-char id=46 x=340 y=0 width=12 height=11 xoffset=15 yoffset=55 xadvance=42 page=0 chnl=15
+char id=46 x=340 y=0 width=12 height=11 xoffset=4 yoffset=55 xadvance=19 page=0 chnl=15
 char id=45 x=353 y=0 width=23 height=7 xoffset=9 yoffset=41 xadvance=42 page=0 chnl=15
