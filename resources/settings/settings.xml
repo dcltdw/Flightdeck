@@ -14,5 +14,118 @@
                 <listEntry value="1">@Strings.ModeLight</listEntry>
             </settingConfig>
         </setting>
+        <setting propertyKey="@Properties.slot0" title="@Strings.SettingSlot0">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.MetricOff</listEntry>
+                <listEntry value="1">@Strings.MetricTimer</listEntry>
+                <listEntry value="2">@Strings.MetricClock</listEntry>
+                <listEntry value="3">@Strings.MetricDist</listEntry>
+                <listEntry value="4">@Strings.MetricLDist</listEntry>
+                <listEntry value="5">@Strings.MetricLTime</listEntry>
+                <listEntry value="6">@Strings.MetricPace</listEntry>
+                <listEntry value="7">@Strings.MetricLPace</listEntry>
+                <listEntry value="8">@Strings.MetricCPace</listEntry>
+                <listEntry value="9">@Strings.MetricSpeed</listEntry>
+                <listEntry value="10">@Strings.MetricCSpd</listEntry>
+                <listEntry value="11">@Strings.MetricHR</listEntry>
+                <listEntry value="12">@Strings.MetricAHR</listEntry>
+                <listEntry value="14">@Strings.MetricCad</listEntry>
+                <listEntry value="15">@Strings.MetricACad</listEntry>
+                <listEntry value="16">@Strings.MetricCal</listEntry>
+                <listEntry value="17">@Strings.MetricAsc</listEntry>
+                <listEntry value="18">@Strings.MetricAlt</listEntry>
+            </settingConfig>
+        </setting>
+        <setting propertyKey="@Properties.slot1" title="@Strings.SettingSlot1">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.MetricOff</listEntry>
+                <listEntry value="1">@Strings.MetricTimer</listEntry>
+                <listEntry value="2">@Strings.MetricClock</listEntry>
+                <listEntry value="3">@Strings.MetricDist</listEntry>
+                <listEntry value="4">@Strings.MetricLDist</listEntry>
+                <listEntry value="5">@Strings.MetricLTime</listEntry>
+                <listEntry value="6">@Strings.MetricPace</listEntry>
+                <listEntry value="7">@Strings.MetricLPace</listEntry>
+                <listEntry value="8">@Strings.MetricCPace</listEntry>
+                <listEntry value="9">@Strings.MetricSpeed</listEntry>
+                <listEntry value="10">@Strings.MetricCSpd</listEntry>
+                <listEntry value="11">@Strings.MetricHR</listEntry>
+                <listEntry value="12">@Strings.MetricAHR</listEntry>
+                <listEntry value="14">@Strings.MetricCad</listEntry>
+                <listEntry value="15">@Strings.MetricACad</listEntry>
+                <listEntry value="16">@Strings.MetricCal</listEntry>
+                <listEntry value="17">@Strings.MetricAsc</listEntry>
+                <listEntry value="18">@Strings.MetricAlt</listEntry>
+            </settingConfig>
+        </setting>
+        <setting propertyKey="@Properties.slot2" title="@Strings.SettingSlot2">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.MetricOff</listEntry>
+                <listEntry value="1">@Strings.MetricTimer</listEntry>
+                <listEntry value="2">@Strings.MetricClock</listEntry>
+                <listEntry value="3">@Strings.MetricDist</listEntry>
+                <listEntry value="4">@Strings.MetricLDist</listEntry>
+                <listEntry value="5">@Strings.MetricLTime</listEntry>
+                <listEntry value="6">@Strings.MetricPace</listEntry>
+                <listEntry value="7">@Strings.MetricLPace</listEntry>
+                <listEntry value="8">@Strings.MetricCPace</listEntry>
+                <listEntry value="9">@Strings.MetricSpeed</listEntry>
+                <listEntry value="10">@Strings.MetricCSpd</listEntry>
+                <listEntry value="11">@Strings.MetricHR</listEntry>
+                <listEntry value="12">@Strings.MetricAHR</listEntry>
+                <listEntry value="14">@Strings.MetricCad</listEntry>
+                <listEntry value="15">@Strings.MetricACad</listEntry>
+                <listEntry value="16">@Strings.MetricCal</listEntry>
+                <listEntry value="17">@Strings.MetricAsc</listEntry>
+                <listEntry value="18">@Strings.MetricAlt</listEntry>
+            </settingConfig>
+        </setting>
+        <setting propertyKey="@Properties.slot3" title="@Strings.SettingSlot3">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.MetricOff</listEntry>
+                <listEntry value="1">@Strings.MetricTimer</listEntry>
+                <listEntry value="2">@Strings.MetricClock</listEntry>
+                <listEntry value="3">@Strings.MetricDist</listEntry>
+                <listEntry value="4">@Strings.MetricLDist</listEntry>
+                <listEntry value="5">@Strings.MetricLTime</listEntry>
+                <listEntry value="6">@Strings.MetricPace</listEntry>
+                <listEntry value="7">@Strings.MetricLPace</listEntry>
+                <listEntry value="8">@Strings.MetricCPace</listEntry>
+                <listEntry value="9">@Strings.MetricSpeed</listEntry>
+                <listEntry value="10">@Strings.MetricCSpd</listEntry>
+                <listEntry value="11">@Strings.MetricHR</listEntry>
+                <listEntry value="12">@Strings.MetricAHR</listEntry>
+                <listEntry value="14">@Strings.MetricCad</listEntry>
+                <listEntry value="15">@Strings.MetricACad</listEntry>
+                <listEntry value="16">@Strings.MetricCal</listEntry>
+                <listEntry value="17">@Strings.MetricAsc</listEntry>
+                <listEntry value="18">@Strings.MetricAlt</listEntry>
+            </settingConfig>
+        </setting>
+        <setting propertyKey="@Properties.slot4" title="@Strings.SettingSlot4">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.MetricOff</listEntry>
+                <listEntry value="1">@Strings.MetricTimer</listEntry>
+                <listEntry value="2">@Strings.MetricClock</listEntry>
+                <listEntry value="3">@Strings.MetricDist</listEntry>
+                <listEntry value="4">@Strings.MetricLDist</listEntry>
+                <listEntry value="5">@Strings.MetricLTime</listEntry>
+                <listEntry value="6">@Strings.MetricPace</listEntry>
+                <listEntry value="7">@Strings.MetricLPace</listEntry>
+                <listEntry value="8">@Strings.MetricCPace</listEntry>
+                <listEntry value="9">@Strings.MetricSpeed</listEntry>
+                <listEntry value="10">@Strings.MetricCSpd</listEntry>
+                <listEntry value="11">@Strings.MetricHR</listEntry>
+                <listEntry value="12">@Strings.MetricAHR</listEntry>
+                <listEntry value="14">@Strings.MetricCad</listEntry>
+                <listEntry value="15">@Strings.MetricACad</listEntry>
+                <listEntry value="16">@Strings.MetricCal</listEntry>
+                <listEntry value="17">@Strings.MetricAsc</listEntry>
+                <listEntry value="18">@Strings.MetricAlt</listEntry>
+            </settingConfig>
+        </setting>
+        <setting propertyKey="@Properties.showLabels" title="@Strings.SettingLabels">
+            <settingConfig type="boolean" />
+        </setting>
     </settings>
 </resources>

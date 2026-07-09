@@ -10,4 +10,30 @@
     <string id="ThemePhosphor">Phosphor</string>
     <string id="ModeDark">Dark</string>
     <string id="ModeLight">Light</string>
+
+    <!-- field configuration -->
+    <string id="SettingSlot0">Field 1 (center)</string>
+    <string id="SettingSlot1">Field 2 (top-left)</string>
+    <string id="SettingSlot2">Field 3 (top-right)</string>
+    <string id="SettingSlot3">Field 4 (bottom-left)</string>
+    <string id="SettingSlot4">Field 5 (bottom-right)</string>
+    <string id="SettingLabels">Show labels</string>
+    <string id="MetricOff">Off</string>
+    <string id="MetricTimer">Timer (elapsed)</string>
+    <string id="MetricClock">Clock</string>
+    <string id="MetricDist">Distance</string>
+    <string id="MetricLDist">Lap distance</string>
+    <string id="MetricLTime">Lap time</string>
+    <string id="MetricPace">Avg pace</string>
+    <string id="MetricLPace">Lap pace</string>
+    <string id="MetricCPace">Current pace</string>
+    <string id="MetricSpeed">Avg speed</string>
+    <string id="MetricCSpd">Current speed</string>
+    <string id="MetricHR">Heart rate</string>
+    <string id="MetricAHR">Avg heart rate</string>
+    <string id="MetricCad">Cadence</string>
+    <string id="MetricACad">Avg cadence</string>
+    <string id="MetricCal">Calories</string>
+    <string id="MetricAsc">Total ascent</string>
+    <string id="MetricAlt">Altitude</string>
 </resources>
