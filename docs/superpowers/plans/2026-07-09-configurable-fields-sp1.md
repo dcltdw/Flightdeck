@@ -14,8 +14,8 @@
 
 - `monkeyc -w` (warnings-as-errors) must stay clean on `fr70`, `fr265s`, `fr265`, `fr965`.
 - **No new manifest permissions** — verified: all 18 metrics (incl. HR zone via `UserProfile.getHeartRateZones`) are permission-free. Re-confirm the manifest declares zero permissions.
-- Metric ids (enum, 0-based): `OFF=0, TIMER=1, CLOCK=2, DIST=3, LDIST=4, LTIME=5, PACE=6, LPACE=7, CPACE=8, SPEED=9, CSPD=10, HR=11, AHR=12, ZONE=13, CAD=14, ACAD=15, CAL=16, ASC=17, ALT=18`.
-- Labels are UPPER-only (label font glyph set = `A–Z` + space): `TIMER CLOCK DIST LDIST LTIME PACE LPACE CPACE SPEED CSPD HR AHR ZONE CAD ACAD CAL ASC ALT`.
+- Metric ids (enum, 0-based): `OFF=0, TIMER=1, CLOCK=2, DIST=3, LDIST=4, LTIME=5, PACE=6, LPACE=7, CPACE=8, SPEED=9, CSPD=10, HR=11, AHR=12, ZONE=13, CAD=14, ACAD=15, CAL=16, ASC=17, ALT=18`. **`ZONE` (13) is DROPPED and reserved** — `UserProfile.getHeartRateZones` requires the `UserProfile` permission, which would break the "Requests no permissions" claim. Keep the enum constant (so 14–18 don't shift) but implement no `format`/`label` case for it and do NOT offer it in settings. **17 selectable metrics.**
+- Labels are UPPER-only (label font glyph set = `A–Z` + space): `TIMER CLOCK DIST LDIST LTIME PACE LPACE CPACE SPEED CSPD HR AHR CAD ACAD CAL ASC ALT` (no `ZONE`).
 - Defaults reproduce today's face: `slot0=TIMER(1) slot1=PACE(6) slot2=DIST(3) slot3=LPACE(7) slot4=LTIME(5)`, `showLabels=false`.
 - SP1 adds **no fonts / bitmaps**. Layout presets and bigger fonts are SP2. **No store release until SP2.**
 - Repo conventions: branch → PR → wait; board Todo→In Progress→Done; PR bodies per `universal.md` (incl. `Provenance`); commits stamped `Co-Authored-By`.
@@ -273,7 +273,6 @@ git commit -m "feat: Metrics formatters for speed/int/elevation/clock/HR-zone"
     <string id="MetricCSpd">Current speed</string>
     <string id="MetricHR">Heart rate</string>
     <string id="MetricAHR">Avg heart rate</string>
-    <string id="MetricZone">HR zone</string>
     <string id="MetricCad">Cadence</string>
     <string id="MetricACad">Avg cadence</string>
     <string id="MetricCal">Calories</string>
@@ -281,7 +280,7 @@ git commit -m "feat: Metrics formatters for speed/int/elevation/clock/HR-zone"
     <string id="MetricAlt">Altitude</string>
 ```
 
-- [ ] **Step 3: Add `slot0` and the `showLabels` settings.** In `resources/settings/settings.xml`, inside `<settings>`, after the `mode` setting, add the `slot0` list. The 19 `<listEntry>` lines below are the **metric list** — reuse them verbatim for slots 1–4 in the next step.
+- [ ] **Step 3: Add `slot0` and the `showLabels` settings.** In `resources/settings/settings.xml`, inside `<settings>`, after the `mode` setting, add the `slot0` list. The 18 `<listEntry>` lines below are the **metric list** (Off + 17 metrics — HR zone / value 13 is intentionally omitted) — reuse them verbatim for slots 1–4 in the next step.
 
 ```xml
         <setting propertyKey="@Properties.slot0" title="@Strings.SettingSlot0">
@@ -299,7 +298,6 @@ git commit -m "feat: Metrics formatters for speed/int/elevation/clock/HR-zone"
                 <listEntry value="10">@Strings.MetricCSpd</listEntry>
                 <listEntry value="11">@Strings.MetricHR</listEntry>
                 <listEntry value="12">@Strings.MetricAHR</listEntry>
-                <listEntry value="13">@Strings.MetricZone</listEntry>
                 <listEntry value="14">@Strings.MetricCad</listEntry>
                 <listEntry value="15">@Strings.MetricACad</listEntry>
                 <listEntry value="16">@Strings.MetricCal</listEntry>
@@ -318,7 +316,7 @@ git commit -m "feat: Metrics formatters for speed/int/elevation/clock/HR-zone"
   - `slot3`: `propertyKey="@Properties.slot3" title="@Strings.SettingSlot3"`
   - `slot4`: `propertyKey="@Properties.slot4" title="@Strings.SettingSlot4"`
 
-  Each contains the **same 19 `<listEntry>` lines** as `slot0`.
+  Each contains the **same 18 `<listEntry>` lines** as `slot0`.
 
 - [ ] **Step 5: Compile-verify.** Run the compile command. Expected: `BUILD SUCCESSFUL` (resource compiler validates the settings/strings). Then confirm no permissions crept in:
 
