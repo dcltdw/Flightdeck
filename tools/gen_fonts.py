@@ -47,6 +47,12 @@ REF_SPECS = [
     ("herob", 72, DIGITS + ":", 1),
     ("valueb", 42, DIGITS + ":.-", 0),
     ("labelb", 36, UPPER, 0),
+    ("value52", 52, DIGITS + ":.-", 0),
+    ("value76", 76, DIGITS + ":.-", 0),
+    ("value104", 104, DIGITS + ":.-", 0),
+    ("valueb52", 52, DIGITS + ":.-", 1),
+    ("valueb76", 76, DIGITS + ":.-", 1),
+    ("valueb104", 104, DIGITS + ":.-", 1),
 ]
 
 # transparent margin baked around each rendered glyph before trimming
