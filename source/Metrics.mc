@@ -11,15 +11,17 @@ enum {
     METRIC_CAL, METRIC_ASC, METRIC_ALT
 }
 
-// Pulls the four-corner + hero metrics out of Activity.Info and keeps them as
-// ready-to-draw strings. Pace/distance honour the device's unit setting; lap
-// figures are derived from a baseline captured at each lap boundary — a manual/
-// auto lap or a structured-workout step (see FlightdeckView.markLap).
+// Metric registry: holds the current Activity.Info + lap baseline and answers
+// format(id)/label(id) for the configurable field slots. Which metric each slot
+// shows (and its position/label) is decided by settings — see FlightdeckView and
+// Theme.draw; Metrics itself is position-agnostic. Pace/distance honour the
+// device's unit setting; lap figures derive from a baseline captured at each lap
+// boundary — a manual/auto lap or a structured-workout step (see onLap, called
+// from FlightdeckView's onTimerLap / onWorkoutStepComplete).
 //
-// Field map (matches the Cockpit mockup):
-//   top-left  PACE  = session (average) pace      top-right DIST = session distance
-//   centre    hero  = elapsed timer time
-//   bot-left  PACE  = lap pace                     bot-right TIME = lap time
+// Default slot map (settings defaults, reproducing the original layout):
+//   centre = Timer     top-left = Avg pace   top-right = Distance
+//                      bot-left = Lap pace   bot-right = Lap time
 class Metrics {
     private const _METERS_PER_MILE = 1609.344;
     private const _STOPPED_SPEED = 0.2; // m/s; below this we show no pace
