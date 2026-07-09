@@ -21,12 +21,6 @@ enum {
 //   centre    hero  = elapsed timer time
 //   bot-left  PACE  = lap pace                     bot-right TIME = lap time
 class Metrics {
-    public var sessionPace as String = "--:--";
-    public var sessionDist as String = "0.00";
-    public var heroTime as String = "0:00";
-    public var lapPace as String = "--:--";
-    public var lapTime as String = "0:00";
-
     private const _METERS_PER_MILE = 1609.344;
     private const _STOPPED_SPEED = 0.2; // m/s; below this we show no pace
 
@@ -48,21 +42,6 @@ class Metrics {
 
     function update(info as Activity.Info) as Void {
         _info = info;
-        var totalMs = timerMs(info);
-        var totalDist = distM(info);
-
-        sessionDist = formatDistance(totalDist);
-        sessionPace = formatPace(info.averageSpeed);
-        heroTime = formatClock(totalMs);
-
-        var lapMs = totalMs - _lapStartMs;
-        var lapDist = totalDist - _lapStartDist;
-        lapTime = formatClock(lapMs);
-        if (lapMs > 0 && lapDist > 0.0) {
-            lapPace = formatPace(lapDist / (lapMs / 1000.0));
-        } else {
-            lapPace = "--:--";
-        }
     }
 
     function format(id as Number) as String {
