@@ -25,7 +25,7 @@
 ```sh
 SDK="$HOME/Library/Application Support/Garmin/ConnectIQ/Sdks/connectiq-sdk-mac-9.1.0-2026-03-09-6a872a80b"
 export PATH="$(brew --prefix openjdk)/bin:$PATH"
-KEY="$HOME/Github/swarsy-face/developer_key.der"
+KEY="<developer_key>"   # path to your signing key (see docs/releasing.md; DEV_KEY)
 "$SDK/bin/monkeyc" -f monkey.jungle -o /tmp/check.prg -y "$KEY" -d fr70 -w
 ```
 
