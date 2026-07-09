@@ -10,6 +10,20 @@ There is no version field in the Connect IQ manifest; the git tag is the version
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-07-09
+
+- Configurable fields: pick any of 17 metrics (or Off) for each of the five
+  positions — pace, distance, heart rate, cadence, elevation, calories, speed,
+  clock, and their lap/average variants — from the Garmin Connect app, with an
+  optional field-label toggle (default off).
+- Layout presets: a new Layout setting (5 / 4 / 3 / 2 / 1 fields). Fewer fields
+  render larger type, so you can trade detail for legibility — the fix for
+  small values on smaller screens. Values auto-shrink to fit their slot, so a
+  long value (a multi-hour time, or distance past 100) never clips.
+- Refreshed look: larger 5-field values, retuned per-theme decorations
+  (Cockpit/Bridge blips, a Bridge centre reticle, Cockpit reticles pulled to
+  the bezel), and tighter number kerning. Still requests no permissions.
+
 ## [0.1.2] - 2026-07-04
 
 - Brighter, more legible metric values on the dark faces: the session (top) row

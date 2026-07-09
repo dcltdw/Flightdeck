@@ -13,6 +13,11 @@ Four themes, dark or light:
 
 Pick your theme and dark/light mode from the Garmin Connect app.
 
+Make it yours, all from the Garmin Connect app:
+• Choose any metric for each field — pace, distance, heart rate, cadence, elevation, calories, speed, and their lap and average variants
+• Pick how many fields to show — 1 to 5. Fewer fields mean bigger, easier-to-read numbers
+• Turn short field labels on or off
+
 Adding it to a run:
 Flightdeck is a data field, not a watch face — add it to a run profile's data screens, and give it a screen of its own (a single-field layout) so it can fill the display:
 • On the watch: MENU → Settings → Activities & Apps → your run profile → Data Screens → Add New → Layout: single field → Connect IQ Fields → Flightdeck.
@@ -26,6 +31,8 @@ During a run, scroll to it like any other data page.
 ——————————————————————————
 
 What's changed
+
+0.1.3 — Make it yours: choose any metric for each of the five fields from the Garmin Connect app, and pick how many fields to show — 1 to 5, where fewer fields mean bigger, easier-to-read numbers. Long values now shrink to fit instead of clipping. Refreshed look with larger default values, retuned HUD detailing, and optional field labels. Still requests no permissions.
 
 0.1.2 — Brighter, easier-to-read metric values on the dark themes: white session values up top, a distinct accent colour for each theme's lap values (Cockpit green, Bridge yellow, Bulkhead red, Phosphor cyan), and a consistent elapsed-time colour across all four. Also fixes lap pace and lap time not resetting during structured (interval) workouts.
 
