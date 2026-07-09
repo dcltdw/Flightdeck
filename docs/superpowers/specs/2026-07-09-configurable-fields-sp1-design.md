@@ -62,6 +62,14 @@ captures in `onLap` (called from `onTimerLap` / `onWorkoutStepComplete`).
 | 17 | Total ascent | `ASCENT` | `totalAscent` | int (m/ft, unit-aware) |
 | 18 | Altitude | `ALT` | `altitude` | int (m/ft, unit-aware) |
 
+**Labels are finalized (the label bitmap font is UPPER-only — no digits, spaces,
+or punctuation)** to short alpha forms, prefix convention `L`=lap / `C`=current /
+`A`=avg: `TIMER CLOCK DIST LDIST LTIME PACE LPACE CPACE SPEED CSPD HR AHR ZONE
+CAD ACAD CAL ASC ALT` (ids 1–18). The **value** font is `DIGITS + ":.-"`, which
+covers every value format (pace `5:14`, dist `8.20`, HR `148`, negative altitude
+`-12`); the clock shows `H:MM` with no AM/PM marker (the value font has no
+letters) but honours the device's 24-hour setting for the hour.
+
 **Formatter helpers to add** to `Metrics` (alongside the existing `formatPace` /
 `formatDistance` / `formatClock`): `formatSpeed`, `formatInt` (HR / cadence /
 calories), `formatElevation` (ascent / altitude, unit-aware), `formatClockTime`,
@@ -128,13 +136,14 @@ Defaults reproduce today's face content exactly; the only visible change is that
 
 - `monkeyc -w` (warnings-as-errors) must stay clean across all four resolution
   buckets; behaviour beyond "it compiles" is checked in the simulator (no CI).
-- **No new manifest permissions.** The store listing states "Requests no
-  permissions." `Activity.Info` fields (HR, cadence, …) and `UserProfile` zones
-  are expected to be permission-free for a data field — **verify at build**. If
-  any metric turns out to need a permission, drop that metric rather than break
-  the no-permissions claim (or escalate for an explicit decision). **HR zone
-  (id 13) is the likeliest offender** — reading `UserProfile` heart-rate zones
-  may require the `UserProfile` permission; drop it from SP1 if so.
+- **No new manifest permissions** (verified against `api.debug.xml`):
+  `UserProfile.getHeartRateZones` carries no permission annotation and
+  `UserProfile` is not a manifest permission; `Activity.Info` sensor fields (HR,
+  cadence, …) are permission-free for a data field. So all 18 metrics keep the
+  "Requests no permissions" claim intact. Re-confirm at build that the manifest
+  still declares zero permissions. (`getHeartRateZones` takes a
+  `UserProfile.HR_ZONE_SPORT_*` argument, e.g. `HR_ZONE_SPORT_RUNNING`; the array
+  is `[minZ1, maxZ1, maxZ2, maxZ3, maxZ4, maxZ5]`.)
 - SP1 adds **no fonts** and no bitmap resources (values use the existing 34 px
   value font, labels the 30 px label font) — negligible impact on the 256 KB
   data-field memory budget.
