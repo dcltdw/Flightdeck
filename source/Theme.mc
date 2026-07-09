@@ -167,7 +167,7 @@ class Theme {
     function decorate(dc as Graphics.Dc, light as Boolean, s as Float, layout as Number) as Void {}
 
     // Two small diamond "blips" at a layout-dependent y (Cockpit/Bridge use them).
-    // @390, scaled at draw. Returns 0 for 5-field (no blips there).
+    // @390, scaled at draw. Returns 0 only for unknown layouts (none drawn).
     function blipCy(layout as Number) as Number {
         if (layout == 5) { return 248; } // between hero and bottom row
         if (layout == 4) { return 205; }
@@ -237,14 +237,15 @@ class Theme {
         decorate(dc, light, s, layout);
 
         if (layout == 5) {
-            drawGrid(dc, p, L, s, m, slots, showLabels);   // existing 5-field path
+            drawGrid(dc, p, L, s, m, slots, showLabels, fonts);   // existing 5-field path
         } else {
             drawPreset(dc, p, L, s, m, slots, showLabels, layout, fonts);
         }
     }
 
     private function drawGrid(dc as Graphics.Dc, p as Palette, L as Layout, s as Float,
-                              m as Metrics, slots as Array<Number>, showLabels as Boolean) as Void {
+                              m as Metrics, slots as Array<Number>, showLabels as Boolean,
+                              fonts as Fonts) as Void {
         var lf = L.lblFont;
         var vf = L.valFont;
         var hf = L.heroFont;
@@ -253,8 +254,6 @@ class Theme {
         }
 
         var C = Graphics.TEXT_JUSTIFY_CENTER;
-        var Lj = Graphics.TEXT_JUSTIFY_LEFT;
-        var Rj = Graphics.TEXT_JUSTIFY_RIGHT;
 
         var tf = L.titleFont;
         var tt = L.title;
@@ -262,15 +261,14 @@ class Theme {
             txt(dc, L.ctr, L.titleY, L.titleAsc, tf, p.title, tt, C);
         }
 
-        // Values grow toward centre: the anchor sits half a 4-char value in
-        // from the column centre (left column left-justified, right right).
-        var vHalf = dc.getTextWidthInPixels("0:00", vf) / 2;
-
-        drawValue(dc, m, slots[0], L.ctr,          L.heroY, L.heroAsc, hf, p.hero, C);
-        drawValue(dc, m, slots[1], L.colL - vHalf, L.valY1, L.valAsc,  vf, p.sval, Lj);
-        drawValue(dc, m, slots[2], L.colR + vHalf, L.valY1, L.valAsc,  vf, p.sval, Rj);
-        drawValue(dc, m, slots[3], L.colL - vHalf, L.valY2, L.valAsc,  vf, p.lap,  Lj);
-        drawValue(dc, m, slots[4], L.colR + vHalf, L.valY2, L.valAsc,  vf, p.lap,  Rj);
+        // Hero is centred (always fits). Corners grow toward centre and
+        // auto-shrink (52->34) so a wide value (a >1h time, distance >=100)
+        // never collides with its same-row neighbour across the centre.
+        drawValue(dc, m, slots[0], L.ctr, L.heroY, L.heroAsc, hf, p.hero, C);
+        drawCorner(dc, s, m, slots[1], L.colL, L.ctr, true,  L.valY1, fonts, p.sval);
+        drawCorner(dc, s, m, slots[2], L.colR, L.ctr, false, L.valY1, fonts, p.sval);
+        drawCorner(dc, s, m, slots[3], L.colL, L.ctr, true,  L.valY2, fonts, p.lap);
+        drawCorner(dc, s, m, slots[4], L.colR, L.ctr, false, L.valY2, fonts, p.lap);
 
         if (showLabels) {
             drawLabel(dc, m, slots[1], L.colL, L.lblY1, L.lblAsc, lf, p.label);
@@ -278,6 +276,34 @@ class Theme {
             drawLabel(dc, m, slots[3], L.colL, L.lblY2, L.lblAsc, lf, p.label);
             drawLabel(dc, m, slots[4], L.colR, L.lblY2, L.lblAsc, lf, p.label);
         }
+    }
+
+    // One 5-field corner value. It grows toward the centre (left column
+    // left-justified, right column right-justified) with the anchor half a
+    // 4-char value in from the column centre. Pick value52; if the rendered
+    // value would cross a small centre gap, drop to the 34 floor. All maths in
+    // real device pixels: colX/ctr/baseY are already scaled, text widths are
+    // device px; the @390 ascent is scaled here.
+    private function drawCorner(dc as Graphics.Dc, s as Float, m as Metrics, id as Number,
+                                colX as Number, ctr as Number, growRight as Boolean,
+                                baseY as Number, fonts as Fonts, color as Number) as Void {
+        if (id == 0) { return; } // Off
+        var str = m.format(id);
+        var gapHalf = 8 * s;                    // half the min gap between the two corners
+        var f = fonts.value52();
+        var a = 48;
+        var vHalf = dc.getTextWidthInPixels("0:00", f) / 2.0;
+        var w = dc.getTextWidthInPixels(str, f);
+        var edge = growRight ? (colX - vHalf + w) : (colX + vHalf - w);
+        var clears = growRight ? (edge <= ctr - gapHalf) : (edge >= ctr + gapHalf);
+        if (!clears) {                          // 52 would collide: fall to the 34 floor
+            f = fonts.value;
+            a = 31;
+            vHalf = dc.getTextWidthInPixels("0:00", f) / 2.0;
+        }
+        var anchorX = growRight ? (colX - vHalf) : (colX + vHalf);
+        var just = growRight ? Graphics.TEXT_JUSTIFY_LEFT : Graphics.TEXT_JUSTIFY_RIGHT;
+        txt(dc, rnd(anchorX), baseY, rnd(a * s), f, color, str, just);
     }
 
     // Largest ladder size <= target whose rendered width fits budgetPx. Shrink-only.
