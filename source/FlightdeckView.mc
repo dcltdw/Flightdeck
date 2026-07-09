@@ -15,6 +15,7 @@ class FlightdeckView extends WatchUi.DataField {
     private var _light as Boolean = false;
     private var _slots as Array<Number> = [1, 6, 3, 7, 5];
     private var _showLabels as Boolean = false;
+    private var _layout as Number = 5;
 
     function initialize() {
         DataField.initialize();
@@ -54,7 +55,7 @@ class FlightdeckView extends WatchUi.DataField {
         if (fonts == null) {
             return; // fonts not loaded yet (onLayout runs before first onUpdate)
         }
-        ThemeRegistry.get(_themeIdx).draw(dc, _m, fonts, _light, _slots, _showLabels);
+        ThemeRegistry.get(_themeIdx).draw(dc, _m, fonts, _light, _slots, _showLabels, _layout);
     }
 
     private function readSettings() as Void {
@@ -63,6 +64,7 @@ class FlightdeckView extends WatchUi.DataField {
         _slots = [numProp("slot0", 1), numProp("slot1", 6), numProp("slot2", 3),
                   numProp("slot3", 7), numProp("slot4", 5)];
         _showLabels = boolProp("showLabels", false);
+        _layout = numProp("layout", 5);
     }
 
     private function numProp(key as String, dflt as Number) as Number {

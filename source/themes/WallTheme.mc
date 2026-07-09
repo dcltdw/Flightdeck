@@ -10,6 +10,8 @@ class WallTheme extends Theme {
         Theme.initialize();
     }
 
+    function usesBold() as Boolean { return true; }
+
     function buildPalette(light as Boolean) as Palette {
         if (light) {
             return new Palette(0xE7EBF0, 0x2F6076, 0xC62828, 0xC62828, 0xB06A0C, 0x000000);

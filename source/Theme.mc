@@ -126,6 +126,27 @@ class Layout {
 }
 
 // ---------------------------------------------------------------------------
+// One field slot within a preset: which config slot it draws, where, at what
+// size/role. x/baseY/asc/widthBudget/labelX/labelY are @390 (scaled at draw).
+class PresetSlot {
+    public var slot as Number;      // config slot index 0..4
+    public var x as Number;
+    public var baseY as Number;
+    public var asc as Number;
+    public var font as WatchUi.FontResource;
+    public var widthBudget as Number;
+    public var role as Number;       // 0=hero(warm) 1=sval(white) 2=lap(accent)
+    public var just as Graphics.TextJustification;
+    public var labelX as Number;
+    public var labelBaseY as Number;
+    function initialize(slot, x, baseY, asc, font, widthBudget, role, just, labelX, labelBaseY) {
+        self.slot = slot; self.x = x; self.baseY = baseY; self.asc = asc;
+        self.font = font; self.widthBudget = widthBudget; self.role = role;
+        self.just = just; self.labelX = labelX; self.labelBaseY = labelBaseY;
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Base theme. Subclasses override buildPalette / buildLayout / decorate.
 class Theme {
 
@@ -141,18 +162,63 @@ class Theme {
     // Theme-specific background art, drawn after clear, before the metrics.
     function decorate(dc as Graphics.Dc, light as Boolean, s as Float) as Void {}
 
+    // Whether this theme's preset value font should be the bold weight
+    // (Bulkhead only; base false).
+    function usesBold() as Boolean { return false; }
+
+    // Shared preset geometry (4/3/2/1). @390; scaled at draw. Positions are
+    // starting values tuned in the sim. role: 0 hero/warm, 1 white, 2 accent.
+    function presetSlots(layout as Number, fonts as Fonts, bold as Boolean) as Array<PresetSlot> {
+        var C = Graphics.TEXT_JUSTIFY_CENTER;
+        if (layout == 4) {
+            var vf = bold ? fonts.value52B() : fonts.value52(); var a = 48;
+            return [
+                new PresetSlot(0, 108, 175, a, vf, 170, 1, C, 108, 120),
+                new PresetSlot(1, 282, 175, a, vf, 170, 1, C, 282, 120),
+                new PresetSlot(2, 108, 285, a, vf, 170, 2, C, 108, 230),
+                new PresetSlot(3, 282, 285, a, vf, 170, 2, C, 282, 230),
+            ];
+        } else if (layout == 3) {
+            var vf = bold ? fonts.value76B() : fonts.value76(); var a = 69;
+            return [
+                new PresetSlot(0, 195, 118, a, vf, 360, 0, C, 195, 70),
+                new PresetSlot(1, 195, 218, a, vf, 360, 1, C, 195, 170),
+                new PresetSlot(2, 195, 318, a, vf, 360, 2, C, 195, 270),
+            ];
+        } else if (layout == 2) {
+            var vf = bold ? fonts.value104B() : fonts.value104(); var a = 95;
+            return [
+                new PresetSlot(0, 195, 160, a, vf, 360, 0, C, 195, 95),
+                new PresetSlot(1, 195, 285, a, vf, 360, 2, C, 195, 220),
+            ];
+        } else { // 1
+            var vf = bold ? fonts.value104B() : fonts.value104(); var a = 95;
+            return [
+                new PresetSlot(0, 195, 220, a, vf, 360, 0, C, 195, 120),
+            ];
+        }
+    }
+
     // Lay the whole face. Called from the view's onUpdate.
     function draw(dc as Graphics.Dc, m as Metrics, fonts as Fonts, light as Boolean,
-                  slots as Array<Number>, showLabels as Boolean) as Void {
+                  slots as Array<Number>, showLabels as Boolean, layout as Number) as Void {
         var p = buildPalette(light);
         var L = buildLayout(fonts);
         var s = dc.getWidth() / 390.0;
         L.scale(s);
-
         dc.setColor(Graphics.COLOR_WHITE, p.ground);
         dc.clear();
         decorate(dc, light, s);
 
+        if (layout == 5) {
+            drawGrid(dc, p, L, s, m, slots, showLabels);   // existing 5-field path
+        } else {
+            drawPreset(dc, p, L, s, m, slots, showLabels, layout, fonts);
+        }
+    }
+
+    private function drawGrid(dc as Graphics.Dc, p as Palette, L as Layout, s as Float,
+                              m as Metrics, slots as Array<Number>, showLabels as Boolean) as Void {
         var lf = L.lblFont;
         var vf = L.valFont;
         var hf = L.heroFont;
@@ -185,6 +251,29 @@ class Theme {
             drawLabel(dc, m, slots[2], L.colR, L.lblY1, L.lblAsc, lf, p.label);
             drawLabel(dc, m, slots[3], L.colL, L.lblY2, L.lblAsc, lf, p.label);
             drawLabel(dc, m, slots[4], L.colR, L.lblY2, L.lblAsc, lf, p.label);
+        }
+    }
+
+    private function drawPreset(dc as Graphics.Dc, p as Palette, L as Layout, s as Float,
+                                m as Metrics, slots as Array<Number>, showLabels as Boolean,
+                                layout as Number, fonts as Fonts) as Void {
+        // title banner (unchanged) so Cockpit/Bridge keep their header
+        var tf = L.titleFont; var tt = L.title;
+        if (tf != null && tt != null) {
+            txt(dc, L.ctr, L.titleY, L.titleAsc, tf, p.title, tt, Graphics.TEXT_JUSTIFY_CENTER);
+        }
+        var lf = L.lblFont;
+        var ps = presetSlots(layout, fonts, usesBold());
+        for (var i = 0; i < ps.size(); i++) {
+            var d = ps[i];
+            var id = slots[d.slot];
+            if (id == 0) { continue; } // Off
+            var color = (d.role == 0) ? p.hero : (d.role == 1 ? p.sval : p.lap);
+            txt(dc, rnd(d.x * s), rnd(d.baseY * s), rnd(d.asc * s), d.font, color, m.format(id), d.just);
+            if (showLabels && lf != null) {
+                // L.lblAsc is already scaled by L.scale(s); d.labelX/labelBaseY are @390 so scale them.
+                txt(dc, rnd(d.labelX * s), rnd(d.labelBaseY * s), L.lblAsc, lf, p.label, m.label(id), Graphics.TEXT_JUSTIFY_CENTER);
+            }
         }
     }
 
