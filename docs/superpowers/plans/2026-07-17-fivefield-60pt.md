@@ -134,12 +134,16 @@ In `source/Theme.mc` `drawGrid`, replace the comment + five draw calls (the bloc
 ```monkeyc
         // Hero centred at 60pt; corners anchor their outer digit on the edge
         // target and grow inward. value60 uniformly.
+        // NOTE: `L.ctr` is ALREADY device-px (drawGrid runs after L.scale(s)) — pass it
+        // directly, do NOT wrap in scN(). Only the @390 GRID_* constants get scN().
         var vf60 = fonts.value60();
-        txt(dc, scN(L.ctr, s), scN(GRID_HERO_Y, s), rnd(VAL60_ASC * s), vf60, p.hero, m.format(slots[0]), C);
-        drawCorner(dc, s, m, slots[1], scN(GRID_EDGE_L, s), scN(L.ctr, s), true,  scN(GRID_TOP_Y, s), fonts, p.sval);
-        drawCorner(dc, s, m, slots[2], scN(GRID_EDGE_R, s), scN(L.ctr, s), false, scN(GRID_TOP_Y, s), fonts, p.sval);
-        drawCorner(dc, s, m, slots[3], scN(GRID_EDGE_L, s), scN(L.ctr, s), true,  scN(GRID_BOT_Y, s), fonts, p.lap);
-        drawCorner(dc, s, m, slots[4], scN(GRID_EDGE_R, s), scN(L.ctr, s), false, scN(GRID_BOT_Y, s), fonts, p.lap);
+        if (slots[0] != 0) {
+            txt(dc, L.ctr, scN(GRID_HERO_Y, s), rnd(VAL60_ASC * s), vf60, p.hero, m.format(slots[0]), C);
+        }
+        drawCorner(dc, s, m, slots[1], scN(GRID_EDGE_L, s), L.ctr, true,  scN(GRID_TOP_Y, s), fonts, p.sval);
+        drawCorner(dc, s, m, slots[2], scN(GRID_EDGE_R, s), L.ctr, false, scN(GRID_TOP_Y, s), fonts, p.sval);
+        drawCorner(dc, s, m, slots[3], scN(GRID_EDGE_L, s), L.ctr, true,  scN(GRID_BOT_Y, s), fonts, p.lap);
+        drawCorner(dc, s, m, slots[4], scN(GRID_EDGE_R, s), L.ctr, false, scN(GRID_BOT_Y, s), fonts, p.lap);
 ```
 
 Note: `slots[0]==0` (hero Off) must still blank — guard it by wrapping the hero `txt` in `if (slots[0] != 0)`. `hf`/`vf` are now unused, so delete their declarations (lines `var vf = L.valFont;` and `var hf = L.heroFont;`) and drop them from the null-guard, leaving `if (lf == null) { return; }`. The old per-value helpers `drawValue`/`drawCorner` are being replaced: `drawCorner` is rewritten in Step 3; `drawValue` (previously used only for the hero) is now unused — if `monkeyc -w` flags it, delete it. `drawLabel` stays (used by the labels block).
@@ -246,9 +250,9 @@ In `drawGrid`, replace the hero `txt(...)` line from Task 2 with:
         if (slots[0] != 0) {
             var hstr = m.format(slots[0]);
             if (isDuration(hstr)) {
-                drawDurationGroup(dc, s, hstr, scN(L.ctr, s), scN(GRID_HERO_Y, s), C, fonts, p.hero);
+                drawDurationGroup(dc, s, hstr, L.ctr, scN(GRID_HERO_Y, s), C, fonts, p.hero);
             } else {
-                txt(dc, scN(L.ctr, s), scN(GRID_HERO_Y, s), rnd(VAL60_ASC * s), fonts.value60(), p.hero, hstr, C);
+                txt(dc, L.ctr, scN(GRID_HERO_Y, s), rnd(VAL60_ASC * s), fonts.value60(), p.hero, hstr, C);
             }
         }
 ```
