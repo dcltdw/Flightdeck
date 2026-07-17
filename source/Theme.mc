@@ -166,6 +166,7 @@ class Theme {
     hidden const GRID_EDGE_R = 320;  // right outer-digit target x
     hidden const VAL60_ASC = 55;     // value60 @390 ascent
     hidden const VAL40_ASC = 37;     // value40 @390 ascent
+    hidden const GRID_GAP = 14;      // half centre safety gap @390
 
     // Subclass hooks (base returns harmless defaults).
     function buildPalette(light as Boolean) as Palette {
@@ -342,11 +343,26 @@ class Theme {
             drawDurationGroup(dc, s, str, rnd(groupAnchor), baseY, gjust, fonts, color);
             return;
         }
-        var f = fonts.value60();
-        var digW = dc.getTextWidthInPixels("0", f);   // one monospace digit, device px
+        // budget = inward room from the edge anchor to a small centre gap
+        var budget = growRight ? (ctr - scN(GRID_GAP, s) - edgeX) : (edgeX - ctr - scN(GRID_GAP, s));
+        var fit = fitGridFont(dc, str, budget, fonts);
+        var f = fit[0] as WatchUi.FontResource;
+        var a = fit[1] as Number;
+        var digW = dc.getTextWidthInPixels("0", f);
         var anchorX = growRight ? (edgeX - digW / 2.0) : (edgeX + digW / 2.0);
         var just = growRight ? Graphics.TEXT_JUSTIFY_LEFT : Graphics.TEXT_JUSTIFY_RIGHT;
-        txt(dc, rnd(anchorX), baseY, rnd(VAL60_ASC * s), f, color, str, just);
+        txt(dc, rnd(anchorX), baseY, rnd(a * s), f, color, str, just);
+    }
+
+    // 5-field shrink ladder for wide NON-duration values: 60 -> 52 -> 34.
+    // Largest cut whose width fits budgetPx; shrink-only. Returns [font, asc390].
+    private function fitGridFont(dc as Graphics.Dc, str as String, budgetPx as Number,
+                                 fonts as Fonts) as Array {
+        var f60 = fonts.value60();
+        if (dc.getTextWidthInPixels(str, f60) <= budgetPx) { return [f60, VAL60_ASC]; }
+        var f52 = fonts.value52();
+        if (dc.getTextWidthInPixels(str, f52) <= budgetPx) { return [f52, 48]; }
+        return [fonts.value, 31];
     }
 
     // Largest ladder size <= target whose rendered width fits budgetPx. Shrink-only.
