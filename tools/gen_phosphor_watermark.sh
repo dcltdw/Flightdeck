@@ -22,8 +22,8 @@ GROUND_LIGHT="#E6ECF0"     # must match PhosphorTheme light ground
 # Per-element colours (subtle variance off each mode's base). Each element
 # group is composited over the ground in its own colour rather than one flat
 # tint. Both axis lines share LINE so the crosshair reads as one colour.
-DARK_CIRC="#E0457A";  DARK_LINE="#EC6E98";  DARK_SWEEP="#FF6188";  DARK_BLIP="#FF8C2B"
-LIGHT_CIRC="#B0335A"; LIGHT_LINE="#C4576F"; LIGHT_SWEEP="#CE3D62"; LIGHT_BLIP="#C2540E"
+DARK_CIRC="#E0457A";  DARK_LINE="#EC6E98";  DARK_SWEEP="#FF6188";  DARK_BLIP="#E64DBF"
+LIGHT_CIRC="#B0335A"; LIGHT_LINE="#C4576F"; LIGHT_SWEEP="#CE3D62"; LIGHT_BLIP="#E8621F"
 
 command -v magick >/dev/null || { echo "magick (ImageMagick 7) not found." >&2; exit 1; }
 B="$(mktemp -d)"
