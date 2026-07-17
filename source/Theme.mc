@@ -165,6 +165,7 @@ class Theme {
     hidden const GRID_EDGE_L = 70;   // left outer-digit target x (Cockpit reticle bar)
     hidden const GRID_EDGE_R = 320;  // right outer-digit target x
     hidden const VAL60_ASC = 55;     // value60 @390 ascent
+    hidden const VAL40_ASC = 37;     // value40 @390 ascent
 
     // Subclass hooks (base returns harmless defaults).
     function buildPalette(light as Boolean) as Palette {
@@ -255,6 +256,41 @@ class Theme {
         }
     }
 
+    // A duration with an hours part formats as H:MM:SS (two colons); wall clock
+    // is H:MM (one). Only two-colon strings get the hours-prefix treatment.
+    private function isDuration(str as String) as Boolean {
+        var first = str.find(":");
+        if (first == null) { return false; }
+        return (str.substring(first + 1, str.length()) as String).find(":") != null;
+    }
+
+    // Draw a two-colon duration as [40pt prefix][60pt MM:SS], the two vertically
+    // centred together (their cap-centres aligned), justified as one group about
+    // `anchorX`. `just` selects group left/right/centre. baseY/anchorX are device px.
+    private function drawDurationGroup(dc as Graphics.Dc, s as Float, str as String,
+                                       anchorX as Number, baseY as Number,
+                                       just as Graphics.TextJustification,
+                                       fonts as Fonts, color as Number) as Void {
+        var first = str.find(":");
+        var pre = str.substring(0, first + 1);            // "1:" / "12:"
+        var rest = str.substring(first + 1, str.length()); // "MM:SS"
+        var fp = fonts.value40();
+        var fb = fonts.value60();
+        var wp = dc.getTextWidthInPixels(pre, fp);
+        var wr = dc.getTextWidthInPixels(rest, fb);
+        var total = wp + wr;
+        var left;
+        if (just == Graphics.TEXT_JUSTIFY_RIGHT) { left = anchorX - total; }
+        else if (just == Graphics.TEXT_JUSTIFY_CENTER) { left = anchorX - total / 2.0; }
+        else { left = anchorX; }
+        // baseY is the 60pt baseline; the 40pt prefix baseline shifts up so the
+        // two cap-centres align: delta = (asc60 - asc40)/2, scaled.
+        var preBaseY = baseY - rnd(((VAL60_ASC - VAL40_ASC) / 2.0) * s);
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(rnd(left), preBaseY - rnd(VAL40_ASC * s), fp, pre, Graphics.TEXT_JUSTIFY_LEFT);
+        dc.drawText(rnd(left + wp), baseY - rnd(VAL60_ASC * s), fb, rest, Graphics.TEXT_JUSTIFY_LEFT);
+    }
+
     private function drawGrid(dc as Graphics.Dc, p as Palette, L as Layout, s as Float,
                               m as Metrics, slots as Array<Number>, showLabels as Boolean,
                               fonts as Fonts) as Void {
@@ -271,9 +307,13 @@ class Theme {
 
         // Hero centred at 60pt; corners anchor their outer digit on the edge
         // target and grow inward. value60 uniformly.
-        var vf60 = fonts.value60();
         if (slots[0] != 0) {
-            txt(dc, L.ctr, scN(GRID_HERO_Y, s), rnd(VAL60_ASC * s), vf60, p.hero, m.format(slots[0]), C);
+            var hstr = m.format(slots[0]);
+            if (isDuration(hstr)) {
+                drawDurationGroup(dc, s, hstr, L.ctr, scN(GRID_HERO_Y, s), C, fonts, p.hero);
+            } else {
+                txt(dc, L.ctr, scN(GRID_HERO_Y, s), rnd(VAL60_ASC * s), fonts.value60(), p.hero, hstr, C);
+            }
         }
         drawCorner(dc, s, m, slots[1], scN(GRID_EDGE_L, s), L.ctr, true,  scN(GRID_TOP_Y, s), fonts, p.sval);
         drawCorner(dc, s, m, slots[2], scN(GRID_EDGE_R, s), L.ctr, false, scN(GRID_TOP_Y, s), fonts, p.sval);
@@ -296,6 +336,12 @@ class Theme {
                                 baseY as Number, fonts as Fonts, color as Number) as Void {
         if (id == 0) { return; } // Off
         var str = m.format(id);
+        if (isDuration(str)) {
+            var groupAnchor = growRight ? (edgeX - dc.getTextWidthInPixels("0", fonts.value60()) / 2.0) : (edgeX + dc.getTextWidthInPixels("0", fonts.value60()) / 2.0);
+            var gjust = growRight ? Graphics.TEXT_JUSTIFY_LEFT : Graphics.TEXT_JUSTIFY_RIGHT;
+            drawDurationGroup(dc, s, str, rnd(groupAnchor), baseY, gjust, fonts, color);
+            return;
+        }
         var f = fonts.value60();
         var digW = dc.getTextWidthInPixels("0", f);   // one monospace digit, device px
         var anchorX = growRight ? (edgeX - digW / 2.0) : (edgeX + digW / 2.0);
