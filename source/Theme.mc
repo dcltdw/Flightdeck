@@ -343,9 +343,12 @@ class Theme {
             drawDurationGroup(dc, s, str, rnd(groupAnchor), baseY, gjust, fonts, color);
             return;
         }
-        // budget = inward room from the edge anchor to a small centre gap
-        var budget = growRight ? (ctr - scN(GRID_GAP, s) - edgeX) : (edgeX - ctr - scN(GRID_GAP, s));
-        var fit = fitGridFont(dc, str, budget, fonts);
+        // Inward room from the outer edge to a small centre gap. The outer digit
+        // is centred on edgeX, so it sits half a 60pt digit outside edgeX — add
+        // that half back so a value that just fits at 60pt isn't shrunk falsely.
+        var half60 = dc.getTextWidthInPixels("0", fonts.value60()) / 2.0;
+        var budget = growRight ? (ctr - scN(GRID_GAP, s) - edgeX + half60) : (edgeX + half60 - ctr - scN(GRID_GAP, s));
+        var fit = fitGridFont(dc, str, budget.toNumber(), fonts);
         var f = fit[0] as WatchUi.FontResource;
         var a = fit[1] as Number;
         var digW = dc.getTextWidthInPixels("0", f);
