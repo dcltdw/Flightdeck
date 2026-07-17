@@ -273,12 +273,12 @@ class Theme {
         // target and grow inward. value60 uniformly.
         var vf60 = fonts.value60();
         if (slots[0] != 0) {
-            txt(dc, scN(L.ctr, s), scN(GRID_HERO_Y, s), rnd(VAL60_ASC * s), vf60, p.hero, m.format(slots[0]), C);
+            txt(dc, L.ctr, scN(GRID_HERO_Y, s), rnd(VAL60_ASC * s), vf60, p.hero, m.format(slots[0]), C);
         }
-        drawCorner(dc, s, m, slots[1], scN(GRID_EDGE_L, s), scN(L.ctr, s), true,  scN(GRID_TOP_Y, s), fonts, p.sval);
-        drawCorner(dc, s, m, slots[2], scN(GRID_EDGE_R, s), scN(L.ctr, s), false, scN(GRID_TOP_Y, s), fonts, p.sval);
-        drawCorner(dc, s, m, slots[3], scN(GRID_EDGE_L, s), scN(L.ctr, s), true,  scN(GRID_BOT_Y, s), fonts, p.lap);
-        drawCorner(dc, s, m, slots[4], scN(GRID_EDGE_R, s), scN(L.ctr, s), false, scN(GRID_BOT_Y, s), fonts, p.lap);
+        drawCorner(dc, s, m, slots[1], scN(GRID_EDGE_L, s), L.ctr, true,  scN(GRID_TOP_Y, s), fonts, p.sval);
+        drawCorner(dc, s, m, slots[2], scN(GRID_EDGE_R, s), L.ctr, false, scN(GRID_TOP_Y, s), fonts, p.sval);
+        drawCorner(dc, s, m, slots[3], scN(GRID_EDGE_L, s), L.ctr, true,  scN(GRID_BOT_Y, s), fonts, p.lap);
+        drawCorner(dc, s, m, slots[4], scN(GRID_EDGE_R, s), L.ctr, false, scN(GRID_BOT_Y, s), fonts, p.lap);
 
         if (showLabels) {
             drawLabel(dc, m, slots[1], L.colL, L.lblY1, L.lblAsc, lf, p.label);
