@@ -36,6 +36,8 @@ class Fonts {
     private var _v104b as WatchUi.FontResource?;
     private var _v64 as WatchUi.FontResource?;
     private var _v64b as WatchUi.FontResource?;
+    private var _v60 as WatchUi.FontResource?;
+    private var _v40 as WatchUi.FontResource?;
 
     function initialize() {
         label = WatchUi.loadResource(Rez.Fonts.LabelFont) as WatchUi.FontResource;
@@ -70,6 +72,8 @@ class Fonts {
     function value104B() as WatchUi.FontResource { if (_v104b == null) { _v104b = WatchUi.loadResource(Rez.Fonts.Value104BoldFont) as WatchUi.FontResource; } return _v104b; }
     function value64()  as WatchUi.FontResource { if (_v64 == null)  { _v64  = WatchUi.loadResource(Rez.Fonts.Value64Font)  as WatchUi.FontResource; } return _v64; }
     function value64B() as WatchUi.FontResource { if (_v64b == null) { _v64b = WatchUi.loadResource(Rez.Fonts.Value64BoldFont) as WatchUi.FontResource; } return _v64b; }
+    function value60() as WatchUi.FontResource { if (_v60 == null) { _v60 = WatchUi.loadResource(Rez.Fonts.Value60Font) as WatchUi.FontResource; } return _v60; }
+    function value40() as WatchUi.FontResource { if (_v40 == null) { _v40 = WatchUi.loadResource(Rez.Fonts.Value40Font) as WatchUi.FontResource; } return _v40; }
 }
 
 // ---------------------------------------------------------------------------

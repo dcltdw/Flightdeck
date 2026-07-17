@@ -51,6 +51,8 @@ REF_SPECS = [
     ("value76", 76, DIGITS + ":.-", 0),
     ("value104", 104, DIGITS + ":.-", 0),
     ("value64", 64, DIGITS + ":.-", 0),
+    ("value60", 60, DIGITS + ":.-", 0),
+    ("value40", 40, DIGITS + ":.-", 0),
     ("valueb52", 52, DIGITS + ":.-", 1),
     ("valueb76", 76, DIGITS + ":.-", 1),
     ("valueb104", 104, DIGITS + ":.-", 1),
