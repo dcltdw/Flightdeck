@@ -13,9 +13,9 @@ class BridgeTheme extends Theme {
 
     function buildPalette(light as Boolean) as Palette {
         if (light) {
-            return new Palette(0xE7EBF0, 0x2F6076, 0x16202A, 0x16202A, 0xB06A0C, 0xB0392E);
+            return new Palette(0xE7EBF0, 0x2F6076, 0x16202A, 0x16202A, 0xB06A0C, 0x8A2A20);
         }
-        return new Palette(0x080b12, 0x8AA9C2, 0xFFFFFF, 0xFFFF00, 0xFFC890, 0xC8554A);
+        return new Palette(0x080b12, 0x8AA9C2, 0xFFFFFF, 0xFFFF00, 0xFFC890, 0xE8756A);
     }
 
     function buildLayout(fonts as Fonts) as Layout {
@@ -32,7 +32,7 @@ class BridgeTheme extends Theme {
 
     function decorate(dc as Graphics.Dc, light as Boolean, s as Float, layout as Number) as Void {
         var band  = light ? 0xEAD2CE : 0x2a1210;
-        var frame = light ? 0xBE3A2C : 0xB0392E;
+        var frame = light ? 0xDCA49C : 0xB0392E;
         var fw    = light ? 3 : 2;
 
         // console bars centred on the two label rows
@@ -60,11 +60,12 @@ class BridgeTheme extends Theme {
         dc.drawLine(prevX, prevY, firstX, firstY);
 
         // >< centre targeting reticle (two chevrons pointing inward)
+        dc.setColor(light ? 0xD9A099 : 0x6E2A22, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(scP(2, s));
         dc.drawLine(scN(140,s),scN(173,s), scN(162,s),scN(195,s)); dc.drawLine(scN(162,s),scN(195,s), scN(140,s),scN(217,s));
         dc.drawLine(scN(250,s),scN(173,s), scN(228,s),scN(195,s)); dc.drawLine(scN(228,s),scN(195,s), scN(250,s),scN(217,s));
         dc.setPenWidth(1);
 
-        drawBlips(dc, s, layout, light ? 0x2F6076 : 0x8AA9C2); // two diamond blips, layout-positioned
+        drawBlips(dc, s, layout, light ? 0x2F6076 : 0x3FD8E6); // two diamond blips, layout-positioned
     }
 }
