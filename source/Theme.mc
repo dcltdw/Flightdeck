@@ -158,6 +158,14 @@ class PresetSlot {
 // Base theme. Subclasses override buildPalette / buildLayout / decorate.
 class Theme {
 
+    // 5-field geometry @390 — tuned in the simulator (Task 7).
+    hidden const GRID_TOP_Y = 120;   // top-row baseline
+    hidden const GRID_HERO_Y = 217;  // hero baseline (unchanged)
+    hidden const GRID_BOT_Y = 305;   // bottom-row baseline
+    hidden const GRID_EDGE_L = 70;   // left outer-digit target x (Cockpit reticle bar)
+    hidden const GRID_EDGE_R = 320;  // right outer-digit target x
+    hidden const VAL60_ASC = 55;     // value60 @390 ascent
+
     // Subclass hooks (base returns harmless defaults).
     function buildPalette(light as Boolean) as Palette {
         return new Palette(0x000000, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF);
@@ -251,11 +259,7 @@ class Theme {
                               m as Metrics, slots as Array<Number>, showLabels as Boolean,
                               fonts as Fonts) as Void {
         var lf = L.lblFont;
-        var vf = L.valFont;
-        var hf = L.heroFont;
-        if (lf == null || vf == null || hf == null) {
-            return; // misconfigured layout; nothing to draw
-        }
+        if (lf == null) { return; }
 
         var C = Graphics.TEXT_JUSTIFY_CENTER;
 
@@ -265,14 +269,16 @@ class Theme {
             txt(dc, L.ctr, L.titleY, L.titleAsc, tf, p.title, tt, C);
         }
 
-        // Hero is centred (always fits). Corners grow toward centre and
-        // auto-shrink (52->34) so a wide value (a >1h time, distance >=100)
-        // never collides with its same-row neighbour across the centre.
-        drawValue(dc, m, slots[0], L.ctr, L.heroY, L.heroAsc, hf, p.hero, C);
-        drawCorner(dc, s, m, slots[1], L.colL, L.ctr, true,  L.valY1, fonts, p.sval);
-        drawCorner(dc, s, m, slots[2], L.colR, L.ctr, false, L.valY1, fonts, p.sval);
-        drawCorner(dc, s, m, slots[3], L.colL, L.ctr, true,  L.valY2, fonts, p.lap);
-        drawCorner(dc, s, m, slots[4], L.colR, L.ctr, false, L.valY2, fonts, p.lap);
+        // Hero centred at 60pt; corners anchor their outer digit on the edge
+        // target and grow inward. value60 uniformly.
+        var vf60 = fonts.value60();
+        if (slots[0] != 0) {
+            txt(dc, scN(L.ctr, s), scN(GRID_HERO_Y, s), rnd(VAL60_ASC * s), vf60, p.hero, m.format(slots[0]), C);
+        }
+        drawCorner(dc, s, m, slots[1], scN(GRID_EDGE_L, s), scN(L.ctr, s), true,  scN(GRID_TOP_Y, s), fonts, p.sval);
+        drawCorner(dc, s, m, slots[2], scN(GRID_EDGE_R, s), scN(L.ctr, s), false, scN(GRID_TOP_Y, s), fonts, p.sval);
+        drawCorner(dc, s, m, slots[3], scN(GRID_EDGE_L, s), scN(L.ctr, s), true,  scN(GRID_BOT_Y, s), fonts, p.lap);
+        drawCorner(dc, s, m, slots[4], scN(GRID_EDGE_R, s), scN(L.ctr, s), false, scN(GRID_BOT_Y, s), fonts, p.lap);
 
         if (showLabels) {
             drawLabel(dc, m, slots[1], L.colL, L.lblY1, L.lblAsc, lf, p.label);
@@ -282,32 +288,19 @@ class Theme {
         }
     }
 
-    // One 5-field corner value. It grows toward the centre (left column
-    // left-justified, right column right-justified) with the anchor half a
-    // 4-char value in from the column centre. Pick value52; if the rendered
-    // value would cross a small centre gap, drop to the 34 floor. All maths in
-    // real device pixels: colX/ctr/baseY are already scaled, text widths are
-    // device px; the @390 ascent is scaled here.
+    // One 5-field corner value. The outer digit is centred on `edgeX`; the value
+    // is edge-justified so it grows inward (toward `ctr`). value60 uniformly.
+    // (Task 3 adds the hours-prefix for durations; Task 4 adds shrink-to-fit.)
     private function drawCorner(dc as Graphics.Dc, s as Float, m as Metrics, id as Number,
-                                colX as Number, ctr as Number, growRight as Boolean,
+                                edgeX as Number, ctr as Number, growRight as Boolean,
                                 baseY as Number, fonts as Fonts, color as Number) as Void {
         if (id == 0) { return; } // Off
         var str = m.format(id);
-        var gapHalf = 8 * s;                    // half the min gap between the two corners
-        var f = fonts.value52();
-        var a = 48;
-        var vHalf = dc.getTextWidthInPixels("0:00", f) / 2.0;
-        var w = dc.getTextWidthInPixels(str, f);
-        var edge = growRight ? (colX - vHalf + w) : (colX + vHalf - w);
-        var clears = growRight ? (edge <= ctr - gapHalf) : (edge >= ctr + gapHalf);
-        if (!clears) {                          // 52 would collide: fall to the 34 floor
-            f = fonts.value;
-            a = 31;
-            vHalf = dc.getTextWidthInPixels("0:00", f) / 2.0;
-        }
-        var anchorX = growRight ? (colX - vHalf) : (colX + vHalf);
+        var f = fonts.value60();
+        var digW = dc.getTextWidthInPixels("0", f);   // one monospace digit, device px
+        var anchorX = growRight ? (edgeX - digW / 2.0) : (edgeX + digW / 2.0);
         var just = growRight ? Graphics.TEXT_JUSTIFY_LEFT : Graphics.TEXT_JUSTIFY_RIGHT;
-        txt(dc, rnd(anchorX), baseY, rnd(a * s), f, color, str, just);
+        txt(dc, rnd(anchorX), baseY, rnd(VAL60_ASC * s), f, color, str, just);
     }
 
     // Largest ladder size <= target whose rendered width fits budgetPx. Shrink-only.
@@ -357,14 +350,6 @@ class Theme {
                 txt(dc, rnd(d.labelX * s), rnd(d.labelBaseY * s), L.lblAsc, lf, p.label, m.label(id), Graphics.TEXT_JUSTIFY_CENTER);
             }
         }
-    }
-
-    private function drawValue(dc as Graphics.Dc, m as Metrics, id as Number,
-                               x as Number, baseY as Number, ascent as Number,
-                               font as WatchUi.FontResource, color as Number,
-                               just as Graphics.TextJustification) as Void {
-        if (id == 0) { return; } // Off
-        txt(dc, x, baseY, ascent, font, color, m.format(id), just);
     }
 
     private function drawLabel(dc as Graphics.Dc, m as Metrics, id as Number,
