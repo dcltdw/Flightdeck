@@ -141,14 +141,15 @@ class PresetSlot {
     public var x as Number;
     public var baseY as Number;
     public var asc as Number;
+    public var size as Number;       // ladder start size (52/64/76/104); shrink target
     public var font as WatchUi.FontResource;
     public var widthBudget as Number;
     public var role as Number;       // 0=hero(warm) 1=sval(white) 2=lap(accent)
     public var just as Graphics.TextJustification;
     public var labelX as Number;
     public var labelBaseY as Number;
-    function initialize(slot, x, baseY, asc, font, widthBudget, role, just, labelX, labelBaseY) {
-        self.slot = slot; self.x = x; self.baseY = baseY; self.asc = asc;
+    function initialize(slot, x, baseY, asc, size, font, widthBudget, role, just, labelX, labelBaseY) {
+        self.slot = slot; self.x = x; self.baseY = baseY; self.asc = asc; self.size = size;
         self.font = font; self.widthBudget = widthBudget; self.role = role;
         self.just = just; self.labelX = labelX; self.labelBaseY = labelBaseY;
     }
@@ -213,28 +214,28 @@ class Theme {
         if (layout == 4) {
             var vf = bold ? fonts.value64B() : fonts.value64(); var a = 59;
             return [
-                new PresetSlot(0, 108, 146, a, vf, 170, 1, C, 108, 94),
-                new PresetSlot(1, 282, 146, a, vf, 170, 1, C, 282, 94),
-                new PresetSlot(2, 108, 300, a, vf, 170, 2, C, 108, 248),
-                new PresetSlot(3, 282, 300, a, vf, 170, 2, C, 282, 248),
+                new PresetSlot(0, 108, 146, a, 64, vf, 170, 1, C, 108, 94),
+                new PresetSlot(1, 282, 146, a, 64, vf, 170, 1, C, 282, 94),
+                new PresetSlot(2, 108, 300, a, 64, vf, 170, 2, C, 108, 248),
+                new PresetSlot(3, 282, 300, a, 64, vf, 170, 2, C, 282, 248),
             ];
         } else if (layout == 3) {
             var vf = bold ? fonts.value76B() : fonts.value76(); var a = 69;
             return [
-                new PresetSlot(0, 195, 118, a, vf, 360, 0, C, 195, 70),
-                new PresetSlot(1, 195, 218, a, vf, 360, 1, C, 195, 170),
-                new PresetSlot(2, 195, 318, a, vf, 360, 2, C, 195, 270),
+                new PresetSlot(0, 195, 118, a, 76, vf, 360, 0, C, 195, 70),
+                new PresetSlot(1, 195, 218, a, 76, vf, 360, 1, C, 195, 170),
+                new PresetSlot(2, 195, 318, a, 76, vf, 360, 2, C, 195, 270),
             ];
         } else if (layout == 2) {
             var vf = bold ? fonts.value104B() : fonts.value104(); var a = 95;
             return [
-                new PresetSlot(0, 195, 160, a, vf, 360, 0, C, 195, 95),
-                new PresetSlot(1, 195, 285, a, vf, 360, 2, C, 195, 220),
+                new PresetSlot(0, 195, 160, a, 104, vf, 360, 0, C, 195, 95),
+                new PresetSlot(1, 195, 285, a, 104, vf, 360, 2, C, 195, 220),
             ];
         } else { // 1
             var vf = bold ? fonts.value104B() : fonts.value104(); var a = 95;
             return [
-                new PresetSlot(0, 195, 220, a, vf, 360, 0, C, 195, 120),
+                new PresetSlot(0, 195, 220, a, 104, vf, 360, 0, C, 195, 120),
             ];
         }
     }
@@ -405,10 +406,7 @@ class Theme {
             if (id == 0) { continue; } // Off
             var color = (d.role == 0) ? p.hero : (d.role == 1 ? p.sval : p.lap);
             var vstr = m.format(id);
-            var startSize = (d.font == fonts.value104() || d.font == fonts.value104B()) ? 104
-                          : (d.font == fonts.value76()  || d.font == fonts.value76B())  ? 76
-                          : (d.font == fonts.value64()  || d.font == fonts.value64B())  ? 64 : 52;
-            var fit = fitValueFont(dc, vstr, rnd(d.widthBudget * s), startSize, fonts, usesBold());
+            var fit = fitValueFont(dc, vstr, rnd(d.widthBudget * s), d.size, fonts, usesBold());
             txt(dc, rnd(d.x * s), rnd(d.baseY * s), rnd((fit[1] as Number) * s), fit[0] as WatchUi.FontResource, color, vstr, d.just);
             if (showLabels && lf != null) {
                 // L.lblAsc is already scaled by L.scale(s); d.labelX/labelBaseY are @390 so scale them.
