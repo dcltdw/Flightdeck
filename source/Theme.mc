@@ -36,6 +36,8 @@ class Fonts {
     private var _v104b as WatchUi.FontResource?;
     private var _v64 as WatchUi.FontResource?;
     private var _v64b as WatchUi.FontResource?;
+    private var _v60 as WatchUi.FontResource?;
+    private var _v40 as WatchUi.FontResource?;
 
     function initialize() {
         label = WatchUi.loadResource(Rez.Fonts.LabelFont) as WatchUi.FontResource;
@@ -70,6 +72,8 @@ class Fonts {
     function value104B() as WatchUi.FontResource { if (_v104b == null) { _v104b = WatchUi.loadResource(Rez.Fonts.Value104BoldFont) as WatchUi.FontResource; } return _v104b; }
     function value64()  as WatchUi.FontResource { if (_v64 == null)  { _v64  = WatchUi.loadResource(Rez.Fonts.Value64Font)  as WatchUi.FontResource; } return _v64; }
     function value64B() as WatchUi.FontResource { if (_v64b == null) { _v64b = WatchUi.loadResource(Rez.Fonts.Value64BoldFont) as WatchUi.FontResource; } return _v64b; }
+    function value60() as WatchUi.FontResource { if (_v60 == null) { _v60 = WatchUi.loadResource(Rez.Fonts.Value60Font) as WatchUi.FontResource; } return _v60; }
+    function value40() as WatchUi.FontResource { if (_v40 == null) { _v40 = WatchUi.loadResource(Rez.Fonts.Value40Font) as WatchUi.FontResource; } return _v40; }
 }
 
 // ---------------------------------------------------------------------------
@@ -153,6 +157,16 @@ class PresetSlot {
 // ---------------------------------------------------------------------------
 // Base theme. Subclasses override buildPalette / buildLayout / decorate.
 class Theme {
+
+    // 5-field geometry @390 — tuned in the simulator (Task 7).
+    hidden const GRID_TOP_Y = 120;   // top-row baseline
+    hidden const GRID_HERO_Y = 217;  // hero baseline (unchanged)
+    hidden const GRID_BOT_Y = 305;   // bottom-row baseline
+    hidden const GRID_EDGE_L = 70;   // left outer-digit target x (Cockpit reticle bar)
+    hidden const GRID_EDGE_R = 320;  // right outer-digit target x
+    hidden const VAL60_ASC = 55;     // value60 @390 ascent
+    hidden const VAL40_ASC = 37;     // value40 @390 ascent
+    hidden const GRID_GAP = 14;      // half centre safety gap @390
 
     // Subclass hooks (base returns harmless defaults).
     function buildPalette(light as Boolean) as Palette {
@@ -243,15 +257,46 @@ class Theme {
         }
     }
 
+    // A duration with an hours part formats as H:MM:SS (two colons); wall clock
+    // is H:MM (one). Only two-colon strings get the hours-prefix treatment.
+    private function isDuration(str as String) as Boolean {
+        var first = str.find(":");
+        if (first == null) { return false; }
+        return (str.substring(first + 1, str.length()) as String).find(":") != null;
+    }
+
+    // Draw a two-colon duration as [40pt prefix][60pt MM:SS], the two vertically
+    // centred together (their cap-centres aligned), justified as one group about
+    // `anchorX`. `just` selects group left/right/centre. baseY/anchorX are device px.
+    private function drawDurationGroup(dc as Graphics.Dc, s as Float, str as String,
+                                       anchorX as Number, baseY as Number,
+                                       just as Graphics.TextJustification,
+                                       fonts as Fonts, color as Number) as Void {
+        var first = str.find(":");
+        var pre = str.substring(0, first + 1);            // "1:" / "12:"
+        var rest = str.substring(first + 1, str.length()); // "MM:SS"
+        var fp = fonts.value40();
+        var fb = fonts.value60();
+        var wp = dc.getTextWidthInPixels(pre, fp);
+        var wr = dc.getTextWidthInPixels(rest, fb);
+        var total = wp + wr;
+        var left;
+        if (just == Graphics.TEXT_JUSTIFY_RIGHT) { left = anchorX - total; }
+        else if (just == Graphics.TEXT_JUSTIFY_CENTER) { left = anchorX - total / 2.0; }
+        else { left = anchorX; }
+        // baseY is the 60pt baseline; the 40pt prefix baseline shifts up so the
+        // two cap-centres align: delta = (asc60 - asc40)/2, scaled.
+        var preBaseY = baseY - rnd(((VAL60_ASC - VAL40_ASC) / 2.0) * s);
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(rnd(left), preBaseY - rnd(VAL40_ASC * s), fp, pre, Graphics.TEXT_JUSTIFY_LEFT);
+        dc.drawText(rnd(left + wp), baseY - rnd(VAL60_ASC * s), fb, rest, Graphics.TEXT_JUSTIFY_LEFT);
+    }
+
     private function drawGrid(dc as Graphics.Dc, p as Palette, L as Layout, s as Float,
                               m as Metrics, slots as Array<Number>, showLabels as Boolean,
                               fonts as Fonts) as Void {
         var lf = L.lblFont;
-        var vf = L.valFont;
-        var hf = L.heroFont;
-        if (lf == null || vf == null || hf == null) {
-            return; // misconfigured layout; nothing to draw
-        }
+        if (lf == null) { return; }
 
         var C = Graphics.TEXT_JUSTIFY_CENTER;
 
@@ -261,14 +306,20 @@ class Theme {
             txt(dc, L.ctr, L.titleY, L.titleAsc, tf, p.title, tt, C);
         }
 
-        // Hero is centred (always fits). Corners grow toward centre and
-        // auto-shrink (52->34) so a wide value (a >1h time, distance >=100)
-        // never collides with its same-row neighbour across the centre.
-        drawValue(dc, m, slots[0], L.ctr, L.heroY, L.heroAsc, hf, p.hero, C);
-        drawCorner(dc, s, m, slots[1], L.colL, L.ctr, true,  L.valY1, fonts, p.sval);
-        drawCorner(dc, s, m, slots[2], L.colR, L.ctr, false, L.valY1, fonts, p.sval);
-        drawCorner(dc, s, m, slots[3], L.colL, L.ctr, true,  L.valY2, fonts, p.lap);
-        drawCorner(dc, s, m, slots[4], L.colR, L.ctr, false, L.valY2, fonts, p.lap);
+        // Hero centred at 60pt; corners anchor their outer digit on the edge
+        // target and grow inward. value60 uniformly.
+        if (slots[0] != 0) {
+            var hstr = m.format(slots[0]);
+            if (isDuration(hstr)) {
+                drawDurationGroup(dc, s, hstr, L.ctr, scN(GRID_HERO_Y, s), C, fonts, p.hero);
+            } else {
+                txt(dc, L.ctr, scN(GRID_HERO_Y, s), rnd(VAL60_ASC * s), fonts.value60(), p.hero, hstr, C);
+            }
+        }
+        drawCorner(dc, s, m, slots[1], scN(GRID_EDGE_L, s), L.ctr, true,  scN(GRID_TOP_Y, s), fonts, p.sval);
+        drawCorner(dc, s, m, slots[2], scN(GRID_EDGE_R, s), L.ctr, false, scN(GRID_TOP_Y, s), fonts, p.sval);
+        drawCorner(dc, s, m, slots[3], scN(GRID_EDGE_L, s), L.ctr, true,  scN(GRID_BOT_Y, s), fonts, p.lap);
+        drawCorner(dc, s, m, slots[4], scN(GRID_EDGE_R, s), L.ctr, false, scN(GRID_BOT_Y, s), fonts, p.lap);
 
         if (showLabels) {
             drawLabel(dc, m, slots[1], L.colL, L.lblY1, L.lblAsc, lf, p.label);
@@ -278,32 +329,43 @@ class Theme {
         }
     }
 
-    // One 5-field corner value. It grows toward the centre (left column
-    // left-justified, right column right-justified) with the anchor half a
-    // 4-char value in from the column centre. Pick value52; if the rendered
-    // value would cross a small centre gap, drop to the 34 floor. All maths in
-    // real device pixels: colX/ctr/baseY are already scaled, text widths are
-    // device px; the @390 ascent is scaled here.
+    // One 5-field corner value. The outer digit is centred on `edgeX`; the value
+    // is edge-justified so it grows inward (toward `ctr`). value60 uniformly.
+    // (Task 3 adds the hours-prefix for durations; Task 4 adds shrink-to-fit.)
     private function drawCorner(dc as Graphics.Dc, s as Float, m as Metrics, id as Number,
-                                colX as Number, ctr as Number, growRight as Boolean,
+                                edgeX as Number, ctr as Number, growRight as Boolean,
                                 baseY as Number, fonts as Fonts, color as Number) as Void {
         if (id == 0) { return; } // Off
         var str = m.format(id);
-        var gapHalf = 8 * s;                    // half the min gap between the two corners
-        var f = fonts.value52();
-        var a = 48;
-        var vHalf = dc.getTextWidthInPixels("0:00", f) / 2.0;
-        var w = dc.getTextWidthInPixels(str, f);
-        var edge = growRight ? (colX - vHalf + w) : (colX + vHalf - w);
-        var clears = growRight ? (edge <= ctr - gapHalf) : (edge >= ctr + gapHalf);
-        if (!clears) {                          // 52 would collide: fall to the 34 floor
-            f = fonts.value;
-            a = 31;
-            vHalf = dc.getTextWidthInPixels("0:00", f) / 2.0;
+        if (isDuration(str)) {
+            var groupAnchor = growRight ? (edgeX - dc.getTextWidthInPixels("0", fonts.value60()) / 2.0) : (edgeX + dc.getTextWidthInPixels("0", fonts.value60()) / 2.0);
+            var gjust = growRight ? Graphics.TEXT_JUSTIFY_LEFT : Graphics.TEXT_JUSTIFY_RIGHT;
+            drawDurationGroup(dc, s, str, rnd(groupAnchor), baseY, gjust, fonts, color);
+            return;
         }
-        var anchorX = growRight ? (colX - vHalf) : (colX + vHalf);
+        // Inward room from the outer edge to a small centre gap. The outer digit
+        // is centred on edgeX, so it sits half a 60pt digit outside edgeX — add
+        // that half back so a value that just fits at 60pt isn't shrunk falsely.
+        var half60 = dc.getTextWidthInPixels("0", fonts.value60()) / 2.0;
+        var budget = growRight ? (ctr - scN(GRID_GAP, s) - edgeX + half60) : (edgeX + half60 - ctr - scN(GRID_GAP, s));
+        var fit = fitGridFont(dc, str, budget.toNumber(), fonts);
+        var f = fit[0] as WatchUi.FontResource;
+        var a = fit[1] as Number;
+        var digW = dc.getTextWidthInPixels("0", f);
+        var anchorX = growRight ? (edgeX - digW / 2.0) : (edgeX + digW / 2.0);
         var just = growRight ? Graphics.TEXT_JUSTIFY_LEFT : Graphics.TEXT_JUSTIFY_RIGHT;
         txt(dc, rnd(anchorX), baseY, rnd(a * s), f, color, str, just);
+    }
+
+    // 5-field shrink ladder for wide NON-duration values: 60 -> 52 -> 34.
+    // Largest cut whose width fits budgetPx; shrink-only. Returns [font, asc390].
+    private function fitGridFont(dc as Graphics.Dc, str as String, budgetPx as Number,
+                                 fonts as Fonts) as Array {
+        var f60 = fonts.value60();
+        if (dc.getTextWidthInPixels(str, f60) <= budgetPx) { return [f60, VAL60_ASC]; }
+        var f52 = fonts.value52();
+        if (dc.getTextWidthInPixels(str, f52) <= budgetPx) { return [f52, 48]; }
+        return [fonts.value, 31];
     }
 
     // Largest ladder size <= target whose rendered width fits budgetPx. Shrink-only.
@@ -353,14 +415,6 @@ class Theme {
                 txt(dc, rnd(d.labelX * s), rnd(d.labelBaseY * s), L.lblAsc, lf, p.label, m.label(id), Graphics.TEXT_JUSTIFY_CENTER);
             }
         }
-    }
-
-    private function drawValue(dc as Graphics.Dc, m as Metrics, id as Number,
-                               x as Number, baseY as Number, ascent as Number,
-                               font as WatchUi.FontResource, color as Number,
-                               just as Graphics.TextJustification) as Void {
-        if (id == 0) { return; } // Off
-        txt(dc, x, baseY, ascent, font, color, m.format(id), just);
     }
 
     private function drawLabel(dc as Graphics.Dc, m as Metrics, id as Number,

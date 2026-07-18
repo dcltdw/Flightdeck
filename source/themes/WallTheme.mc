@@ -32,8 +32,8 @@ class WallTheme extends Theme {
     }
 
     function decorate(dc as Graphics.Dc, light as Boolean, s as Float, layout as Number) as Void {
-        var grey  = light ? 0xA2ABB7 : 0x404750;  // even columns
-        var greyd = light ? 0xBEC5CE : 0x2b3037;  // odd columns
+        var grey  = light ? 0xC8CDD4 : 0x2a2f36;  // even columns
+        var greyd = light ? 0xD8DCE1 : 0x1b1e23;  // odd columns
         var cols = [6, 28, 50, 72, 94, 116, 260, 282, 304, 326, 348, 370];
         var w = scN(17, s);
         var radius = scN(8, s);

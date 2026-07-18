@@ -14,9 +14,9 @@ class CockpitTheme extends Theme {
     function buildPalette(light as Boolean) as Palette {
         if (light) {
             // parchment ground approximated as a solid (mockup uses a radial gradient)
-            return new Palette(0xEADFC8, 0x8A6A3A, 0xB5530E, 0x1F7A45, 0xA8460A, 0x1E7088);
+            return new Palette(0xEADFC8, 0x8A6A3A, 0xB5530E, 0x1F7A45, 0xA8460A, 0x0D4655);
         }
-        return new Palette(0x0d0a07, 0x9a6428, 0xFFFFFF, 0x3BE06E, 0xFFC890, 0x6FAFC2);
+        return new Palette(0x0d0a07, 0x9a6428, 0xFFFFFF, 0x3BE06E, 0xFFC890, 0xA0D8EE);
     }
 
     function buildLayout(fonts as Fonts) as Layout {
@@ -34,7 +34,7 @@ class CockpitTheme extends Theme {
     function decorate(dc as Graphics.Dc, light as Boolean, s as Float, layout as Number) as Void {
         var ground   = light ? 0xEADFC8 : 0x0d0a07;
         var rim      = light ? 0xB9A988 : 0x1f4954;
-        var reticle  = light ? 0x1E7088 : 0x3fb6d6;
+        var reticle  = light ? 0x8FB8C4 : 0x2A7085;
         var scanDim  = light ? 0xC7B89B : 0x2c6675;
         var scanBrt  = light ? 0x1E7088 : 0x4fc8ec;
         var cx = scN(195, s); var cy = scN(195, s);
@@ -68,6 +68,6 @@ class CockpitTheme extends Theme {
         dc.drawLine(scN(186,s), scN(181,s), scN(204,s), scN(181,s));
         dc.setPenWidth(1);
 
-        drawBlips(dc, s, layout, light ? 0xB5530E : 0xFF8C2B); // two diamond blips (warm, contrasts the teal)
+        drawBlips(dc, s, layout, light ? 0xC42E9A : 0xE64DBF); // two diamond blips (warm, contrasts the teal)
     }
 }
