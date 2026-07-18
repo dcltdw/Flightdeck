@@ -10,6 +10,19 @@ There is no version field in the Connect IQ manifest; the git tag is the version
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-07-18
+
+- Bigger, bolder 5-field default: every field now renders at a large uniform
+  size (up from the smaller corner values) and is pushed to the screen edges for
+  maximum legibility — the fix for values being too small on smaller watches.
+- Long elapsed/lap times past an hour keep the minutes:seconds full-size with a
+  smaller hours prefix (e.g. `1:23:45`) instead of shrinking the whole value;
+  wide values (e.g. distance past 100) shrink only as much as needed to fit.
+- Refreshed per-theme detailing: dimmed background framing (reticles, octagon,
+  wall striping) so the numbers stand out, and new contrasting accent pips
+  (Cockpit magenta, Bridge cyan, Phosphor magenta/orange). Still requests no
+  permissions.
+
 ## [0.1.3] - 2026-07-09
 
 - Configurable fields: pick any of 17 metrics (or Off) for each of the five
