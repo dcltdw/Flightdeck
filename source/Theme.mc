@@ -23,19 +23,12 @@ class Fonts {
     public var hero  as WatchUi.FontResource;  // regular, 60px  (ascent 55)
     public var title as WatchUi.FontResource;  // regular, 13px  (ascent 12)
 
-    // Bold weights (Wall) are larger and loaded lazily — only when a theme that
-    // needs them is actually selected, to spare the 256 KB data-field budget.
-    private var _heroB as WatchUi.FontResource?;
-    private var _valueB as WatchUi.FontResource?;
-    private var _labelB as WatchUi.FontResource?;
+    // Bigger value cuts, loaded lazily — only when a preset that needs them is
+    // actually drawn, to spare the 256 KB data-field budget.
     private var _v52 as WatchUi.FontResource?;
     private var _v76 as WatchUi.FontResource?;
     private var _v104 as WatchUi.FontResource?;
-    private var _v52b as WatchUi.FontResource?;
-    private var _v76b as WatchUi.FontResource?;
-    private var _v104b as WatchUi.FontResource?;
     private var _v64 as WatchUi.FontResource?;
-    private var _v64b as WatchUi.FontResource?;
     private var _v60 as WatchUi.FontResource?;
     private var _v40 as WatchUi.FontResource?;
 
@@ -46,32 +39,10 @@ class Fonts {
         title = WatchUi.loadResource(Rez.Fonts.TitleFont) as WatchUi.FontResource;
     }
 
-    function heroB() as WatchUi.FontResource {
-        var f = _heroB;
-        if (f == null) { f = WatchUi.loadResource(Rez.Fonts.HeroBoldFont) as WatchUi.FontResource; _heroB = f; }
-        return f;
-    }
-
-    function valueB() as WatchUi.FontResource {
-        var f = _valueB;
-        if (f == null) { f = WatchUi.loadResource(Rez.Fonts.ValueBoldFont) as WatchUi.FontResource; _valueB = f; }
-        return f;
-    }
-
-    function labelB() as WatchUi.FontResource {
-        var f = _labelB;
-        if (f == null) { f = WatchUi.loadResource(Rez.Fonts.LabelBoldFont) as WatchUi.FontResource; _labelB = f; }
-        return f;
-    }
-
     function value52()  as WatchUi.FontResource { if (_v52 == null)  { _v52  = WatchUi.loadResource(Rez.Fonts.Value52Font)  as WatchUi.FontResource; } return _v52; }
     function value76()  as WatchUi.FontResource { if (_v76 == null)  { _v76  = WatchUi.loadResource(Rez.Fonts.Value76Font)  as WatchUi.FontResource; } return _v76; }
     function value104() as WatchUi.FontResource { if (_v104 == null) { _v104 = WatchUi.loadResource(Rez.Fonts.Value104Font) as WatchUi.FontResource; } return _v104; }
-    function value52B()  as WatchUi.FontResource { if (_v52b == null)  { _v52b  = WatchUi.loadResource(Rez.Fonts.Value52BoldFont)  as WatchUi.FontResource; } return _v52b; }
-    function value76B()  as WatchUi.FontResource { if (_v76b == null)  { _v76b  = WatchUi.loadResource(Rez.Fonts.Value76BoldFont)  as WatchUi.FontResource; } return _v76b; }
-    function value104B() as WatchUi.FontResource { if (_v104b == null) { _v104b = WatchUi.loadResource(Rez.Fonts.Value104BoldFont) as WatchUi.FontResource; } return _v104b; }
     function value64()  as WatchUi.FontResource { if (_v64 == null)  { _v64  = WatchUi.loadResource(Rez.Fonts.Value64Font)  as WatchUi.FontResource; } return _v64; }
-    function value64B() as WatchUi.FontResource { if (_v64b == null) { _v64b = WatchUi.loadResource(Rez.Fonts.Value64BoldFont) as WatchUi.FontResource; } return _v64b; }
     function value60() as WatchUi.FontResource { if (_v60 == null) { _v60 = WatchUi.loadResource(Rez.Fonts.Value60Font) as WatchUi.FontResource; } return _v60; }
     function value40() as WatchUi.FontResource { if (_v40 == null) { _v40 = WatchUi.loadResource(Rez.Fonts.Value40Font) as WatchUi.FontResource; } return _v40; }
 }
@@ -141,14 +112,15 @@ class PresetSlot {
     public var x as Number;
     public var baseY as Number;
     public var asc as Number;
+    public var size as Number;       // ladder start size (52/64/76/104); shrink target
     public var font as WatchUi.FontResource;
     public var widthBudget as Number;
     public var role as Number;       // 0=hero(warm) 1=sval(white) 2=lap(accent)
     public var just as Graphics.TextJustification;
     public var labelX as Number;
     public var labelBaseY as Number;
-    function initialize(slot, x, baseY, asc, font, widthBudget, role, just, labelX, labelBaseY) {
-        self.slot = slot; self.x = x; self.baseY = baseY; self.asc = asc;
+    function initialize(slot, x, baseY, asc, size, font, widthBudget, role, just, labelX, labelBaseY) {
+        self.slot = slot; self.x = x; self.baseY = baseY; self.asc = asc; self.size = size;
         self.font = font; self.widthBudget = widthBudget; self.role = role;
         self.just = just; self.labelX = labelX; self.labelBaseY = labelBaseY;
     }
@@ -202,39 +174,35 @@ class Theme {
         }
     }
 
-    // Whether this theme's preset value font should be the bold weight
-    // (Bulkhead only; base false).
-    function usesBold() as Boolean { return false; }
-
     // Shared preset geometry (4/3/2/1). @390; scaled at draw. Positions are
     // starting values tuned in the sim. role: 0 hero/warm, 1 white, 2 accent.
-    function presetSlots(layout as Number, fonts as Fonts, bold as Boolean) as Array<PresetSlot> {
+    function presetSlots(layout as Number, fonts as Fonts) as Array<PresetSlot> {
         var C = Graphics.TEXT_JUSTIFY_CENTER;
         if (layout == 4) {
-            var vf = bold ? fonts.value64B() : fonts.value64(); var a = 59;
+            var vf = fonts.value64(); var a = 59;
             return [
-                new PresetSlot(0, 108, 146, a, vf, 170, 1, C, 108, 94),
-                new PresetSlot(1, 282, 146, a, vf, 170, 1, C, 282, 94),
-                new PresetSlot(2, 108, 300, a, vf, 170, 2, C, 108, 248),
-                new PresetSlot(3, 282, 300, a, vf, 170, 2, C, 282, 248),
+                new PresetSlot(0, 108, 146, a, 64, vf, 170, 1, C, 108, 94),
+                new PresetSlot(1, 282, 146, a, 64, vf, 170, 1, C, 282, 94),
+                new PresetSlot(2, 108, 300, a, 64, vf, 170, 2, C, 108, 248),
+                new PresetSlot(3, 282, 300, a, 64, vf, 170, 2, C, 282, 248),
             ];
         } else if (layout == 3) {
-            var vf = bold ? fonts.value76B() : fonts.value76(); var a = 69;
+            var vf = fonts.value76(); var a = 69;
             return [
-                new PresetSlot(0, 195, 118, a, vf, 360, 0, C, 195, 70),
-                new PresetSlot(1, 195, 218, a, vf, 360, 1, C, 195, 170),
-                new PresetSlot(2, 195, 318, a, vf, 360, 2, C, 195, 270),
+                new PresetSlot(0, 195, 118, a, 76, vf, 360, 0, C, 195, 70),
+                new PresetSlot(1, 195, 218, a, 76, vf, 360, 1, C, 195, 170),
+                new PresetSlot(2, 195, 318, a, 76, vf, 360, 2, C, 195, 270),
             ];
         } else if (layout == 2) {
-            var vf = bold ? fonts.value104B() : fonts.value104(); var a = 95;
+            var vf = fonts.value104(); var a = 95;
             return [
-                new PresetSlot(0, 195, 160, a, vf, 360, 0, C, 195, 95),
-                new PresetSlot(1, 195, 285, a, vf, 360, 2, C, 195, 220),
+                new PresetSlot(0, 195, 160, a, 104, vf, 360, 0, C, 195, 95),
+                new PresetSlot(1, 195, 285, a, 104, vf, 360, 2, C, 195, 220),
             ];
         } else { // 1
-            var vf = bold ? fonts.value104B() : fonts.value104(); var a = 95;
+            var vf = fonts.value104(); var a = 95;
             return [
-                new PresetSlot(0, 195, 220, a, vf, 360, 0, C, 195, 120),
+                new PresetSlot(0, 195, 220, a, 104, vf, 360, 0, C, 195, 120),
             ];
         }
     }
@@ -369,24 +337,23 @@ class Theme {
     }
 
     // Largest ladder size <= target whose rendered width fits budgetPx. Shrink-only.
-    // Returns [font, ascent390]. Ladder: 104,76,52,34 (bold variants for Bulkhead).
+    // Returns [font, ascent390]. Ladder: 104,76,64,52,34.
     private function fitValueFont(dc as Graphics.Dc, str as String, budgetPx as Number,
-                                  startSize as Number, fonts as Fonts, bold as Boolean) as Array {
+                                  startSize as Number, fonts as Fonts) as Array {
         var sizes = [104, 76, 64, 52, 34];
         for (var i = 0; i < sizes.size(); i++) {
             var sz = sizes[i];
             if (sz > startSize) { continue; }
             var f; var a;
-            if (sz == 104) { f = bold ? fonts.value104B() : fonts.value104(); a = 95; }
-            else if (sz == 76) { f = bold ? fonts.value76B() : fonts.value76(); a = 69; }
-            else if (sz == 64) { f = bold ? fonts.value64B() : fonts.value64(); a = 59; }
-            else if (sz == 52) { f = bold ? fonts.value52B() : fonts.value52(); a = 48; }
-            else { f = bold ? fonts.valueB() : fonts.value; a = (bold ? 39 : 31); }
+            if (sz == 104) { f = fonts.value104(); a = 95; }
+            else if (sz == 76) { f = fonts.value76(); a = 69; }
+            else if (sz == 64) { f = fonts.value64(); a = 59; }
+            else if (sz == 52) { f = fonts.value52(); a = 48; }
+            else { f = fonts.value; a = 31; }
             if (dc.getTextWidthInPixels(str, f) <= budgetPx) { return [f, a]; }
         }
         // even the floor overflows: use the floor (34) and let it clip minimally
-        var f0 = bold ? fonts.valueB() : fonts.value;
-        return [f0, (bold ? 39 : 31)];
+        return [fonts.value, 31];
     }
 
     private function drawPreset(dc as Graphics.Dc, p as Palette, L as Layout, s as Float,
@@ -398,17 +365,14 @@ class Theme {
             txt(dc, L.ctr, L.titleY, L.titleAsc, tf, p.title, tt, Graphics.TEXT_JUSTIFY_CENTER);
         }
         var lf = L.lblFont;
-        var ps = presetSlots(layout, fonts, usesBold());
+        var ps = presetSlots(layout, fonts);
         for (var i = 0; i < ps.size(); i++) {
             var d = ps[i];
             var id = slots[d.slot];
             if (id == 0) { continue; } // Off
             var color = (d.role == 0) ? p.hero : (d.role == 1 ? p.sval : p.lap);
             var vstr = m.format(id);
-            var startSize = (d.font == fonts.value104() || d.font == fonts.value104B()) ? 104
-                          : (d.font == fonts.value76()  || d.font == fonts.value76B())  ? 76
-                          : (d.font == fonts.value64()  || d.font == fonts.value64B())  ? 64 : 52;
-            var fit = fitValueFont(dc, vstr, rnd(d.widthBudget * s), startSize, fonts, usesBold());
+            var fit = fitValueFont(dc, vstr, rnd(d.widthBudget * s), d.size, fonts);
             txt(dc, rnd(d.x * s), rnd(d.baseY * s), rnd((fit[1] as Number) * s), fit[0] as WatchUi.FontResource, color, vstr, d.just);
             if (showLabels && lf != null) {
                 // L.lblAsc is already scaled by L.scale(s); d.labelX/labelBaseY are @390 so scale them.

@@ -8,9 +8,6 @@
     <font id="LabelFont" filename="label.fnt"/>
     <font id="TitleFont" filename="title.fnt"/>
     <!-- bold (Bulkhead) -->
-    <font id="HeroBoldFont" filename="herob.fnt"/>
-    <font id="ValueBoldFont" filename="valueb.fnt"/>
-    <font id="LabelBoldFont" filename="labelb.fnt"/>
     <!-- preset value sizes -->
     <font id="Value52Font" filename="value52.fnt"/>
     <font id="Value76Font" filename="value76.fnt"/>
@@ -18,8 +15,4 @@
     <font id="Value64Font" filename="value64.fnt"/>
     <font id="Value60Font" filename="value60.fnt"/>
     <font id="Value40Font" filename="value40.fnt"/>
-    <font id="Value52BoldFont" filename="valueb52.fnt"/>
-    <font id="Value76BoldFont" filename="valueb76.fnt"/>
-    <font id="Value104BoldFont" filename="valueb104.fnt"/>
-    <font id="Value64BoldFont" filename="valueb64.fnt"/>
 </resources>
