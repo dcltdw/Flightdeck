@@ -50,7 +50,7 @@ single-purpose PRs, the PR-body sections (`Files changed` annotated
 `Operational impact`, `Provenance`), the board flow, the `Co-Authored-By` model
 stamp, secret-scan-before-push, and verify-before-done — come from the
 machine-global import in `~/.claude/CLAUDE.md`
-(`@~/Github/dcltdw/claude/universal.md`), so they are not duplicated here. For
+(`@~/Github/dcltdw/claude/AGENTS.md`), so they are not duplicated here. For
 Flightdeck, a PR's **Operational impact** section means rebuild / reinstall
 notes (it's a data field; users re-add it to a data screen only if the field set
 changes).
