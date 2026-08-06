@@ -74,6 +74,12 @@ SDK=~/Library/Application\ Support/Garmin/ConnectIQ/Sdks/<your-sdk>
 The custom bitmap fonts, launcher icon, and Phosphor radar watermark are checked
 in under `resources/`; the generators in `tools/` reproduce them.
 
+The bitmap fonts are rasterised from **Roboto Mono** (Apache-2.0), vendored at
+[tools/fonts/](tools/fonts/) so the atlases are reproducible on any machine.
+`Theme.mc` hardcodes each font's ascent, so those constants and the generated
+`base=` values have to agree — `tools/check_font_metrics.py` verifies that, and
+`tools/gen_fonts.py` prints the table to reconcile against after a font change.
+
 ## Power note (AMOLED)
 
 On AMOLED panels, black pixels draw ~nothing and white pixels draw the most, so

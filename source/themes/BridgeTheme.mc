@@ -21,11 +21,11 @@ class BridgeTheme extends Theme {
     function buildLayout(fonts as Fonts) as Layout {
         var L = new Layout();
         L.colL = 112; L.colR = 278; L.ctr = 195;
-        L.titleY = 58; L.titleAsc = 12; L.titleFont = fonts.title; L.title = "COMBAT CONSOLE";
+        L.titleY = 58; L.titleAsc = 14; L.titleFont = fonts.title; L.title = "COMBAT CONSOLE";
         L.lblY1 = 103; L.valY1 = 135;
         L.heroY = 217;
         L.lblY2 = 273; L.valY2 = 305;
-        L.lblAsc = 28; L.valAsc = 48; L.heroAsc = 55;
+        L.lblAsc = 32; L.valAsc = 55; L.heroAsc = 63;
         L.lblFont = fonts.label; L.valFont = fonts.value52(); L.heroFont = fonts.hero;
         return L;
     }

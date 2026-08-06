@@ -136,8 +136,8 @@ class Theme {
     hidden const GRID_BOT_Y = 305;   // bottom-row baseline
     hidden const GRID_EDGE_L = 70;   // left outer-digit target x (Cockpit reticle bar)
     hidden const GRID_EDGE_R = 320;  // right outer-digit target x
-    hidden const VAL60_ASC = 55;     // value60 @390 ascent
-    hidden const VAL40_ASC = 37;     // value40 @390 ascent
+    hidden const VAL60_ASC = 63;     // value60 @390 ascent
+    hidden const VAL40_ASC = 42;     // value40 @390 ascent
     hidden const GRID_GAP = 14;      // half centre safety gap @390
 
     // Subclass hooks (base returns harmless defaults).
@@ -179,7 +179,7 @@ class Theme {
     function presetSlots(layout as Number, fonts as Fonts) as Array<PresetSlot> {
         var C = Graphics.TEXT_JUSTIFY_CENTER;
         if (layout == 4) {
-            var vf = fonts.value64(); var a = 59;
+            var vf = fonts.value64(); var a = 68;
             return [
                 new PresetSlot(0, 108, 146, a, 64, vf, 170, 1, C, 108, 94),
                 new PresetSlot(1, 282, 146, a, 64, vf, 170, 1, C, 282, 94),
@@ -187,20 +187,20 @@ class Theme {
                 new PresetSlot(3, 282, 300, a, 64, vf, 170, 2, C, 282, 248),
             ];
         } else if (layout == 3) {
-            var vf = fonts.value76(); var a = 69;
+            var vf = fonts.value76(); var a = 80;
             return [
                 new PresetSlot(0, 195, 118, a, 76, vf, 360, 0, C, 195, 70),
                 new PresetSlot(1, 195, 218, a, 76, vf, 360, 1, C, 195, 170),
                 new PresetSlot(2, 195, 318, a, 76, vf, 360, 2, C, 195, 270),
             ];
         } else if (layout == 2) {
-            var vf = fonts.value104(); var a = 95;
+            var vf = fonts.value104(); var a = 109;
             return [
                 new PresetSlot(0, 195, 160, a, 104, vf, 360, 0, C, 195, 95),
                 new PresetSlot(1, 195, 285, a, 104, vf, 360, 2, C, 195, 220),
             ];
         } else { // 1
-            var vf = fonts.value104(); var a = 95;
+            var vf = fonts.value104(); var a = 109;
             return [
                 new PresetSlot(0, 195, 220, a, 104, vf, 360, 0, C, 195, 120),
             ];
@@ -332,8 +332,8 @@ class Theme {
         var f60 = fonts.value60();
         if (dc.getTextWidthInPixels(str, f60) <= budgetPx) { return [f60, VAL60_ASC]; }
         var f52 = fonts.value52();
-        if (dc.getTextWidthInPixels(str, f52) <= budgetPx) { return [f52, 48]; }
-        return [fonts.value, 31];
+        if (dc.getTextWidthInPixels(str, f52) <= budgetPx) { return [f52, 55]; }
+        return [fonts.value, 36];
     }
 
     // Largest ladder size <= target whose rendered width fits budgetPx. Shrink-only.
@@ -345,15 +345,15 @@ class Theme {
             var sz = sizes[i];
             if (sz > startSize) { continue; }
             var f; var a;
-            if (sz == 104) { f = fonts.value104(); a = 95; }
-            else if (sz == 76) { f = fonts.value76(); a = 69; }
-            else if (sz == 64) { f = fonts.value64(); a = 59; }
-            else if (sz == 52) { f = fonts.value52(); a = 48; }
-            else { f = fonts.value; a = 31; }
+            if (sz == 104) { f = fonts.value104(); a = 109; }
+            else if (sz == 76) { f = fonts.value76(); a = 80; }
+            else if (sz == 64) { f = fonts.value64(); a = 68; }
+            else if (sz == 52) { f = fonts.value52(); a = 55; }
+            else { f = fonts.value; a = 36; }
             if (dc.getTextWidthInPixels(str, f) <= budgetPx) { return [f, a]; }
         }
         // even the floor overflows: use the floor (34) and let it clip minimally
-        return [fonts.value, 31];
+        return [fonts.value, 36];
     }
 
     private function drawPreset(dc as Graphics.Dc, p as Palette, L as Layout, s as Float,

@@ -13,8 +13,19 @@ the atlases small. Output lands in ``resources/fonts/``; the committed
 
 Dependencies:
   * Pillow with freetype  ->  ``pip install Pillow``
-  * a monospace TTF. Defaults to the macOS system Andale Mono; override with
-    the ``FLIGHTDECK_FONT`` environment variable to point at any monospace TTF.
+  * a monospace TTF. Defaults to the vendored ``tools/fonts/RobotoMono-Regular.ttf``
+    (Apache-2.0 — see ``tools/fonts/README.md``); override with the
+    ``FLIGHTDECK_FONT`` environment variable to point at any monospace TTF.
+
+The source font is vendored rather than taken from the host so the committed
+atlases are reproducible anywhere, and so everything we redistribute carries a
+licence that permits it.
+
+**Metrics are load-bearing.** ``Theme.mc`` positions text by baseline and
+subtracts a hardcoded per-font ascent to reach the ``drawText`` cell top, so
+every ``base=`` written here has a matching constant in ``source/``. This script
+prints the ascent table on exit; reconcile it against those constants after any
+font change.
 
 Usage:
   python3 tools/gen_fonts.py
@@ -28,7 +39,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 RES_ROOT = os.path.normpath(os.path.join(HERE, ".."))
 
 FONT_TTF = os.environ.get(
-    "FLIGHTDECK_FONT", "/System/Library/Fonts/Supplemental/Andale Mono.ttf"
+    "FLIGHTDECK_FONT", os.path.join(HERE, "fonts", "RobotoMono-Regular.ttf")
 )
 
 DIGITS = "0123456789"
@@ -195,20 +206,44 @@ def build_one(fid, size, glyph_set, stroke, outdir):
         png_name,
     )
     print(
-        "  %-6s size=%2d  glyphs=%2d  atlas=%dx%d"
-        % (fid, size, len(glyph_set), atlas.size[0], atlas.size[1])
+        "  %-8s size=%3d  glyphs=%2d  atlas=%dx%d  base=%d"
+        % (fid, size, len(glyph_set), atlas.size[0], atlas.size[1], ascent)
     )
+    return ascent
+
+
+# Where each @390 ascent is hardcoded in the Monkey C source. Printed on exit so
+# a font swap cannot silently desync the layout from the atlases.
+ASC_CONSTANTS = {
+    "hero": "Theme.mc VAL60_ASC / *Theme.mc L.heroAsc",
+    "value": "Theme.mc pickValueFont() literals (3x)",
+    "label": "*Theme.mc L.lblAsc",
+    "title": "Bridge/CockpitTheme.mc L.titleAsc",
+    "value52": "*Theme.mc L.valAsc",
+    "value64": "Theme.mc presetSlots() layout 4",
+    "value76": "Theme.mc presetSlots() layout 3",
+    "value104": "Theme.mc presetSlots() layouts 2 and 1",
+    "value60": "Theme.mc VAL60_ASC",
+    "value40": "Theme.mc VAL40_ASC",
+}
 
 
 def main():
     print("Generating bitmap fonts from %s" % FONT_TTF)
+    ref_ascents = {}
     for bw in BUCKETS:
         outdir = os.path.join(RES_ROOT, "resources-%dx%d" % (bw, bw), "fonts")
         os.makedirs(outdir, exist_ok=True)
         print("bucket %dx%d -> %s" % (bw, bw, outdir))
         for fid, ref_size, glyph_set, stroke in REF_SPECS:
             size = round(ref_size * bw / REF_W)
-            build_one(fid, size, glyph_set, stroke, outdir)
+            ascent = build_one(fid, size, glyph_set, stroke, outdir)
+            if bw == REF_W:
+                ref_ascents[fid] = ascent
+
+    print("\n@%d reference ascents — these MUST match the source constants:" % REF_W)
+    for fid, _ref_size, _glyphs, _stroke in REF_SPECS:
+        print("  %-8s base=%-4d %s" % (fid, ref_ascents[fid], ASC_CONSTANTS[fid]))
     print("Done.")
 
 
