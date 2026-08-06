@@ -49,7 +49,7 @@ class PhosphorTheme extends Theme {
         L.lblY1 = 103; L.valY1 = 135;
         L.heroY = 217;   // exactly centred
         L.lblY2 = 273; L.valY2 = 305;
-        L.lblAsc = 28; L.valAsc = 48; L.heroAsc = 55;
+        L.lblAsc = 32; L.valAsc = 55; L.heroAsc = 63;
         L.lblFont = fonts.label; L.valFont = fonts.value52(); L.heroFont = fonts.hero;
         return L;
     }
