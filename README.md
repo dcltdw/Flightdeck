@@ -86,3 +86,20 @@ On AMOLED panels, black pixels draw ~nothing and white pixels draw the most, so
 the **dark** themes (mostly-black ground, sparse coloured data) are the efficient
 default; **light** themes light most of the panel and cost more battery. (On
 transflective MIP displays, background colour is power-neutral.)
+
+## License
+
+GPL-3.0-or-later — see [LICENSE](LICENSE).
+
+The repository carried no licence before, which meant "all rights reserved" by
+default; this grants rights rather than removing any. Copyleft applies to the
+source: a fork distributed to others has to ship its source under the same
+terms. Running the app, and anything you do with the data it displays, is
+unrestricted.
+
+Third-party material bundled here: **Roboto Mono** (Apache-2.0, see
+[tools/fonts/](tools/fonts/)), from which the bitmap atlases are rasterised.
+Everything else — source, launcher icons, theme artwork, store assets — is
+original.
+
+Contributions are accepted under the same licence as the project.
