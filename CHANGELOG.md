@@ -10,6 +10,17 @@ There is no version field in the Connect IQ manifest; the git tag is the version
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-08-06
+
+- New digit typeface. The bitmap fonts are now rasterised from Roboto Mono; the
+  most visible difference is a slashed zero. Sizes, spacing, and positions are
+  unchanged — every value sits where it did before. The previous source face was
+  bundled with macOS and not ours to redistribute, which is why it changed.
+- Flightdeck is now open source under GPL-3.0-or-later. The repository
+  previously carried no licence at all. Nothing about the app changes; it still
+  requests no permissions.
+- Internal: pruned unused bold font atlases and tightened the preset slot model.
+
 ## [0.1.4] - 2026-07-18
 
 - Bigger, bolder 5-field default: every field now renders at a large uniform

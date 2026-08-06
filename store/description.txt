@@ -32,6 +32,8 @@ During a run, scroll to it like any other data page.
 
 What's changed
 
+0.1.5 — New look for the numbers: the digits are drawn from a new source typeface, most noticeably a slashed zero. Sizes and positions are unchanged, so every field sits exactly where it did. Flightdeck is also now open source under the GPL-3.0-or-later licence. Still requests no permissions.
+
 0.1.4 — Bigger, easier-to-read 5-field layout: every field is now large and uniform, pushed to the screen edges for maximum legibility. Long elapsed and lap times past an hour keep the minutes and seconds full-size with a smaller hours prefix, instead of shrinking the whole value. Refreshed per-theme detailing with dimmed background framing and new accent colours. Still requests no permissions.
 
 0.1.3 — Make it yours: choose any metric for each of the five fields from the Garmin Connect app, and pick how many fields to show — 1 to 5, where fewer fields mean bigger, easier-to-read numbers. Long values now shrink to fit instead of clipping. Refreshed look with larger default values, retuned HUD detailing, and optional field labels. Still requests no permissions.
