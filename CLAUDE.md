@@ -55,9 +55,8 @@ Flightdeck, a PR's **Operational impact** section means rebuild / reinstall
 notes (it's a data field; users re-add it to a data screen only if the field set
 changes).
 
-The Garmin store-release process is shared (edit the shared doc, not a copy):
-
-@~/.claude/dcltdw/garmin-release.md
+Store releases: use the `dcltdw:garmin-release` skill; project specifics in
+the release supplement below.
 
 ### Flightdeck release supplement
 
