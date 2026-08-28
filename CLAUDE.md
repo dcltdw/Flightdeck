@@ -85,8 +85,8 @@ the release supplement below.
 ### Project board
 
 - Board: https://github.com/users/dcltdw/projects/5 (`PVT_kwHOAAdfes4BbXAc`)
-- Status field `PVTSSF_lAHOAAdfes4BbXAczhWIC1k`:
-  Todo `f75ad846`, In Progress `47fc9ee4`, Done `98236657`
+- Status field `PVTSSF_lAHOAAdfes4BbXAczhWIC1k` (verified 2026-08-28):
+  Todo `244b1db1`, In Progress `d7905dd1`, Done `f4661ff3`, Won't Do `37d835e9`
 
 Re-derive if these drift:
 
