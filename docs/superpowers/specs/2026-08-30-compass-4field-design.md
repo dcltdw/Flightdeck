@@ -108,7 +108,7 @@ re-verified from its generated atlas.
 | `5:14` / `8.53` (4-ch) | **104** 223 (226) | **76** 166 | **76** 166 |
 | `34:56` / `12:34` (5-ch) | **104** 285 (289) | **76** 212 | **64** 175 (207 vs 207 on 454 — exact fit) |
 | `100.00` (6-ch) | **76** 251 | **76** 251 | **52** 169 (174) |
-| `1:00:04` | **76+52** 262 | **76+52** 262 | **44+34** ≈152 |
+| `1:00:04` | **76+52** 262 | **76+52** 262 | **52+34** 175 (454 bucket: 44+34) |
 | `12:34:56` | **76+52** 293 | **76+52** 293 (1px margin @390) | **44+34** ≈172 (360 bucket borderline) |
 
 Notes:
@@ -119,10 +119,13 @@ Notes:
   **262px** @390 (the oft-quoted 293 is the `12:34:56` case) — measured from
   the atlases, which makes the N/S budgets comfortable rather than tight.
 - Two knife-edge fits are accepted and must be re-checked whenever fonts
-  regenerate: 5-char at 64 on the 454 bucket (207 ≤ 207), and the projected
-  `12:`+`34:56` 44+34 pair on the 360 bucket. If the generated `value44` atlas
-  misses on 360, the 12-hour pose alone degrades to whole-shrink there — an
-  accepted edge case (sub-13-hour activities on one bucket).
+  regenerate: 5-char at 64 on the 454 bucket (207 ≤ 207), and the
+  `12:`+`34:56` 44+34 pair on the 360 bucket (164 ≤ 164). **Both were
+  confirmed to hold in the simulator** (fr965 pose A; fr265s pose D) — the
+  device's `getTextWidthInPixels` matches the atlas xadvance sums exactly, so
+  neither degrades. If a future font regeneration moves either by 1px, that
+  cell falls a rung (the 360 case to a whole-shrunk 34) — an accepted edge
+  case, not a regression to chase.
 - Execution adds a small width-check step (compute pair widths from the
   generated `.fnt`s against the budgets, per bucket) so these fits are verified
   mechanically, not eyeballed.
@@ -154,6 +157,29 @@ labels centre over their budget midpoints (x 101 / 289) at baseline 160, S at
 labels are on — the same collision class the 3-field preset ships today
 (label baseY 70, titles 58/62); accept, or nudge during sim tuning if it reads
 worse at 104pt.
+
+**Sim outcome (Task 4): with `showLabels` on, layout 4 cannot host four labels
+cleanly, and no nudge of these constants fixes it.** Measured @390 from fr965
+captures: label ink is 21.5px tall and ends at its baseline; N value ink spans
+76.5–151.2 (the bottom is the *baseline*, so it does not move when N shrinks a
+rung); E/W value ink spans 168.4–222.
+
+- **E/W labels vs the N value** — the free band between N's ink bottom (151.2)
+  and E/W's ink top (168.4) is **17.2px, against a 21.5px label**. At the
+  shipped baseline 160 the labels overprint the lower third of the N value by
+  ~12px; a tested nudge to 166 cuts that to ~6px but spends the entire
+  label-to-value gap and reads no better. Structurally unfixable by moving the
+  label alone.
+- **N label vs the title** — the band between the Cockpit/Bridge title ink
+  (ends 62) and N's ink top (76.5) is **14.5px, against a 21.5px label**, so
+  "TIMER" and "FLIGHT OPS" overprint into an illegible mash. Shrinking N does
+  not help (its ink *top* moves down, its baseline does not).
+
+The only real fixes are spec-level and deferred to a follow-up: move E/W's
+baseline off the vertical midline (costing the default labels-off centring),
+suppress the title in layout 4, or skip labels in layout 4 entirely. Since
+`showLabels` defaults off and the N-label-vs-title case is the collision class
+already shipping in the 3-field preset, Task 4 left the constants alone.
 
 ## Verification
 
