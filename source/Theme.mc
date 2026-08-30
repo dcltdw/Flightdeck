@@ -31,6 +31,7 @@ class Fonts {
     private var _v64 as WatchUi.FontResource?;
     private var _v60 as WatchUi.FontResource?;
     private var _v40 as WatchUi.FontResource?;
+    private var _v44 as WatchUi.FontResource?;
 
     function initialize() {
         label = WatchUi.loadResource(Rez.Fonts.LabelFont) as WatchUi.FontResource;
@@ -45,6 +46,7 @@ class Fonts {
     function value64()  as WatchUi.FontResource { if (_v64 == null)  { _v64  = WatchUi.loadResource(Rez.Fonts.Value64Font)  as WatchUi.FontResource; } return _v64; }
     function value60() as WatchUi.FontResource { if (_v60 == null) { _v60 = WatchUi.loadResource(Rez.Fonts.Value60Font) as WatchUi.FontResource; } return _v60; }
     function value40() as WatchUi.FontResource { if (_v40 == null) { _v40 = WatchUi.loadResource(Rez.Fonts.Value40Font) as WatchUi.FontResource; } return _v40; }
+    function value44() as WatchUi.FontResource { if (_v44 == null) { _v44 = WatchUi.loadResource(Rez.Fonts.Value44Font) as WatchUi.FontResource; } return _v44; }
 }
 
 // ---------------------------------------------------------------------------
@@ -347,6 +349,7 @@ class Theme {
         else if (sz == 76) { return [fonts.value76(), 80]; }
         else if (sz == 64) { return [fonts.value64(), 68]; }
         else if (sz == 52) { return [fonts.value52(), 55]; }
+        else if (sz == 44) { return [fonts.value44(), 47]; }
         return [fonts.value, 36];
     }
 
@@ -359,6 +362,7 @@ class Theme {
         else if (bigSize == 76) { return 52; }
         else if (bigSize == 64) { return 34; }
         else if (bigSize == 52) { return 34; }
+        else if (bigSize == 44) { return 34; }
         return 0;
     }
 
@@ -372,7 +376,7 @@ class Theme {
         if (first == null) { return null; }
         var pre = str.substring(0, first + 1);
         var rest = str.substring(first + 1, str.length()) as String;
-        var sizes = [104, 76, 64, 52];
+        var sizes = [104, 76, 64, 52, 44];
         for (var i = 0; i < sizes.size(); i++) {
             var sz = sizes[i];
             if (sz > startSize) { continue; }
@@ -389,10 +393,10 @@ class Theme {
     }
 
     // Largest ladder size <= target whose rendered width fits budgetPx. Shrink-only.
-    // Returns [font, ascent390]. Ladder: 104,76,64,52,34.
+    // Returns [font, ascent390]. Ladder: 104,76,64,52,44,34.
     private function fitValueFont(dc as Graphics.Dc, str as String, budgetPx as Number,
                                   startSize as Number, fonts as Fonts) as Array {
-        var sizes = [104, 76, 64, 52, 34];
+        var sizes = [104, 76, 64, 52, 44, 34];
         for (var i = 0; i < sizes.size(); i++) {
             var sz = sizes[i];
             if (sz > startSize) { continue; }

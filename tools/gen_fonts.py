@@ -61,6 +61,7 @@ REF_SPECS = [
     ("value64", 64, DIGITS + ":.-", 0),
     ("value60", 60, DIGITS + ":.-", 0),
     ("value40", 40, DIGITS + ":.-", 0),
+    ("value44", 44, DIGITS + ":.-", 0),
 ]
 
 # transparent margin baked around each rendered glyph before trimming
@@ -225,6 +226,7 @@ ASC_CONSTANTS = {
     "value104": "Theme.mc presetSlots() layouts 2 and 1",
     "value60": "Theme.mc VAL60_ASC",
     "value40": "Theme.mc VAL40_ASC",
+    "value44": "Theme.mc cutFont() ladder",
 }
 
 

@@ -36,6 +36,7 @@ CHECKS = [
     ("value76", "cutFont ladder", r"fonts\.value76\(\), (\d+)\]"),
     ("value104", "cutFont ladder", r"fonts\.value104\(\), (\d+)\]"),
     ("value52", "cutFont ladder", r"fonts\.value52\(\), (\d+)\]"),
+    ("value44", "cutFont ladder", r"fonts\.value44\(\), (\d+)\]"),
     ("value", "fitGridFont/fitValueFont floor", r"fonts\.value, (\d+)\]"),
 ]
 
