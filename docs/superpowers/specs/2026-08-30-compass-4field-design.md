@@ -100,8 +100,8 @@ renders strictly larger than before.
 
 ## Fit matrix (measured @390; worst-case across the four buckets in parens)
 
-Widths from the committed `.fnt` advances; `value44` rows are projections to be
-re-verified from its generated atlas.
+Widths from the committed `.fnt` advances, including `value44`; all measured
+from the generated atlases and confirmed on device in the simulator pass.
 
 | value | N (296) | S (294) | E/W (178) |
 |---|---|---|---|
@@ -109,7 +109,7 @@ re-verified from its generated atlas.
 | `34:56` / `12:34` (5-ch) | **104** 285 (289) | **76** 212 | **64** 175 (207 vs 207 on 454 — exact fit) |
 | `100.00` (6-ch) | **76** 251 | **76** 251 | **52** 169 (174) |
 | `1:00:04` | **76+52** 262 | **76+52** 262 | **52+34** 175 (454 bucket: 44+34) |
-| `12:34:56` | **76+52** 293 | **76+52** 293 (1px margin @390) | **44+34** ≈172 (360 bucket borderline) |
+| `12:34:56` | **76+52** 293 | **76+52** 293 (1px margin @390) | **44+34** 172 (360 bucket borderline) |
 
 Notes:
 
@@ -118,14 +118,23 @@ Notes:
 - The correction to the #47 planning numbers: the 76+52 pair for `1:00:04` is
   **262px** @390 (the oft-quoted 293 is the `12:34:56` case) — measured from
   the atlases, which makes the N/S budgets comfortable rather than tight.
-- Two knife-edge fits are accepted and must be re-checked whenever fonts
-  regenerate: 5-char at 64 on the 454 bucket (207 ≤ 207), and the
-  `12:`+`34:56` 44+34 pair on the 360 bucket (164 ≤ 164). **Both were
-  confirmed to hold in the simulator** (fr965 pose A; fr265s pose D) — the
-  device's `getTextWidthInPixels` matches the atlas xadvance sums exactly, so
-  neither degrades. If a future font regeneration moves either by 1px, that
-  cell falls a rung (the 360 case to a whole-shrunk 34) — an accepted edge
-  case, not a regression to chase.
+- Three knife-edge fits are accepted and must be re-checked whenever fonts
+  regenerate. Two are graceful — a 1px slip drops them one ladder rung and
+  they still render as a pair — and one is not, because its fallback is a
+  whole-shrunk value:
+  - 5-char at 64 on the 454 bucket (207 ≤ 207) — graceful: a 1px slip falls
+    to 52.
+  - `1:00:04` 52+34 pair at E/W on the 360 bucket (163 ≤ 164) — graceful: a
+    1px slip falls to the 44+34 pair (145px), still a prefix + full-size
+    pair.
+  - `12:`+`34:56` 44+34 pair at E/W on the 360 bucket (164 ≤ 164) — **not
+    graceful**: 44 is the ladder floor's pairing partner, so a 1px slip has
+    nowhere to fall but a whole-shrunk 34pt value (136px) — the #46 defect
+    resurfacing for this one cell. This is the one to watch.
+
+  **All three were confirmed to hold in the simulator** (fr965 pose A; fr265s
+  pose D) — the device's `getTextWidthInPixels` matches the atlas xadvance
+  sums exactly, so none currently degrades.
 - Execution adds a small width-check step (compute pair widths from the
   generated `.fnt`s against the budgets, per bucket) so these fits are verified
   mechanically, not eyeballed.
@@ -153,33 +162,59 @@ like 5-field corners do), Phosphor watermark.
 
 `showLabels` (default off) draws each label above its value, as today. E/W
 labels centre over their budget midpoints (x 101 / 289) at baseline 160, S at
-(195, 254). N's label at (195, 70) sits in the Cockpit/Bridge title band when
-labels are on — the same collision class the 3-field preset ships today
-(label baseY 70, titles 58/62); accept, or nudge during sim tuning if it reads
-worse at 104pt.
+(195, 254), N at (195, 70).
 
-**Sim outcome (Task 4): with `showLabels` on, layout 4 cannot host four labels
-cleanly, and no nudge of these constants fixes it.** Measured @390 from fr965
-captures: label ink is 21.5px tall and ends at its baseline; N value ink spans
-76.5–151.2 (the bottom is the *baseline*, so it does not move when N shrinks a
-rung); E/W value ink spans 168.4–222.
+**Labels-on in layout 4 is a regression this change introduces, not a
+continuation of an existing wart.** Under the old four-corner geometry (64pt
+values), N's value ink spanned y 99–147 with label ink at y 73–94 — a clean
+5px gap; layout 4 with labels on worked. After this change, N grows to 104pt
+and E/W move onto the midline: E/W's label ink (y 139–160) now overprints N's
+104pt value ink (y 75–151) by 12px, and N's own label mashes into the
+Cockpit/Bridge title band. The 3-field preset's own 7px label-over-value
+overlap is a lesser, pre-existing precedent — it covers only the
+N-label-vs-title half of this; the new E/W-vs-N overlap has no precedent and
+is introduced by this branch.
+
+No constant nudge fixes it. Measured @390 (fr965): label ink is 21.5px tall
+and ends at its baseline; N's 104pt value ink spans 76.5–151.2 (the bottom is
+the *baseline*, so it does not move when N shrinks a rung); E/W value ink
+spans 168.4–222.
 
 - **E/W labels vs the N value** — the free band between N's ink bottom (151.2)
-  and E/W's ink top (168.4) is **17.2px, against a 21.5px label**. At the
-  shipped baseline 160 the labels overprint the lower third of the N value by
-  ~12px; a tested nudge to 166 cuts that to ~6px but spends the entire
-  label-to-value gap and reads no better. Structurally unfixable by moving the
-  label alone.
+  and E/W's ink top (168.4) is **17.2px, against a 21.5px label**. Structurally
+  unfixable by moving the label alone: shrinking N moves its ink *top* down,
+  not its baseline, so the band cannot open.
 - **N label vs the title** — the band between the Cockpit/Bridge title ink
   (ends 62) and N's ink top (76.5) is **14.5px, against a 21.5px label**, so
-  "TIMER" and "FLIGHT OPS" overprint into an illegible mash. Shrinking N does
-  not help (its ink *top* moves down, its baseline does not).
+  "TIMER" and "FLIGHT OPS" overprint into an illegible mash.
 
-The only real fixes are spec-level and deferred to a follow-up: move E/W's
-baseline off the vertical midline (costing the default labels-off centring),
-suppress the title in layout 4, or skip labels in layout 4 entirely. Since
-`showLabels` defaults off and the N-label-vs-title case is the collision class
-already shipping in the 3-field preset, Task 4 left the constants alone.
+`showLabels` defaults off, so the shipped default face is unaffected. But
+**fixing this is a hard blocker on the store release (#50)**: a user who
+already has labels on would get a broken screen the moment this update reaches
+them. Merging this branch ships nothing to users by itself — the release
+ticket is the control point where this must be resolved before #50 goes out.
+
+Candidate fixes for the follow-up (none applied here):
+
+- Move E/W's baseline off the vertical midline (costs the default
+  labels-off centring).
+- Suppress the title in layout 4.
+- Skip labels in layout 4 entirely.
+- Cut a smaller label font for layout 4 (costs a new atlas across all four
+  buckets, plus ladder wiring, plus a `check_font_metrics.py` guard row).
+- **Cheapest candidate: put the E/W labels *below* their values instead of
+  above.** The band from E/W's ink bottom (223) to S's ink top (261) is 38px
+  against a 21.5px label, so a baseline near 250 clears the value by ~5px and
+  S by ~11px, and stays inside the circle (the half-chord at y 250 runs
+  x 8–382). It needs no new atlas, no ladder wiring, and no guard row. Two
+  open questions the follow-up must settle before adopting it: it puts the
+  W, S and E labels in one horizontal band (W centred x 101, S x 254, E
+  x 289 — with the longest 5-character label at 30pt, these clear each other
+  by only ~4px), and it makes E/W's labels sit below their values while S's
+  sits above, which may read ambiguously. N is left unfixed either way.
+
+N alone — the label-vs-title collision — genuinely is the 3-field precedent's
+collision class; every other overlap documented above is new.
 
 ## Verification
 

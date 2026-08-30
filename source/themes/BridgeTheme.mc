@@ -66,8 +66,8 @@ class BridgeTheme extends Theme {
             dc.setPenWidth(scP(2, s));
             dc.drawLine(scN(140,s),scN(173,s), scN(162,s),scN(195,s)); dc.drawLine(scN(162,s),scN(195,s), scN(140,s),scN(217,s));
             dc.drawLine(scN(250,s),scN(173,s), scN(228,s),scN(195,s)); dc.drawLine(scN(228,s),scN(195,s), scN(250,s),scN(217,s));
-            dc.setPenWidth(1);
         }
+        dc.setPenWidth(1);
 
         drawBlips(dc, s, layout, light ? 0x2F6076 : 0x3FD8E6); // two diamond blips, layout-positioned
     }

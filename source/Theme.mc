@@ -363,8 +363,9 @@ class Theme {
     // ladder floor and has no partner — 0 means "no pair", i.e. fall back to
     // shrinking the whole value. Two branches below deliberately break the
     // 0.7x rule: 64 stays frozen at its pre-ladder partner 34 (no live budget
-    // pairs with 64 today), and 44 — the ladder floor's newest neighbour —
-    // has only 34 left to pair with. Don't "fix" either back onto the ratio.
+    // lands in the 211-260px window where the 34-vs-44 partner choice changes
+    // the outcome), and 44 — the ladder floor's newest neighbour — has only
+    // 34 left to pair with. Don't "fix" either back onto the ratio.
     private function prefixCut(bigSize as Number) as Number {
         if (bigSize == 104) { return 64; }
         else if (bigSize == 76) { return 52; }
