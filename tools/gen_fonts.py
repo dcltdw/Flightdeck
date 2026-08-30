@@ -223,7 +223,7 @@ ASC_CONSTANTS = {
     "value52": "*Theme.mc L.valAsc",
     "value64": "Theme.mc cutFont() ladder",
     "value76": "Theme.mc presetSlots() layouts 4 and 3",
-    "value104": "Theme.mc presetSlots() layouts 2 and 1",
+    "value104": "Theme.mc presetSlots() layouts 4, 2 and 1",
     "value60": "Theme.mc VAL60_ASC",
     "value40": "Theme.mc VAL40_ASC",
     "value44": "Theme.mc cutFont() ladder",

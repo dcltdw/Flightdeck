@@ -59,12 +59,15 @@ class BridgeTheme extends Theme {
         }
         dc.drawLine(prevX, prevY, firstX, firstY);
 
-        // >< centre targeting reticle (two chevrons pointing inward)
-        dc.setColor(light ? 0xD9A099 : 0x6E2A22, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(scP(2, s));
-        dc.drawLine(scN(140,s),scN(173,s), scN(162,s),scN(195,s)); dc.drawLine(scN(162,s),scN(195,s), scN(140,s),scN(217,s));
-        dc.drawLine(scN(250,s),scN(173,s), scN(228,s),scN(195,s)); dc.drawLine(scN(228,s),scN(195,s), scN(250,s),scN(217,s));
-        dc.setPenWidth(1);
+        if (layout != 4) {
+            // >< centre targeting reticle (two chevrons pointing inward) —
+            // skipped in the compass layout, where E/W values own the midline.
+            dc.setColor(light ? 0xD9A099 : 0x6E2A22, Graphics.COLOR_TRANSPARENT);
+            dc.setPenWidth(scP(2, s));
+            dc.drawLine(scN(140,s),scN(173,s), scN(162,s),scN(195,s)); dc.drawLine(scN(162,s),scN(195,s), scN(140,s),scN(217,s));
+            dc.drawLine(scN(250,s),scN(173,s), scN(228,s),scN(195,s)); dc.drawLine(scN(228,s),scN(195,s), scN(250,s),scN(217,s));
+            dc.setPenWidth(1);
+        }
 
         drawBlips(dc, s, layout, light ? 0x2F6076 : 0x3FD8E6); // two diamond blips, layout-positioned
     }

@@ -155,10 +155,12 @@ class Theme {
     function decorate(dc as Graphics.Dc, light as Boolean, s as Float, layout as Number) as Void {}
 
     // Two small diamond "blips" at a layout-dependent y (Cockpit/Bridge use them).
-    // @390, scaled at draw. Returns 0 only for unknown layouts (none drawn).
+    // @390, scaled at draw. Returns 0 to mean "none drawn" — for unknown
+    // layouts, and deliberately for layout 4, whose compass E/W values own
+    // the midline the blips would otherwise sit on.
     function blipCy(layout as Number) as Number {
         if (layout == 5) { return 248; } // between hero and bottom row
-        if (layout == 4) { return 205; }
+        if (layout == 4) { return 0; }  // compass: E/W own the midline; no blip band
         if (layout == 3) { return 140; } // above the middle (centre) field
         if (layout == 2) { return 180; }
         if (layout == 1) { return 110; } // above the single centre value
@@ -359,7 +361,10 @@ class Theme {
     // The small-prefix partner for a big cut: the largest ladder cut at or under
     // 0.7x it, which is where the 5-field pair sits (40/60 = 0.67). 34 is the
     // ladder floor and has no partner — 0 means "no pair", i.e. fall back to
-    // shrinking the whole value.
+    // shrinking the whole value. Two branches below deliberately break the
+    // 0.7x rule: 64 stays frozen at its pre-ladder partner 34 (no live budget
+    // pairs with 64 today), and 44 — the ladder floor's newest neighbour —
+    // has only 34 left to pair with. Don't "fix" either back onto the ratio.
     private function prefixCut(bigSize as Number) as Number {
         if (bigSize == 104) { return 64; }
         else if (bigSize == 76) { return 52; }
