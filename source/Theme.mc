@@ -181,12 +181,15 @@ class Theme {
     function presetSlots(layout as Number, fonts as Fonts) as Array<PresetSlot> {
         var C = Graphics.TEXT_JUSTIFY_CENTER;
         if (layout == 4) {
-            var vf = fonts.value64(); var a = 68;
+            // Compass N/E/S/W. N is the hero (104pt); E/W hug the midline
+            // edges and grow inward; S mirrors N's width at 76pt. Budgets are
+            // sized so every position fits an hours-prefix pair — see
+            // docs/superpowers/specs/2026-08-30-compass-4field-design.md.
             return [
-                new PresetSlot(0, 108, 146, a, 64, vf, 170, 1, C, 108, 94),
-                new PresetSlot(1, 282, 146, a, 64, vf, 170, 1, C, 282, 94),
-                new PresetSlot(2, 108, 300, a, 64, vf, 170, 2, C, 108, 248),
-                new PresetSlot(3, 282, 300, a, 64, vf, 170, 2, C, 282, 248),
+                new PresetSlot(0, 195, 150, 109, 104, fonts.value104(), 296, 0, C, 195, 70),
+                new PresetSlot(1, 378, 222, 80, 76, fonts.value76(), 178, 2, Graphics.TEXT_JUSTIFY_RIGHT, 289, 160),
+                new PresetSlot(2, 195, 316, 80, 76, fonts.value76(), 294, 1, C, 195, 254),
+                new PresetSlot(3, 12, 222, 80, 76, fonts.value76(), 178, 2, Graphics.TEXT_JUSTIFY_LEFT, 101, 160),
             ];
         } else if (layout == 3) {
             var vf = fonts.value76(); var a = 80;
