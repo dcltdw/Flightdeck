@@ -24,9 +24,10 @@ feature branch merges.
 
 ## Before releasing — listing assets
 
-Release notes and store assets live in **three** places; keep them in sync
-*before* cutting the tag, so the tagged tree matches the shipped build (don't
-refresh them after the fact — that forces a tag re-cut):
+Release notes and store assets live in **three** places, plus a pre-release
+check to run; keep the three in sync *before* cutting the tag, so the tagged
+tree matches the shipped build (don't refresh them after the fact — that
+forces a tag re-cut):
 
 - **`CHANGELOG.md`** — the GitHub Release notes source. Add a `## [X.Y.Z]`
   section (move items out of `Unreleased`). *`release.sh` refuses to run

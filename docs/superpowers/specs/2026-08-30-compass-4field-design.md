@@ -170,10 +170,14 @@ values), N's value ink spanned y 99–147 with label ink at y 73–94 — a clea
 5px gap; layout 4 with labels on worked. After this change, N grows to 104pt
 and E/W move onto the midline: E/W's label ink (y 139–160) now overprints N's
 104pt value ink (y 75–151) by 12px, and N's own label mashes into the
-Cockpit/Bridge title band. The 3-field preset's own 7px label-over-value
-overlap is a lesser, pre-existing precedent — it covers only the
-N-label-vs-title half of this; the new E/W-vs-N overlap has no precedent and
-is introduced by this branch.
+Cockpit/Bridge title band. That title collision is itself a pre-existing
+precedent: the 3-field preset's slot 0 places its label at baseY 70 against
+Cockpit/Bridge title baselines of 58/62 (`source/Theme.mc` layout-3 branch;
+`CockpitTheme.mc` and `BridgeTheme.mc` title constants) — the same
+N-label-vs-title collision this change inherits. Separately, the 3-field
+preset's own label-over-*value* overlap is a lesser, pre-existing ~5.6px
+overprint, distinct from the title collision; the new E/W-vs-N overlap has no
+precedent and is introduced by this branch.
 
 No constant nudge fixes it. Measured @390 (fr965): label ink is 21.5px tall
 and ends at its baseline; N's 104pt value ink spans 76.5–151.2 (the bottom is
@@ -208,7 +212,7 @@ Candidate fixes for the follow-up (none applied here):
   S by ~11px, and stays inside the circle (the half-chord at y 250 runs
   x 8–382). It needs no new atlas, no ladder wiring, and no guard row. Two
   open questions the follow-up must settle before adopting it: it puts the
-  W, S and E labels in one horizontal band (W centred x 101, S x 254, E
+  W, S and E labels in one horizontal band (W centred x 101, S x 195, E
   x 289 — with the longest 5-character label at 30pt, these clear each other
   by only ~4px), and it makes E/W's labels sit below their values while S's
   sits above, which may read ambiguously. N is left unfixed either way.
