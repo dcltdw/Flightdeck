@@ -32,10 +32,10 @@ CHECKS = [
     ("title", "L.titleAsc", r"L\.titleAsc = (\d+)"),
     ("value60", "VAL60_ASC", r"VAL60_ASC = (\d+)"),
     ("value40", "VAL40_ASC", r"VAL40_ASC = (\d+)"),
-    ("value64", "presetSlots/fitValueFont", r"fonts\.value64\(\);? +a? ?= ?(\d+)"),
-    ("value76", "presetSlots/fitValueFont", r"fonts\.value76\(\);? +a? ?= ?(\d+)"),
-    ("value104", "presetSlots/fitValueFont", r"fonts\.value104\(\);? +a? ?= ?(\d+)"),
-    ("value52", "fitValueFont ladder", r"fonts\.value52\(\);? +a? ?= ?(\d+)"),
+    ("value64", "cutFont ladder", r"fonts\.value64\(\), (\d+)\]"),
+    ("value76", "cutFont ladder", r"fonts\.value76\(\), (\d+)\]"),
+    ("value104", "cutFont ladder", r"fonts\.value104\(\), (\d+)\]"),
+    ("value52", "cutFont ladder", r"fonts\.value52\(\), (\d+)\]"),
     ("value", "fitGridFont/fitValueFont floor", r"fonts\.value, (\d+)\]"),
 ]
 
