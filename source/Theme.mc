@@ -233,18 +233,20 @@ class Theme {
         return (str.substring(first + 1, str.length()) as String).find(":") != null;
     }
 
-    // Draw a two-colon duration as [40pt prefix][60pt MM:SS], the two vertically
+    // Draw a two-colon duration as [small prefix][big MM:SS], the two vertically
     // centred together (their cap-centres aligned), justified as one group about
     // `anchorX`. `just` selects group left/right/centre. baseY/anchorX are device px.
+    // The two cuts are parameters, not fixed: the 5-field grid passes 60/40, the
+    // preset layouts pass a pair off their own ladder.
     private function drawDurationGroup(dc as Graphics.Dc, s as Float, str as String,
                                        anchorX as Number, baseY as Number,
                                        just as Graphics.TextJustification,
-                                       fonts as Fonts, color as Number) as Void {
+                                       color as Number,
+                                       fb as WatchUi.FontResource, bigAsc as Number,
+                                       fp as WatchUi.FontResource, smallAsc as Number) as Void {
         var first = str.find(":");
         var pre = str.substring(0, first + 1);            // "1:" / "12:"
         var rest = str.substring(first + 1, str.length()); // "MM:SS"
-        var fp = fonts.value40();
-        var fb = fonts.value60();
         var wp = dc.getTextWidthInPixels(pre, fp);
         var wr = dc.getTextWidthInPixels(rest, fb);
         var total = wp + wr;
@@ -252,12 +254,12 @@ class Theme {
         if (just == Graphics.TEXT_JUSTIFY_RIGHT) { left = anchorX - total; }
         else if (just == Graphics.TEXT_JUSTIFY_CENTER) { left = anchorX - total / 2.0; }
         else { left = anchorX; }
-        // baseY is the 60pt baseline; the 40pt prefix baseline shifts up so the
-        // two cap-centres align: delta = (asc60 - asc40)/2, scaled.
-        var preBaseY = baseY - rnd(((VAL60_ASC - VAL40_ASC) / 2.0) * s);
+        // baseY is the big cut's baseline; the prefix baseline shifts up so the
+        // two cap-centres align: delta = (bigAsc - smallAsc)/2, scaled.
+        var preBaseY = baseY - rnd(((bigAsc - smallAsc) / 2.0) * s);
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(rnd(left), preBaseY - rnd(VAL40_ASC * s), fp, pre, Graphics.TEXT_JUSTIFY_LEFT);
-        dc.drawText(rnd(left + wp), baseY - rnd(VAL60_ASC * s), fb, rest, Graphics.TEXT_JUSTIFY_LEFT);
+        dc.drawText(rnd(left), preBaseY - rnd(smallAsc * s), fp, pre, Graphics.TEXT_JUSTIFY_LEFT);
+        dc.drawText(rnd(left + wp), baseY - rnd(bigAsc * s), fb, rest, Graphics.TEXT_JUSTIFY_LEFT);
     }
 
     private function drawGrid(dc as Graphics.Dc, p as Palette, L as Layout, s as Float,
@@ -279,7 +281,8 @@ class Theme {
         if (slots[0] != 0) {
             var hstr = m.format(slots[0]);
             if (isDuration(hstr)) {
-                drawDurationGroup(dc, s, hstr, L.ctr, scN(GRID_HERO_Y, s), C, fonts, p.hero);
+                drawDurationGroup(dc, s, hstr, L.ctr, scN(GRID_HERO_Y, s), C, p.hero,
+                                  fonts.value60(), VAL60_ASC, fonts.value40(), VAL40_ASC);
             } else {
                 txt(dc, L.ctr, scN(GRID_HERO_Y, s), rnd(VAL60_ASC * s), fonts.value60(), p.hero, hstr, C);
             }
@@ -308,7 +311,8 @@ class Theme {
         if (isDuration(str)) {
             var groupAnchor = growRight ? (edgeX - dc.getTextWidthInPixels("0", fonts.value60()) / 2.0) : (edgeX + dc.getTextWidthInPixels("0", fonts.value60()) / 2.0);
             var gjust = growRight ? Graphics.TEXT_JUSTIFY_LEFT : Graphics.TEXT_JUSTIFY_RIGHT;
-            drawDurationGroup(dc, s, str, rnd(groupAnchor), baseY, gjust, fonts, color);
+            drawDurationGroup(dc, s, str, rnd(groupAnchor), baseY, gjust, color,
+                              fonts.value60(), VAL60_ASC, fonts.value40(), VAL40_ASC);
             return;
         }
         // Inward room from the outer edge to a small centre gap. The outer digit
@@ -336,6 +340,54 @@ class Theme {
         return [fonts.value, 36];
     }
 
+    // [font, ascent@390] for one cut of the preset ladder. 34 is the floor and
+    // the default, so an unknown size lands there rather than failing.
+    private function cutFont(sz as Number, fonts as Fonts) as Array {
+        if (sz == 104) { return [fonts.value104(), 109]; }
+        else if (sz == 76) { return [fonts.value76(), 80]; }
+        else if (sz == 64) { return [fonts.value64(), 68]; }
+        else if (sz == 52) { return [fonts.value52(), 55]; }
+        return [fonts.value, 36];
+    }
+
+    // The small-prefix partner for a big cut: the largest ladder cut at or under
+    // 0.7x it, which is where the 5-field pair sits (40/60 = 0.67). 34 is the
+    // ladder floor and has no partner — 0 means "no pair", i.e. fall back to
+    // shrinking the whole value.
+    private function prefixCut(bigSize as Number) as Number {
+        if (bigSize == 104) { return 64; }
+        else if (bigSize == 76) { return 52; }
+        else if (bigSize == 64) { return 34; }
+        else if (bigSize == 52) { return 34; }
+        return 0;
+    }
+
+    // Largest ladder pair, at or below startSize, whose [prefix][MM:SS] total fits
+    // budgetPx. This is what keeps MM:SS at the layout's own size instead of
+    // shrinking the whole value to make room for the hours. Returns
+    // [bigFont, bigAsc, smallFont, smallAsc], or null when no pair fits.
+    private function fitDurationPair(dc as Graphics.Dc, str as String, budgetPx as Number,
+                                     startSize as Number, fonts as Fonts) as Array or Null {
+        var first = str.find(":");
+        if (first == null) { return null; }
+        var pre = str.substring(0, first + 1);
+        var rest = str.substring(first + 1, str.length()) as String;
+        var sizes = [104, 76, 64, 52];
+        for (var i = 0; i < sizes.size(); i++) {
+            var sz = sizes[i];
+            if (sz > startSize) { continue; }
+            var ps = prefixCut(sz);
+            if (ps == 0) { continue; }
+            var big = cutFont(sz, fonts);
+            var small = cutFont(ps, fonts);
+            var fb = big[0] as WatchUi.FontResource;
+            var fp = small[0] as WatchUi.FontResource;
+            var w = dc.getTextWidthInPixels(pre, fp) + dc.getTextWidthInPixels(rest, fb);
+            if (w <= budgetPx) { return [fb, big[1], fp, small[1]]; }
+        }
+        return null;
+    }
+
     // Largest ladder size <= target whose rendered width fits budgetPx. Shrink-only.
     // Returns [font, ascent390]. Ladder: 104,76,64,52,34.
     private function fitValueFont(dc as Graphics.Dc, str as String, budgetPx as Number,
@@ -344,13 +396,9 @@ class Theme {
         for (var i = 0; i < sizes.size(); i++) {
             var sz = sizes[i];
             if (sz > startSize) { continue; }
-            var f; var a;
-            if (sz == 104) { f = fonts.value104(); a = 109; }
-            else if (sz == 76) { f = fonts.value76(); a = 80; }
-            else if (sz == 64) { f = fonts.value64(); a = 68; }
-            else if (sz == 52) { f = fonts.value52(); a = 55; }
-            else { f = fonts.value; a = 36; }
-            if (dc.getTextWidthInPixels(str, f) <= budgetPx) { return [f, a]; }
+            var cut = cutFont(sz, fonts);
+            var f = cut[0] as WatchUi.FontResource;
+            if (dc.getTextWidthInPixels(str, f) <= budgetPx) { return cut; }
         }
         // even the floor overflows: use the floor (34) and let it clip minimally
         return [fonts.value, 36];
@@ -372,8 +420,19 @@ class Theme {
             if (id == 0) { continue; } // Off
             var color = (d.role == 0) ? p.hero : (d.role == 1 ? p.sval : p.lap);
             var vstr = m.format(id);
-            var fit = fitValueFont(dc, vstr, rnd(d.widthBudget * s), d.size, fonts);
-            txt(dc, rnd(d.x * s), rnd(d.baseY * s), rnd((fit[1] as Number) * s), fit[0] as WatchUi.FontResource, color, vstr, d.just);
+            var budget = rnd(d.widthBudget * s);
+            // A duration with an hours part draws as a small prefix + full-size
+            // MM:SS; everything else (and a duration too wide for any pair)
+            // shrinks whole.
+            var pair = isDuration(vstr) ? fitDurationPair(dc, vstr, budget, d.size, fonts) : null;
+            if (pair != null) {
+                drawDurationGroup(dc, s, vstr, rnd(d.x * s), rnd(d.baseY * s), d.just, color,
+                                  pair[0] as WatchUi.FontResource, pair[1] as Number,
+                                  pair[2] as WatchUi.FontResource, pair[3] as Number);
+            } else {
+                var fit = fitValueFont(dc, vstr, budget, d.size, fonts);
+                txt(dc, rnd(d.x * s), rnd(d.baseY * s), rnd((fit[1] as Number) * s), fit[0] as WatchUi.FontResource, color, vstr, d.just);
+            }
             if (showLabels && lf != null) {
                 // L.lblAsc is already scaled by L.scale(s); d.labelX/labelBaseY are @390 so scale them.
                 txt(dc, rnd(d.labelX * s), rnd(d.labelBaseY * s), L.lblAsc, lf, p.label, m.label(id), Graphics.TEXT_JUSTIFY_CENTER);
