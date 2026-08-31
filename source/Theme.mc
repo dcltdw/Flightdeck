@@ -27,6 +27,7 @@ class Fonts {
     // actually drawn, to spare the 256 KB data-field budget.
     private var _v52 as WatchUi.FontResource?;
     private var _v76 as WatchUi.FontResource?;
+    private var _v88 as WatchUi.FontResource?;
     private var _v104 as WatchUi.FontResource?;
     private var _v64 as WatchUi.FontResource?;
     private var _v60 as WatchUi.FontResource?;
@@ -42,6 +43,7 @@ class Fonts {
 
     function value52()  as WatchUi.FontResource { if (_v52 == null)  { _v52  = WatchUi.loadResource(Rez.Fonts.Value52Font)  as WatchUi.FontResource; } return _v52; }
     function value76()  as WatchUi.FontResource { if (_v76 == null)  { _v76  = WatchUi.loadResource(Rez.Fonts.Value76Font)  as WatchUi.FontResource; } return _v76; }
+    function value88()  as WatchUi.FontResource { if (_v88 == null)  { _v88  = WatchUi.loadResource(Rez.Fonts.Value88Font)  as WatchUi.FontResource; } return _v88; }
     function value104() as WatchUi.FontResource { if (_v104 == null) { _v104 = WatchUi.loadResource(Rez.Fonts.Value104Font) as WatchUi.FontResource; } return _v104; }
     function value64()  as WatchUi.FontResource { if (_v64 == null)  { _v64  = WatchUi.loadResource(Rez.Fonts.Value64Font)  as WatchUi.FontResource; } return _v64; }
     function value60() as WatchUi.FontResource { if (_v60 == null) { _v60 = WatchUi.loadResource(Rez.Fonts.Value60Font) as WatchUi.FontResource; } return _v60; }
@@ -187,21 +189,24 @@ class Theme {
     function presetSlots(layout as Number, fonts as Fonts) as Array<PresetSlot> {
         var C = Graphics.TEXT_JUSTIFY_CENTER;
         if (layout == 4) {
-            // Compass N/E/S/W. N and S are both 104pt; E/W hug the midline
-            // edges and grow inward. S sits lower than a mirrored N would:
-            // 104pt ink is 20px taller than 76pt, so the baseline drops to
-            // keep clear air between S's ink top and the E/W row. E and W
-            // share a size group so the two flanking values always render at
-            // the same cut even when one side's string is wider. Budgets are
-            // sized so every position fits an hours-prefix pair — see
+            // Compass N/E/S/W. N and S are both 88pt; E/W hug the midline
+            // edges and grow inward. 88 is the balance point: E/W are hard
+            // capped at 64 by the screen's width (two 5-char values at 76 want
+            // 424px on a 390px screen), so 104 on N/S made the flanks look like
+            // afterthoughts, while 76 gave up too much. S's baseline sits at
+            // 320, one pixel under the Cockpit corner brackets, which is the
+            // line the layout reads against. E and W share a size group so the
+            // two flanking values always render at the same cut even when one
+            // side's string is wider. Budgets are sized so every position fits
+            // an hours-prefix pair — see
             // docs/superpowers/specs/2026-08-30-compass-4field-design.md.
             var e = new PresetSlot(1, 378, 222, 80, 76, fonts.value76(), 178, 2, Graphics.TEXT_JUSTIFY_RIGHT, 289, 160);
             var w = new PresetSlot(3, 12, 222, 80, 76, fonts.value76(), 178, 2, Graphics.TEXT_JUSTIFY_LEFT, 101, 160);
             e.sizeGroup = 1; w.sizeGroup = 1;
             return [
-                new PresetSlot(0, 195, 150, 109, 104, fonts.value104(), 296, 0, C, 195, 70),
+                new PresetSlot(0, 195, 150, 93, 88, fonts.value88(), 296, 0, C, 195, 70),
                 e,
-                new PresetSlot(2, 195, 320, 109, 104, fonts.value104(), 294, 1, C, 195, 254),
+                new PresetSlot(2, 195, 320, 93, 88, fonts.value88(), 294, 1, C, 195, 254),
                 w,
             ];
         } else if (layout == 3) {
@@ -362,6 +367,7 @@ class Theme {
     // the default, so an unknown size lands there rather than failing.
     private function cutFont(sz as Number, fonts as Fonts) as Array {
         if (sz == 104) { return [fonts.value104(), 109]; }
+        else if (sz == 88) { return [fonts.value88(), 93]; }
         else if (sz == 76) { return [fonts.value76(), 80]; }
         else if (sz == 64) { return [fonts.value64(), 68]; }
         else if (sz == 52) { return [fonts.value52(), 55]; }
@@ -372,13 +378,17 @@ class Theme {
     // The small-prefix partner for a big cut: the largest ladder cut at or under
     // 0.7x it, which is where the 5-field pair sits (40/60 = 0.67). 34 is the
     // ladder floor and has no partner — 0 means "no pair", i.e. fall back to
-    // shrinking the whole value. Two branches below deliberately break the
+    // shrinking the whole value. Three branches below deliberately break the
     // 0.7x rule: 64 stays frozen at its pre-ladder partner 34 (no live budget
     // lands in the 211-260px window where the 34-vs-44 partner choice changes
-    // the outcome), and 44 — the ladder floor's newest neighbour — has only
-    // 34 left to pair with. Don't "fix" either back onto the ratio.
+    // the outcome); 44 — the ladder floor's newest neighbour — has only
+    // 34 left to pair with; and 88 takes 52 (0.59) rather than the 64 the rule
+    // would pick, because 88+64 overflows every live budget on every bucket
+    // while 88+52 fits `1:00:04` on all four. Don't "fix" any of them back
+    // onto the ratio.
     private function prefixCut(bigSize as Number) as Number {
         if (bigSize == 104) { return 64; }
+        else if (bigSize == 88) { return 52; }
         else if (bigSize == 76) { return 52; }
         else if (bigSize == 64) { return 34; }
         else if (bigSize == 52) { return 34; }
@@ -396,7 +406,7 @@ class Theme {
         if (first == null) { return null; }
         var pre = str.substring(0, first + 1);
         var rest = str.substring(first + 1, str.length()) as String;
-        var sizes = [104, 76, 64, 52, 44];
+        var sizes = [104, 88, 76, 64, 52, 44];
         for (var i = 0; i < sizes.size(); i++) {
             var sz = sizes[i];
             if (sz > startSize) { continue; }
@@ -413,10 +423,10 @@ class Theme {
     }
 
     // Largest ladder size <= target whose rendered width fits budgetPx. Shrink-only.
-    // Returns [font, ascent390, size]. Ladder: 104,76,64,52,44,34.
+    // Returns [font, ascent390, size]. Ladder: 104,88,76,64,52,44,34.
     private function fitValueFont(dc as Graphics.Dc, str as String, budgetPx as Number,
                                   startSize as Number, fonts as Fonts) as Array {
-        var sizes = [104, 76, 64, 52, 44, 34];
+        var sizes = [104, 88, 76, 64, 52, 44, 34];
         for (var i = 0; i < sizes.size(); i++) {
             var sz = sizes[i];
             if (sz > startSize) { continue; }

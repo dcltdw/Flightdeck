@@ -41,30 +41,37 @@ these to Timer / LPace / Dist / LDist).
 
 | pos | slot | x | justify | baseline | start cut (asc) | budget | role | size group | label (x, baseY) |
 |---|---|---|---|---|---|---|---|---|---|
-| N | 0 | 195 | centre | 150 | 104 (109) | 296 | 0 hero-warm | — | (195, 70) |
+| N | 0 | 195 | centre | 150 | 88 (93) | 296 | 0 hero-warm | — | (195, 70) |
 | E | 1 | 378 | right | 222 | 76 (80) | 178 | 2 accent | 1 | (289, 160) |
-| S | 2 | 195 | centre | 320 | 104 (109) | 294 | 1 white | — | (195, 254) |
+| S | 2 | 195 | centre | 320 | 88 (93) | 294 | 1 white | — | (195, 254) |
 | W | 3 | 12 | left | 222 | 76 (80) | 178 | 2 accent | 1 | (101, 160) |
 
 Rationale:
 
-- **N is the hero position** (biggest cut, warm hero colour) — matches the
-  3/2/1 presets, where slot 0 gets role 0. Default metric is Timer, the primary
-  running field. A sub-hour `MM:SS` renders at the full 104pt.
+- **N is the hero position** (warm hero colour) — matches the 3/2/1 presets,
+  where slot 0 gets role 0. Default metric is Timer, the primary running field.
+- **N and S sit at 88, and that number is set by E/W's ceiling.** E and W are
+  hard-capped at 64 by the screen's width, not by any budget we choose: W grows
+  rightward from x 12 and E leftward from x 378, so they collide once each
+  budget reaches 183, and a 5-character value at 76 needs 212px. Two of those
+  want 424px on a 390px screen — impossible, and even deleting the centre gap
+  entirely only makes room for a hypothetical 65pt cut. With the flanks pinned
+  at 64, N/S at 104 made E/W read as afterthoughts, and N/S at 76 gave up most
+  of the size this ticket exists to gain. 88 is the balance point, and it
+  required adding the cut (see Fonts). It also *improves* clearance over 104:
+  the tightest measured S case goes from ~7px @390 to ~12px.
 - **E/W are edge-anchored and grow inward** (E right-justified at x 378, W
   left-justified at x 12), the 5-field "outer digit at the edge" idea applied
   at the midline where the round screen is widest. Their baselines centre the
   76pt digit ink on the vertical middle (ink spans y 167–223). Budgets of 178
   each leave a ≥10px centre gap even when both are at their widest.
-- **S matches N at 104** and drops its baseline from 316 to 320 to pay for it.
-  104pt digit ink is 76px tall against 76pt's 56px, so at a fixed baseline the
-  extra height would grow *upward* into the E/W row; the 4px baseline drop puts
-  S's ink at y 245–321 (was 261–317), keeping ~22px of air below E/W's ink
-  bottom at 223. 320 is the floor: it is where the widest string that still
-  renders at 104 reaches the circle-clearance margin (below), and it also sets
-  S's ink one pixel under the Cockpit corner brackets at y 320, which is the
-  visual line the layout reads against. N and S are now equals in size; the
-  hierarchy is carried by colour (warm hero vs white) rather than by scale.
+- **S matches N at 88** and sits at baseline 320 rather than the original 316.
+  88pt digit ink is 65px tall against 76pt's 56px, so at a fixed baseline the
+  extra height grows *upward* into the E/W row; the baseline drop puts S's ink
+  at y 255–321 (was 261–317), keeping ~32px of air below E/W's ink bottom at
+  223. 320 also sets S's ink one pixel under the Cockpit corner brackets at
+  y 320, which is the visual line the layout reads against. N and S are equals
+  in size; the hierarchy is carried by colour (warm hero vs white), not scale.
 - **E and W share size group 1**, so both always render at the smaller of the
   two cuts either one needs on its own (see Size groups). Without it the
   flanking pair diverges purely on character count — a 5-character `11:39` at E
@@ -73,13 +80,12 @@ Rationale:
 - **Roles** are positional as everywhere else. E/W get the lap accent because
   the #49 defaults put lap metrics there; in the brief window before #49 lands,
   E shows session Pace in the accent colour — accepted.
-- Circle clearance at the widest corners: N ink corners (±148, y 75) sit at
-  r ≈ 190.5. S's binding case is a 5-character string at 104 (285px, e.g.
-  `59:59`) with ink corners (±142.5, y 321) at r ≈ 190.2 — the 294 budget
-  already excludes 5 plain digits at 104 (310px), which would not clear. Both
-  are inside the r 195 edge with ~5px of bounding-box margin; measured against
-  rendered pixels, where the rounded glyph corners buy some back, S's real
-  clearance is ~7px @390. E/W ink corners are well clear (chord at y 167/223
+- Circle clearance at the widest corners, measured off rendered pixels on
+  fr965 (the bounding-box corner is pessimistic — rounded glyph corners buy
+  some back). S's binding cases at 88 are `100.00` whole (289px, ~16px @390
+  clear) and the `1:00:04` 88+52 pair (294px, ~12px). A typical `22:33` sits
+  ~24px clear. All are more generous than the 104 variant this replaced, whose
+  tightest case was ~7px. E/W ink corners are well clear (chord at y 167/223
   runs x 2–388).
 - `PresetSlot.asc` is populated (109 / 80) for consistency though `drawPreset`
   takes ascents from the fit result.
@@ -130,17 +136,40 @@ only by strings too wide for 52 within a 360 budget (none of our formats), so
 their behaviour is unchanged in practice, and where it ever did trigger it
 renders strictly larger than before.
 
+## Fonts: a second new cut, `value88`
+
+The ladder's 104 → 76 step is the other unhelpful gap, and the compass is what
+exposed it: with E/W pinned at 64 by the screen's width, N/S needed a size
+between the two, and there wasn't one. `value88` (glyphs `0-9:.-`, stroke 0,
+same family, ascent **93** read from the generated atlas) fills it, wired the
+same way as `value44`: `REF_SPECS` and `ASC_CONSTANTS` in `tools/gen_fonts.py`,
+`Value88Font` in all four `fonts.xml`, a lazy `Fonts.value88()`, a `cutFont`
+row, both ladders, and a `check_font_metrics.py` `CHECKS` row.
+
+`prefixCut(88) = 52`, not the 64 the 0.7x rule would pick — measured, not
+assumed: 88+64 overflows every live budget on every bucket, while 88+52 fits
+`1:00:04` on all four. Two side benefits fall out of the new rung for free:
+`100.00` at N/S gains a step (289px at 88 against a 294 budget, was 76), and so
+does any 5-digit value like an altitude in feet (265px, was 76 — at 104 it
+needed 310px and could not fit at all).
+
+Layouts 3 sees 88 not at all (its start size is 76, so the rung is skipped).
+Layouts 2 and 1 start at 104 with a 360 budget, so they gain 88 as a rung
+between 104 and 76: a 7-character whole value like `1000.00` now renders at 88
+(342px) where it previously fell to 76 (297px) — strictly larger, still fitting,
+confirmed in the simulator.
+
 ## Fit matrix (measured @390; worst-case across the four buckets in parens)
 
 Widths from the committed `.fnt` advances, including `value44`; all measured
 from the generated atlases and confirmed on device in the simulator pass.
 
-| value | N (296) | S (294) | E/W (178, grouped) |
+| value | N (88 start, 296) | S (88 start, 294) | E/W (76 start, 178, grouped) |
 |---|---|---|---|
-| `5:14` / `8.53` (4-ch) | **104** 223 (226) | **104** 214–223 | **76** 166 |
-| `34:56` / `12:34` (5-ch) | **104** 285 (289) | **104** 285 | **64** 175 (207 vs 207 on 454 — exact fit) |
-| `100.00` (6-ch) | **76** 251 | **76** 251 | **52** 169 (174) |
-| `1:00:04` | **76+52** 262 | **76+52** 262 | **52+34** 175 (454 bucket: 44+34) |
+| `5:14` / `8.53` (4-ch) | **88** 183–191 | **88** 183–191 | **76** 159–166 |
+| `34:56` / `12:34` (5-ch) | **88** 244 | **88** 244 | **64** 175 (207 vs 207 on 454 — exact fit) |
+| `100.00` (6-ch) | **88** 289 | **88** 289 (5px margin) | **52** 169 (174) |
+| `1:00:04` | **88+52** 294 | **88+52** 294 (0px margin @390) | **52+34** 175 (454 bucket: 44+34) |
 | `12:34:56` | **76+52** 293 | **76+52** 293 (1px margin @390) | **44+34** 172 (360 bucket borderline) |
 
 The E/W column is what each side resolves to *on its own*; the size group then
@@ -159,8 +188,8 @@ Notes:
 - The correction to the #47 planning numbers: the 76+52 pair for `1:00:04` is
   **262px** @390 (the oft-quoted 293 is the `12:34:56` case) — measured from
   the atlases, which makes the N/S budgets comfortable rather than tight.
-- Three knife-edge fits are accepted and must be re-checked whenever fonts
-  regenerate. Two are graceful — a 1px slip drops them one ladder rung and
+- Five knife-edge fits are accepted and must be re-checked whenever fonts
+  regenerate. Four are graceful — a 1px slip drops them one ladder rung and
   they still render as a pair — and one is not, because its fallback is a
   whole-shrunk value:
   - 5-char at 64 on the 454 bucket (207 ≤ 207) — graceful: a 1px slip falls
@@ -168,14 +197,20 @@ Notes:
   - `1:00:04` 52+34 pair at E/W on the 360 bucket (163 ≤ 164) — graceful: a
     1px slip falls to the 44+34 pair (145px), still a prefix + full-size
     pair.
+  - `1:00:04` 88+52 pair at **S** on the 390 bucket (294 ≤ 294) and on the
+    360 bucket (271 ≤ 271) — both exactly zero margin, and both graceful: a
+    slip falls to the 76+52 pair (262 / 239px), one rung down and still a
+    pair. The 416 and 454 buckets carry 3px and 2px. These two are the price
+    of `prefixCut(88) = 52`; N's 296 budget gives the same pair 2px, so N is
+    not on the edge.
   - `12:`+`34:56` 44+34 pair at E/W on the 360 bucket (164 ≤ 164) — **not
     graceful**: 44 is the ladder floor's pairing partner, so a 1px slip has
     nowhere to fall but a whole-shrunk 34pt value (136px) — the #46 defect
     resurfacing for this one cell. This is the one to watch.
 
-  **All three were confirmed to hold in the simulator** (fr965 pose A; fr265s
-  pose D) — the device's `getTextWidthInPixels` matches the atlas xadvance
-  sums exactly, so none currently degrades.
+  **All were confirmed to hold in the simulator** — the device's
+  `getTextWidthInPixels` matches the atlas xadvance sums exactly, so none
+  currently degrades.
 - Execution adds a small width-check step (compute pair widths from the
   generated `.fnt`s against the budgets, per bucket) so these fits are verified
   mechanically, not eyeballed.
@@ -232,13 +267,13 @@ spans 168.4–222.
 - **N label vs the title** — the band between the Cockpit/Bridge title ink
   (ends 62) and N's ink top (76.5) is **14.5px, against a 21.5px label**, so
   "TIMER" and "FLIGHT OPS" overprint into an illegible mash.
-- **S label vs the S value** — S's 104pt start puts its ink top at 245, above
-  its own label anchor at baseline 254 (ink 232.5–254), so the label now sits
-  *inside* the value rather than above it. Under the original 76pt S the label
-  cleared the ink top at 261 by 7px. This one *is* fixable by moving the label
-  alone — the band between E/W's ink bottom (223) and S's ink top (245) is 22px,
-  enough for a 21.5px label at a baseline near 244 — but it is left alone here
-  because the follow-up has to settle all four label positions together.
+- **S label vs the S value** — S's 88pt start puts its ink top at 255, just
+  above its own label anchor's baseline at 254 (label ink 232.5–254), so the
+  label and value now touch rather than clear each other by the 7px the
+  original 76pt S had. This one *is* comfortably fixable by moving the label
+  alone — the band between E/W's ink bottom (223) and S's ink top (255) is
+  32px, plenty for a 21.5px label — but it is left alone here because the
+  follow-up has to settle all four label positions together.
 
 `showLabels` defaults off, so the shipped default face is unaffected. But
 **fixing this is a hard blocker on the store release (#50)**: a user who

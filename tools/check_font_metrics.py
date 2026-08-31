@@ -34,6 +34,7 @@ CHECKS = [
     ("value40", "VAL40_ASC", r"VAL40_ASC = (\d+)"),
     ("value64", "cutFont ladder", r"fonts\.value64\(\), (\d+)\]"),
     ("value76", "cutFont ladder", r"fonts\.value76\(\), (\d+)\]"),
+    ("value88", "cutFont ladder", r"fonts\.value88\(\), (\d+)\]"),
     ("value104", "cutFont ladder", r"fonts\.value104\(\), (\d+)\]"),
     ("value52", "cutFont ladder", r"fonts\.value52\(\), (\d+)\]"),
     ("value44", "cutFont ladder", r"fonts\.value44\(\), (\d+)\]"),
