@@ -12,11 +12,21 @@
     <string id="ModeLight">Light</string>
 
     <!-- field configuration -->
-    <string id="SettingSlot0">Field 1 (center)</string>
-    <string id="SettingSlot1">Field 2 (top-left)</string>
-    <string id="SettingSlot2">Field 3 (top-right)</string>
-    <string id="SettingSlot3">Field 4 (bottom-left)</string>
-    <string id="SettingSlot4">Field 5 (bottom-right)</string>
+    <string id="SettingL4N">4 fields · North (top)</string>
+    <string id="SettingL4E">4 fields · East (right)</string>
+    <string id="SettingL4S">4 fields · South (bottom)</string>
+    <string id="SettingL4W">4 fields · West (left)</string>
+    <string id="SettingL5C">5 fields · Center</string>
+    <string id="SettingL5TL">5 fields · Top left</string>
+    <string id="SettingL5TR">5 fields · Top right</string>
+    <string id="SettingL5BL">5 fields · Bottom left</string>
+    <string id="SettingL5BR">5 fields · Bottom right</string>
+    <string id="SettingL3Top">3 fields · Top</string>
+    <string id="SettingL3Mid">3 fields · Middle</string>
+    <string id="SettingL3Bot">3 fields · Bottom</string>
+    <string id="SettingL2Top">2 fields · Top</string>
+    <string id="SettingL2Bot">2 fields · Bottom</string>
+    <string id="SettingL1C">1 field · Center</string>
     <string id="SettingLabels">Show labels</string>
     <string id="SettingLayout">Layout (field count)</string>
     <string id="Layout5">5 fields</string>
