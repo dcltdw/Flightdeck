@@ -109,8 +109,9 @@ class Layout {
 }
 
 // ---------------------------------------------------------------------------
-// One field slot within a preset: which slot of the active layout's slots array it draws, where, at what
-// size/role. x/baseY/asc/widthBudget/labelX/labelY are @390 (scaled at draw).
+// One field slot within a preset: which slot of the active layout's slots
+// array it draws, where, at what size/role.
+// x/baseY/asc/widthBudget/labelX/labelY are @390 (scaled at draw).
 class PresetSlot {
     public var slot as Number;      // index into the active layout's slots array
     public var x as Number;

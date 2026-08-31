@@ -5,13 +5,16 @@ Monkey C). It's an *additive* data screen for a run profile — you add it to a 
 activity and swipe to it like any other data page; it doesn't replace the native
 screens. No buttons or touch are captured.
 
-Each face shows the same metric set, arranged as a four-corner grid around a
-large centred hero clock:
+Each face shows a **configurable** metric set: pick a layout of 5, 4, 3, 2 or
+1 fields, and choose the metric shown in each of that layout's positions
+independently — the 5-field layout's fields don't affect the 3-field one's. A
+fresh install starts on the 4-field compass, a large centred hero clock with
+one metric on each side:
 
 ```
-   PACE                 DIST          (session pace / distance)
-            24:18                     (elapsed time — hero)
-   PACE                 TIME          (lap pace / lap time)
+              0:00                    (elapsed time — hero, top)
+   0.00                --:--          (lap distance / lap pace)
+              0.00                    (distance, bottom)
 ```
 
 ## Themes
@@ -31,6 +34,11 @@ battery-smart choice on AMOLED.
 
 - **Theme** — Cockpit / Bridge / Bulkhead / Phosphor
 - **Mode** — Dark / Light
+- **Layout (field count)** — 5 / 4 / 3 / 2 / 1 fields, each with its own field
+  configuration
+- **Fields** — the metric shown in each position of the selected layout (Off
+  is available)
+- **Show labels** — short metric names above each value
 
 Set these from the Garmin Connect app (**Connect IQ Store → Flightdeck →
 Settings**) or the Connect IQ store app, then sync.

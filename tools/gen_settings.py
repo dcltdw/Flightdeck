@@ -78,7 +78,7 @@ def main():
     for prop, title in SLOTS:
         lines += list_setting(prop, title, METRICS)
     lines += ['    </settings>', '</resources>', '']
-    with open(OUT, "w") as f:
+    with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(lines))
     print("wrote " + os.path.normpath(OUT))
 

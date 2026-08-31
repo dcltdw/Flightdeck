@@ -157,10 +157,12 @@ the generator is ~70 lines written once.
 
 Deleting `slot0..slot4` orphans the stored values: on update the app reads
 the new ids, finds nothing, and falls back to the new defaults. Anyone who
-customised fields loses that customisation and — combined with the `layout`
-flip for users who never saved settings — may land on the 4-field compass
-with default metrics. Accepted by decision; the documentation obligations
-are part of this change's acceptance:
+customised fields loses that customisation. A stored `layout` value, by
+contrast, survives the update and still wins over the new default —
+verified in the simulator by installing the pre-change build, then updating
+over its settings store — so upgraders keep the layout they had and only
+fresh installs land on the 4-field compass. Accepted by decision; the
+documentation obligations are part of this change's acceptance:
 
 - **PR body:** stated in `Operational impact` (users re-add nothing — the
   field set is unchanged — but customised metrics reset to defaults).
@@ -173,8 +175,8 @@ are part of this change's acceptance:
   no longer touches the 5-field one — and new installs start on the big
   4-field compass layout. One-time note: this update resets any custom
   field choices to the new defaults; set them again in Garmin Connect."*
-- `layout` and `showLabels` keep their ids, so users who saved settings keep
-  their stored layout and label choice; only the 5 slot values reset.
+- `layout` and `showLabels` keep their ids, so any existing installation
+  keeps its stored layout and label choice; only the 5 slot values reset.
 
 ## Labels-on in layout 4: unchanged calculus, still a #50 gate
 
