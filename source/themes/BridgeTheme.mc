@@ -13,7 +13,9 @@ class BridgeTheme extends Theme {
 
     function buildPalette(light as Boolean) as Palette {
         if (light) {
-            return new Palette(0xE7EBF0, 0x2F6076, 0x16202A, 0x16202A, 0xB06A0C, 0x8A2A20);
+            // Session shares the hero amber so the compass reads N and S as one
+            // pair against a contrasting E/W, matching Cockpit light.
+            return new Palette(0xE7EBF0, 0x2F6076, 0xB06A0C, 0x16202A, 0xB06A0C, 0x8A2A20);
         }
         return new Palette(0x080b12, 0x8AA9C2, 0xFFFFFF, 0xFFFF00, 0xFFC890, 0xE8756A);
     }

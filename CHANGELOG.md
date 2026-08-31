@@ -10,6 +10,15 @@ There is no version field in the Connect IQ manifest; the git tag is the version
 
 ## [Unreleased]
 
+- Light modes now tell the value roles apart by colour. Phosphor light was the
+  worst case: its hero, session and lap colours were two near-identical teals,
+  so every value on the face read as one colour — it is the only palette that
+  separated nothing. Session now shares the hero teal and the lap values take
+  the radar watermark's own circle red, which is already on screen. Bridge and
+  Bulkhead light give their session values the hero amber, so the compass reads
+  its top and bottom as one pair against contrasting sides — the arrangement
+  Cockpit light already had. Dark modes are unchanged.
+
 - Times past an hour keep their size on the 4-, 3-, 2- and 1-field layouts:
   the hours now render as a small prefix (`1:` beside a full-size `00:04`)
   instead of the whole value shrinking to fit. The 5-field layout already did
