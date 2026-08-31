@@ -6,6 +6,19 @@ Assets for the Connect IQ store listing.
 Listing copy (plain text, cut-and-paste). Its tail carries the **What's changed** release
 notes — there is no separate changelog in the listing.
 
+Two constraints, neither enforced by anything that runs:
+
+- **4000-character hard cap** (the store's). Check it and print the number:
+  `wc -m store/description.txt`.
+- **No `>` character** — the store rejects it.
+
+**Keep only the two most recent versions** under "What's changed": the current
+release and the one before it. The full history lives in
+[`CHANGELOG.md`](../CHANGELOG.md), which is strictly richer than the store copy
+ever was, so trimming here loses nothing. Adding each release without dropping
+the oldest is what walks the file into the cap — as of 0.2.0 it had reached
+3993/4000 with five entries, versus 2923 with two.
+
 ## `hero.png` — 1440×720 store banner
 Dark banner: the FLIGHTDECK wordmark + tagline over the three hero faces
 (Cockpit Dark, Bulkhead Dark, Bridge Light). Rebuild from the captures in
