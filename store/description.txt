@@ -1,9 +1,9 @@
 Flightdeck turns your run screen into a heads-up data field. Add it to a run profile and swipe to it like any other data page — it's additive and doesn't replace Garmin's native screens.
 
 Live metrics, at a glance:
-• Session pace and distance
 • Elapsed time, front and centre
-• Lap pace and lap time
+• Lap pace and lap distance either side
+• Session distance below
 
 Four themes, dark or light:
 • Cockpit — warm HUD with corner reticles and a scan line
@@ -15,7 +15,8 @@ Pick your theme and dark/light mode from the Garmin Connect app.
 
 Make it yours, all from the Garmin Connect app:
 • Choose any metric for each field — pace, distance, heart rate, cadence, elevation, calories, speed, and their lap and average variants
-• Pick how many fields to show — 1 to 5. Fewer fields mean bigger, easier-to-read numbers
+• Pick how many fields to show — 1 to 5. Fewer fields mean bigger, easier-to-read numbers. The default is a 4-field compass: one value at the top, one at each side, one at the bottom
+• Every layout keeps its own field choices, so setting up one leaves the others alone
 • Turn short field labels on or off
 
 Adding it to a run:
@@ -32,6 +33,8 @@ During a run, scroll to it like any other data page.
 
 What's changed
 
+0.2.0 — A bigger, bolder default screen. The 4-field view is now a compass: one large value at the top, one at each side, and one at the bottom, with much larger numbers than the old corner grid. It is also the new default layout. If you never changed the layout setting you will now see it instead of the 5-field grid, which is still one setting away in Garmin Connect. Each layout now keeps its own field choices independently. Note: because the field settings changed shape, custom field choices are reset to their defaults — set them again in Garmin Connect. Your theme, mode, layout and label settings are kept. Times past an hour now keep their size on every layout. Still requests no permissions.
+
 0.1.5 — New look for the numbers: the digits are drawn from a new source typeface, most noticeably a slashed zero. Sizes and positions are unchanged, so every field sits exactly where it did. Flightdeck is also now open source under the GPL-3.0-or-later licence. Still requests no permissions.
 
 0.1.4 — Bigger, easier-to-read 5-field layout: every field is now large and uniform, pushed to the screen edges for maximum legibility. Long elapsed and lap times past an hour keep the minutes and seconds full-size with a smaller hours prefix, instead of shrinking the whole value. Refreshed per-theme detailing with dimmed background framing and new accent colours. Still requests no permissions.
@@ -40,4 +43,3 @@ What's changed
 
 0.1.2 — Brighter, easier-to-read metric values on the dark themes: white session values up top, a distinct accent colour for each theme's lap values (Cockpit green, Bridge yellow, Bulkhead red, Phosphor cyan), and a consistent elapsed-time colour across all four. Also fixes lap pace and lap time not resetting during structured (interval) workouts.
 
-0.1.1 — Initial public release. Four themes (Cockpit / Bridge / Bulkhead / Phosphor) × dark/light; live session pace & distance, elapsed time, and lap pace/time; responsive rendering across AMOLED running watches (390×390, 360×360, 416×416, 454×454); custom bitmap fonts; per-device launcher icons.

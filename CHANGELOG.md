@@ -8,8 +8,22 @@ built `.iq` attached for quick rollback — see [docs/releasing.md](docs/releasi
 
 There is no version field in the Connect IQ manifest; the git tag is the version.
 
-## [Unreleased]
+## [0.2.0] - 2026-08-31
 
+- The 4-field layout is now arranged as a compass: one large value at the top,
+  one at each side, and one at the bottom, with much bigger type than the old
+  four-corner grid.
+- **New installs start on the 4-field compass** instead of the 5-field grid.
+  Anyone who never changed the layout setting moves from a 5-field screen to a
+  4-field one on update; the 5-field grid is still one setting away in Garmin
+  Connect.
+- Each layout now has its own field configuration with its own defaults:
+  choosing metrics for one layout no longer changes any other. The 4-field
+  compass starts as Timer / Lap pace / Distance / Lap distance.
+- **One-time reset:** because the per-layout field settings changed shape,
+  custom field choices from earlier versions revert to the new defaults — set
+  them again in Garmin Connect. Theme, mode, layout and label settings are kept.
+  There is no migration shim; this was an accepted, deliberate trade-off.
 - Light modes now tell the value roles apart by colour. Phosphor light was the
   worst case: its hero, session and lap colours were two near-identical teals,
   so every value on the face read as one colour — it is the only palette that
@@ -18,22 +32,10 @@ There is no version field in the Connect IQ manifest; the git tag is the version
   Bulkhead light give their session values the hero amber, so the compass reads
   its top and bottom as one pair against contrasting sides — the arrangement
   Cockpit light already had. Dark modes are unchanged.
-
-- Times past an hour keep their size on the 4-, 3-, 2- and 1-field layouts:
-  the hours now render as a small prefix (`1:` beside a full-size `00:04`)
-  instead of the whole value shrinking to fit. The 5-field layout already did
-  this.
-- The 4-field layout is now arranged as a compass: one large value at the
-  top, one at each side, and one at the bottom, with much bigger type than
-  the old four-corner grid. Times past an hour keep their size there too.
-- Each layout now has its own field configuration with its own defaults:
-  choosing metrics for one layout no longer changes any other. The 4-field
-  compass starts as Timer / Lap pace / Distance / Lap distance.
-- New installs start on the 4-field compass layout instead of the 5-field
-  grid.
-- One-time reset: because the field settings changed shape, custom field
-  choices from earlier versions revert to the new defaults — set them again
-  in Garmin Connect. Theme, mode, layout and label settings are kept.
+- Times past an hour keep their size on the 4-, 3-, 2- and 1-field layouts: the
+  hours now render as a small prefix (`1:` beside a full-size `00:04`) instead
+  of the whole value shrinking to fit. The 5-field layout already did this, and
+  the 4-field compass picked it up once its slots were widened.
 
 ## [0.1.5] - 2026-08-06
 
