@@ -12,7 +12,9 @@ class WallTheme extends Theme {
 
     function buildPalette(light as Boolean) as Palette {
         if (light) {
-            return new Palette(0xE7EBF0, 0x2F6076, 0xC62828, 0xC62828, 0xB06A0C, 0x000000);
+            // Session shares the hero amber so the compass reads N and S as one
+            // pair against a contrasting E/W, matching Cockpit light.
+            return new Palette(0xE7EBF0, 0x2F6076, 0xB06A0C, 0xC62828, 0xB06A0C, 0x000000);
         }
         return new Palette(0x060709, 0x8AA9C2, 0xFFFFFF, 0xFF6B52, 0xFFC890, 0x000000);
     }

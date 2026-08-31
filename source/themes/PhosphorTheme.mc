@@ -37,7 +37,14 @@ class PhosphorTheme extends Theme {
 
     function buildPalette(light as Boolean) as Palette {
         if (light) {
-            return new Palette(0xE6ECF0, 0x1F7A45, 0x1E6E86, 0x1E6E86, 0x0E7488, 0x000000);
+            // Light mode used to set hero/sval/lap to two near-identical teals
+            // (pairwise dE 4.7/4.7/0.0), so every value role read as one colour —
+            // the only palette in the app that separated nothing. Session now
+            // shares the hero teal and lap takes #B0335A, the radar watermark's
+            // own circle colour (5.1:1 on this ground, dE 76 off the teal). The
+            // watermark's orange blip #E8621F was the other candidate and fails:
+            // 2.8:1 against a near-white ground.
+            return new Palette(0xE6ECF0, 0x1F7A45, 0x0E7488, 0xB0335A, 0x0E7488, 0x000000);
         }
         return new Palette(0x03110a, 0x4CF08C, 0xFFFFFF, 0x00FFFF, 0xFFC890, 0x000000);
     }
