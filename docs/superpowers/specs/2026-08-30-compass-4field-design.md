@@ -39,12 +39,12 @@ Slot order keeps today's config indices: `slot0`→N, `slot1`→E, `slot2`→S,
 `slot3`→W (under current defaults: Timer / Pace / Dist / LPace; #49 later maps
 these to Timer / LPace / Dist / LDist).
 
-| pos | slot | x | justify | baseline | start cut (asc) | budget | role | label (x, baseY) |
-|---|---|---|---|---|---|---|---|---|
-| N | 0 | 195 | centre | 150 | 104 (109) | 296 | 0 hero-warm | (195, 70) |
-| E | 1 | 378 | right | 222 | 76 (80) | 178 | 2 accent | (289, 160) |
-| S | 2 | 195 | centre | 316 | 76 (80) | 294 | 1 white | (195, 254) |
-| W | 3 | 12 | left | 222 | 76 (80) | 178 | 2 accent | (101, 160) |
+| pos | slot | x | justify | baseline | start cut (asc) | budget | role | size group | label (x, baseY) |
+|---|---|---|---|---|---|---|---|---|---|
+| N | 0 | 195 | centre | 150 | 104 (109) | 296 | 0 hero-warm | — | (195, 70) |
+| E | 1 | 378 | right | 222 | 76 (80) | 178 | 2 accent | 1 | (289, 160) |
+| S | 2 | 195 | centre | 320 | 104 (109) | 294 | 1 white | — | (195, 254) |
+| W | 3 | 12 | left | 222 | 76 (80) | 178 | 2 accent | 1 | (101, 160) |
 
 Rationale:
 
@@ -56,19 +56,51 @@ Rationale:
   at the midline where the round screen is widest. Their baselines centre the
   76pt digit ink on the vertical middle (ink spans y 167–223). Budgets of 178
   each leave a ≥10px centre gap even when both are at their widest.
-- **S mirrors N's width** but starts at 76: a 104 start would push its ink top
-  to ~y 241 and its label into the E/W row; 76 keeps a clean label band
-  (S ink spans y 261–317) and still doubles today's effective size for wide
-  values. N-over-S asymmetry is deliberate hierarchy, not an oversight.
+- **S matches N at 104** and drops its baseline from 316 to 320 to pay for it.
+  104pt digit ink is 76px tall against 76pt's 56px, so at a fixed baseline the
+  extra height would grow *upward* into the E/W row; the 4px baseline drop puts
+  S's ink at y 245–321 (was 261–317), keeping ~22px of air below E/W's ink
+  bottom at 223. 320 is the floor: it is where the widest string that still
+  renders at 104 reaches the circle-clearance margin (below), and it also sets
+  S's ink one pixel under the Cockpit corner brackets at y 320, which is the
+  visual line the layout reads against. N and S are now equals in size; the
+  hierarchy is carried by colour (warm hero vs white) rather than by scale.
+- **E and W share size group 1**, so both always render at the smaller of the
+  two cuts either one needs on its own (see Size groups). Without it the
+  flanking pair diverges purely on character count — a 5-character `11:39` at E
+  drops to 64 while a 4-character `0.88` at W stays at 76, and the compass
+  reads lopsided.
 - **Roles** are positional as everywhere else. E/W get the lap accent because
   the #49 defaults put lap metrics there; in the brief window before #49 lands,
   E shows session Pace in the accent colour — accepted.
 - Circle clearance at the widest corners: N ink corners (±148, y 75) sit at
-  r ≈ 190.5, S ink corners (±147, y 317) at r ≈ 191 — inside the r 195 edge
-  with ~4px margin. E/W ink corners are well clear (chord at y 167/223 runs
-  x 2–388).
+  r ≈ 190.5. S's binding case is a 5-character string at 104 (285px, e.g.
+  `59:59`) with ink corners (±142.5, y 321) at r ≈ 190.2 — the 294 budget
+  already excludes 5 plain digits at 104 (310px), which would not clear. Both
+  are inside the r 195 edge with ~5px of bounding-box margin; measured against
+  rendered pixels, where the rounded glyph corners buy some back, S's real
+  clearance is ~7px @390. E/W ink corners are well clear (chord at y 167/223
+  runs x 2–388).
 - `PresetSlot.asc` is populated (109 / 80) for consistency though `drawPreset`
   takes ascents from the fit result.
+
+## Size groups
+
+`PresetSlot.sizeGroup` (0 = ungrouped) couples slots that must render at the
+same cut. Before drawing, `drawPreset` resolves each grouped slot's own best
+cut via `resolvedSize` — the pair's big size for an hours duration, otherwise
+the shrink-to-fit size — takes the smallest across the group, and uses that as
+the ladder start size for every member. Only the compass's E/W pair uses this
+today; every other slot in every layout is ungrouped and therefore sizes itself
+exactly as before.
+
+Two consequences worth stating plainly:
+
+- A wide value on one side shrinks *both* sides. That is the point — matched is
+  the goal — but it does mean W gives up a rung it could otherwise have kept.
+- A slot set to `Off` does not constrain its partner: the group pass skips it,
+  so a lone E renders at its own best cut rather than being held down by a
+  sibling that isn't drawn.
 
 ## Fonts: one new cut, `value44`
 
@@ -103,18 +135,27 @@ renders strictly larger than before.
 Widths from the committed `.fnt` advances, including `value44`; all measured
 from the generated atlases and confirmed on device in the simulator pass.
 
-| value | N (296) | S (294) | E/W (178) |
+| value | N (296) | S (294) | E/W (178, grouped) |
 |---|---|---|---|
-| `5:14` / `8.53` (4-ch) | **104** 223 (226) | **76** 166 | **76** 166 |
-| `34:56` / `12:34` (5-ch) | **104** 285 (289) | **76** 212 | **64** 175 (207 vs 207 on 454 — exact fit) |
+| `5:14` / `8.53` (4-ch) | **104** 223 (226) | **104** 214–223 | **76** 166 |
+| `34:56` / `12:34` (5-ch) | **104** 285 (289) | **104** 285 | **64** 175 (207 vs 207 on 454 — exact fit) |
 | `100.00` (6-ch) | **76** 251 | **76** 251 | **52** 169 (174) |
 | `1:00:04` | **76+52** 262 | **76+52** 262 | **52+34** 175 (454 bucket: 44+34) |
 | `12:34:56` | **76+52** 293 | **76+52** 293 (1px margin @390) | **44+34** 172 (360 bucket borderline) |
+
+The E/W column is what each side resolves to *on its own*; the size group then
+renders both at whichever of the two is smaller. So a typical pairing of a
+5-character pace at E with a 4-character lap distance at W puts both at 64, not
+E at 64 and W at 76.
 
 Notes:
 
 - Today's layout-4 renders all of these at 64 or below; every cell above is at
   least one ladder step larger, most are two or three.
+- S's 104 start only changes the two narrow rows: 4- and 5-character values gain
+  a full rung over the original 76 start. The 6-character and hours-pair rows
+  are budget-limited, not start-limited, so they land exactly where they did —
+  which is why raising S's start cut costs nothing at the wide end.
 - The correction to the #47 planning numbers: the 76+52 pair for `1:00:04` is
   **262px** @390 (the oft-quoted 293 is the `12:34:56` case) — measured from
   the atlases, which makes the N/S budgets comfortable rather than tight.
@@ -191,6 +232,13 @@ spans 168.4–222.
 - **N label vs the title** — the band between the Cockpit/Bridge title ink
   (ends 62) and N's ink top (76.5) is **14.5px, against a 21.5px label**, so
   "TIMER" and "FLIGHT OPS" overprint into an illegible mash.
+- **S label vs the S value** — S's 104pt start puts its ink top at 245, above
+  its own label anchor at baseline 254 (ink 232.5–254), so the label now sits
+  *inside* the value rather than above it. Under the original 76pt S the label
+  cleared the ink top at 261 by 7px. This one *is* fixable by moving the label
+  alone — the band between E/W's ink bottom (223) and S's ink top (245) is 22px,
+  enough for a 21.5px label at a baseline near 244 — but it is left alone here
+  because the follow-up has to settle all four label positions together.
 
 `showLabels` defaults off, so the shipped default face is unaffected. But
 **fixing this is a hard blocker on the store release (#50)**: a user who
