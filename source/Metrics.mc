@@ -19,9 +19,8 @@ enum {
 // boundary — a manual/auto lap or a structured-workout step (see onLap, called
 // from FlightdeckView's onTimerLap / onWorkoutStepComplete).
 //
-// Default slot map (settings defaults, reproducing the original layout):
-//   centre = Timer     top-left = Avg pace   top-right = Distance
-//                      bot-left = Lap pace   bot-right = Lap time
+// Default metric ids per layout live in resources/settings/properties.xml —
+// each layout preset carries its own independent slot set (#49).
 class Metrics {
     private const _METERS_PER_MILE = 1609.344;
     private const _STOPPED_SPEED = 0.2; // m/s; below this we show no pace

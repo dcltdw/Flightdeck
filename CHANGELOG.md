@@ -17,6 +17,14 @@ There is no version field in the Connect IQ manifest; the git tag is the version
 - The 4-field layout is now arranged as a compass: one large value at the
   top, one at each side, and one at the bottom, with much bigger type than
   the old four-corner grid. Times past an hour keep their size there too.
+- Each layout now has its own field configuration with its own defaults:
+  choosing metrics for one layout no longer changes any other. The 4-field
+  compass starts as Timer / Lap pace / Distance / Lap distance.
+- New installs start on the 4-field compass layout instead of the 5-field
+  grid.
+- One-time reset: because the field settings changed shape, custom field
+  choices from earlier versions revert to the new defaults — set them again
+  in Garmin Connect. Theme, mode, layout and label settings are kept.
 
 ## [0.1.5] - 2026-08-06
 

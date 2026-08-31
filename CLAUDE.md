@@ -25,7 +25,7 @@ themed prototype; all faction/brand references were removed here.)
 - `resources/` — custom bitmap fonts, drawables (radar watermark, icon),
   settings, strings.
 - `tools/` — reproducible asset generators (`gen_fonts.py`, `gen_icon.py`,
-  `gen_phosphor_watermark.sh`) and `release.sh`.
+  `gen_settings.py`, `gen_phosphor_watermark.sh`) and `release.sh`.
 
 ## Build / verify
 
@@ -40,7 +40,7 @@ SDK=~/Library/Application\ Support/Garmin/ConnectIQ/Sdks/<your-sdk>
 
 Regenerate assets: `python3 tools/gen_fonts.py` (needs `pip install Pillow`);
 `python3 tools/gen_icon.py` (pure stdlib, emits per-size launcher SVGs);
-`tools/gen_phosphor_watermark.sh` needs ImageMagick.
+`tools/gen_phosphor_watermark.sh` needs ImageMagick; `python3 tools/gen_settings.py` (pure stdlib) emits `resources/settings/settings.xml`.
 
 ## Collaboration & release
 

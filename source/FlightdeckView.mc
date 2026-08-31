@@ -13,9 +13,11 @@ class FlightdeckView extends WatchUi.DataField {
     private var _fonts as Fonts?;
     private var _themeIdx as Number = 0;
     private var _light as Boolean = false;
-    private var _slots as Array<Number> = [1, 6, 3, 7, 5];
+    // The active layout's metric ids, in slot-index order (see the layout
+    // tables in Theme.presetSlots / drawGrid). Length tracks the layout.
+    private var _slots as Array<Number> = [1, 7, 3, 4];
     private var _showLabels as Boolean = false;
-    private var _layout as Number = 5;
+    private var _layout as Number = 4;
 
     function initialize() {
         DataField.initialize();
@@ -61,10 +63,26 @@ class FlightdeckView extends WatchUi.DataField {
     private function readSettings() as Void {
         _themeIdx = numProp("theme", 0);
         _light = (numProp("mode", 0) == 1);
-        _slots = [numProp("slot0", 1), numProp("slot1", 6), numProp("slot2", 3),
-                  numProp("slot3", 7), numProp("slot4", 5)];
+        _layout = numProp("layout", 4);
+        // Each layout has its own independent property set (#49). Read only
+        // the active layout's, positionally ordered to match Theme's slot
+        // indices. Fallback defaults mirror properties.xml.
+        if (_layout == 5) {
+            _slots = [numProp("l5_c", 1), numProp("l5_tl", 6), numProp("l5_tr", 3),
+                      numProp("l5_bl", 7), numProp("l5_br", 5)];
+        } else if (_layout == 4) {
+            _slots = [numProp("l4_n", 1), numProp("l4_e", 7),
+                      numProp("l4_s", 3), numProp("l4_w", 4)];
+        } else if (_layout == 3) {
+            _slots = [numProp("l3_top", 1), numProp("l3_mid", 7), numProp("l3_bot", 3)];
+        } else if (_layout == 2) {
+            _slots = [numProp("l2_top", 1), numProp("l2_bot", 7)];
+        } else {
+            // 1, and any out-of-range stored value: Theme.presetSlots'
+            // else-branch draws 1-field for those too, so stay in step.
+            _slots = [numProp("l1_c", 1)];
+        }
         _showLabels = boolProp("showLabels", false);
-        _layout = numProp("layout", 5);
     }
 
     private function numProp(key as String, dflt as Number) as Number {
