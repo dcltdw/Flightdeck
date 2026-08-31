@@ -38,7 +38,11 @@ CHECKS = [
     ("value104", "cutFont ladder", r"fonts\.value104\(\), (\d+)\]"),
     ("value52", "cutFont ladder", r"fonts\.value52\(\), (\d+)\]"),
     ("value44", "cutFont ladder", r"fonts\.value44\(\), (\d+)\]"),
-    ("value", "fitGridFont/fitValueFont floor", r"fonts\.value, (\d+)\]"),
+    # The floor is returned as both [font, asc] and [font, asc, size], so the
+    # ascent may be followed by either a comma or the closing bracket. Matching
+    # only "]" silently drops the fitValueFont line while the check still
+    # passes, because the other two sites carry the same number.
+    ("value", "fitGridFont/fitValueFont floor", r"fonts\.value, (\d+)[,\]]"),
 ]
 
 

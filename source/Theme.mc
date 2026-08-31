@@ -147,6 +147,10 @@ class Theme {
     hidden const VAL60_ASC = 63;     // value60 @390 ascent
     hidden const VAL40_ASC = 42;     // value40 @390 ascent
     hidden const GRID_GAP = 14;      // half centre safety gap @390
+    // Highest PresetSlot.sizeGroup any layout uses (0 means ungrouped, so the
+    // cap array holds this many entries plus one). Raise it if a layout adds
+    // a group; a group id above it degrades silently to ungrouped.
+    hidden const MAX_SIZE_GROUP = 1;
 
     // Subclass hooks (base returns harmless defaults).
     function buildPalette(light as Boolean) as Palette {
@@ -461,16 +465,28 @@ class Theme {
         var lf = L.lblFont;
         var ps = presetSlots(layout, fonts);
 
+        // Format each slot's value once. Both the group pre-pass and the draw
+        // loop need it, and METRIC_CLOCK reads the system clock on every call —
+        // formatting twice could straddle a minute rollover and size a slot
+        // from a string it never draws. null marks an Off slot.
+        var vals = new [ps.size()];
+        for (var i = 0; i < ps.size(); i++) {
+            var vid = slots[ps[i].slot];
+            vals[i] = (vid == 0) ? null : m.format(vid);
+        }
+
         // Size groups: resolve every grouped slot's own best cut first, then cap
         // the whole group at the smallest of them, so partners stay matched.
-        // groupCap[g] is the agreed start size for group g (index 0 unused).
-        var groupCap = [0, 0, 0];
+        // groupCap[g] is the agreed start size for group g; index 0 is unused
+        // because 0 means "ungrouped", so the array holds MAX_SIZE_GROUP + 1
+        // entries and a group id beyond it degrades to ungrouped.
+        var groupCap = new [MAX_SIZE_GROUP + 1];
+        for (var i = 0; i < groupCap.size(); i++) { groupCap[i] = 0; }
         for (var i = 0; i < ps.size(); i++) {
             var d = ps[i];
             if (d.sizeGroup == 0 || d.sizeGroup >= groupCap.size()) { continue; }
-            var gid = slots[d.slot];
-            if (gid == 0) { continue; } // Off slots don't constrain their partners
-            var gsz = resolvedSize(dc, m.format(gid), rnd(d.widthBudget * s), d.size, fonts);
+            if (vals[i] == null) { continue; } // Off slots don't constrain their partners
+            var gsz = resolvedSize(dc, vals[i] as String, rnd(d.widthBudget * s), d.size, fonts);
             if (groupCap[d.sizeGroup] == 0 || gsz < groupCap[d.sizeGroup]) {
                 groupCap[d.sizeGroup] = gsz;
             }
@@ -481,7 +497,7 @@ class Theme {
             var id = slots[d.slot];
             if (id == 0) { continue; } // Off
             var color = (d.role == 0) ? p.hero : (d.role == 1 ? p.sval : p.lap);
-            var vstr = m.format(id);
+            var vstr = vals[i] as String;
             var budget = rnd(d.widthBudget * s);
             var start = d.size;
             if (d.sizeGroup != 0 && d.sizeGroup < groupCap.size() && groupCap[d.sizeGroup] != 0) {

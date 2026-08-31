@@ -153,11 +153,19 @@ assumed: 88+64 overflows every live budget on every bucket, while 88+52 fits
 does any 5-digit value like an altitude in feet (265px, was 76 — at 104 it
 needed 310px and could not fit at all).
 
-Layouts 3 sees 88 not at all (its start size is 76, so the rung is skipped).
+Layout 3 sees 88 not at all (its start size is 76, so the rung is skipped).
 Layouts 2 and 1 start at 104 with a 360 budget, so they gain 88 as a rung
-between 104 and 76: a 7-character whole value like `1000.00` now renders at 88
-(342px) where it previously fell to 76 (297px) — strictly larger, still fitting,
-confirmed in the simulator.
+between 104 and 76, in two cases — both strictly larger, both still fitting,
+both confirmed in the simulator:
+
+- a 7-character whole value like `1000.00` renders at 88 (342px) where it
+  previously fell to 76 (297px);
+- an hours duration renders as an 88+52 pair where it previously fell to
+  76+52 — `12:34:56` measures 325 / 300 / 344 / 377 against budgets of
+  360 / 332 / 384 / 419 on the 390 / 360 / 416 / 454 buckets. This is the more
+  visible of the two, since a Timer past one hour is the common case on the
+  simplest layouts. It is vertically safe because those slots already budget
+  `asc 109` for a 104 fit, and an 88 fit's `asc 93` sits inside that envelope.
 
 ## Fit matrix (measured @390; worst-case across the four buckets in parens)
 
@@ -243,10 +251,10 @@ labels centre over their budget midpoints (x 101 / 289) at baseline 160, S at
 **Labels-on in layout 4 is a regression this change introduces, not a
 continuation of an existing wart.** Under the old four-corner geometry (64pt
 values), N's value ink spanned y 99–147 with label ink at y 73–94 — a clean
-5px gap; layout 4 with labels on worked. After this change, N grows to 104pt
-and E/W move onto the midline: E/W's label ink (y 139–160) now overprints N's
-104pt value ink (y 75–151) by 12px, and N's own label mashes into the
-Cockpit/Bridge title band. That title collision is itself a pre-existing
+5px gap; layout 4 with labels on worked. After this change, N is 88pt and E/W
+move onto the midline: E/W's label ink (y 139–164) now overprints N's value ink
+(y 87–151) by 12px, and N's own label mashes into the Cockpit/Bridge title
+band. That title collision is itself a pre-existing
 precedent: the 3-field preset's slot 0 places its label at baseY 70 against
 Cockpit/Bridge title baselines of 58/62 (`source/Theme.mc` layout-3 branch;
 `CockpitTheme.mc` and `BridgeTheme.mc` title constants) — the same
@@ -255,25 +263,33 @@ preset's own label-over-*value* overlap is a lesser, pre-existing ~5.6px
 overprint, distinct from the title collision; the new E/W-vs-N overlap has no
 precedent and is introduced by this branch.
 
-No constant nudge fixes it. Measured @390 (fr965): label ink is 21.5px tall
-and ends at its baseline; N's 104pt value ink spans 76.5–151.2 (the bottom is
-the *baseline*, so it does not move when N shrinks a rung); E/W value ink
-spans 168.4–222.
+Measured @390 from the committed atlases: label ink runs from 21px above its
+baseline to 4px below (25px tall across the uppercase set; ~21.5px for the
+short strings actually used). Label anchors are fixed at baseY 70 (N), 160
+(E/W) and 254 (S). N's 88pt value ink spans 87–151 — the *bottom* is the
+baseline, so it does not move when N changes rung; only the top does. E/W
+value ink spans 168–222; S's spans 257–321.
 
-- **E/W labels vs the N value** — the free band between N's ink bottom (151.2)
-  and E/W's ink top (168.4) is **17.2px, against a 21.5px label**. Structurally
+- **E/W labels vs the N value** — the free band between N's ink bottom (151)
+  and E/W's ink top (168) is **17px, against a 21.5px label**. Structurally
   unfixable by moving the label alone: shrinking N moves its ink *top* down,
-  not its baseline, so the band cannot open.
-- **N label vs the title** — the band between the Cockpit/Bridge title ink
-  (ends 62) and N's ink top (76.5) is **14.5px, against a 21.5px label**, so
-  "TIMER" and "FLIGHT OPS" overprint into an illegible mash.
-- **S label vs the S value** — S's 88pt start puts its ink top at 255, just
-  above its own label anchor's baseline at 254 (label ink 232.5–254), so the
-  label and value now touch rather than clear each other by the 7px the
-  original 76pt S had. This one *is* comfortably fixable by moving the label
-  alone — the band between E/W's ink bottom (223) and S's ink top (255) is
-  32px, plenty for a 21.5px label — but it is left alone here because the
-  follow-up has to settle all four label positions together.
+  not its baseline, so this band cannot open. This is the one with no
+  precedent, and it is the reason labels-on blocks #50.
+- **N label vs the title** — the label's ink sits at 49–74 against a
+  Cockpit/Bridge title ending at 62, so the two overprint by **13px**.
+  Note this overlap is a property of the *anchor*, not of N's size: it is
+  identical at 104, 88 and 76, because the label baseline never moves.
+  Confirmed in the simulator at 88pt — "TIMER" still mashes "FLIGHT OPS".
+  What N's size *did* change is the room underneath: the band between the
+  title (62) and N's ink top grew from 13px at 104 to **25px at 88**, so
+  unlike the E/W case this one is now fixable by moving the anchor alone —
+  an N label baseline of 83 lands its ink exactly in the band. Tight, but
+  it was impossible at 104.
+- **S label vs the S value** — S's 88pt ink top is 257 against a label anchor
+  whose ink runs 233–258, so the two overlap by 1px where the original 76pt S
+  cleared by 7px. Comfortably fixable by moving the label alone: the band
+  between E/W's ink bottom (223) and S's ink top (257) is 34px. Left alone
+  here because the follow-up has to settle all four label positions together.
 
 `showLabels` defaults off, so the shipped default face is unaffected. But
 **fixing this is a hard blocker on the store release (#50)**: a user who
