@@ -27,10 +27,12 @@ class Fonts {
     // actually drawn, to spare the 256 KB data-field budget.
     private var _v52 as WatchUi.FontResource?;
     private var _v76 as WatchUi.FontResource?;
+    private var _v88 as WatchUi.FontResource?;
     private var _v104 as WatchUi.FontResource?;
     private var _v64 as WatchUi.FontResource?;
     private var _v60 as WatchUi.FontResource?;
     private var _v40 as WatchUi.FontResource?;
+    private var _v44 as WatchUi.FontResource?;
 
     function initialize() {
         label = WatchUi.loadResource(Rez.Fonts.LabelFont) as WatchUi.FontResource;
@@ -41,10 +43,12 @@ class Fonts {
 
     function value52()  as WatchUi.FontResource { if (_v52 == null)  { _v52  = WatchUi.loadResource(Rez.Fonts.Value52Font)  as WatchUi.FontResource; } return _v52; }
     function value76()  as WatchUi.FontResource { if (_v76 == null)  { _v76  = WatchUi.loadResource(Rez.Fonts.Value76Font)  as WatchUi.FontResource; } return _v76; }
+    function value88()  as WatchUi.FontResource { if (_v88 == null)  { _v88  = WatchUi.loadResource(Rez.Fonts.Value88Font)  as WatchUi.FontResource; } return _v88; }
     function value104() as WatchUi.FontResource { if (_v104 == null) { _v104 = WatchUi.loadResource(Rez.Fonts.Value104Font) as WatchUi.FontResource; } return _v104; }
     function value64()  as WatchUi.FontResource { if (_v64 == null)  { _v64  = WatchUi.loadResource(Rez.Fonts.Value64Font)  as WatchUi.FontResource; } return _v64; }
     function value60() as WatchUi.FontResource { if (_v60 == null) { _v60 = WatchUi.loadResource(Rez.Fonts.Value60Font) as WatchUi.FontResource; } return _v60; }
     function value40() as WatchUi.FontResource { if (_v40 == null) { _v40 = WatchUi.loadResource(Rez.Fonts.Value40Font) as WatchUi.FontResource; } return _v40; }
+    function value44() as WatchUi.FontResource { if (_v44 == null) { _v44 = WatchUi.loadResource(Rez.Fonts.Value44Font) as WatchUi.FontResource; } return _v44; }
 }
 
 // ---------------------------------------------------------------------------
@@ -119,6 +123,10 @@ class PresetSlot {
     public var just as Graphics.TextJustification;
     public var labelX as Number;
     public var labelBaseY as Number;
+    // Slots sharing a non-zero group all render at the smallest cut any of
+    // them needs, so a wide value on one side shrinks its partners to match.
+    // 0 = ungrouped (each slot sizes itself).
+    public var sizeGroup as Number = 0;
     function initialize(slot, x, baseY, asc, size, font, widthBudget, role, just, labelX, labelBaseY) {
         self.slot = slot; self.x = x; self.baseY = baseY; self.asc = asc; self.size = size;
         self.font = font; self.widthBudget = widthBudget; self.role = role;
@@ -139,6 +147,10 @@ class Theme {
     hidden const VAL60_ASC = 63;     // value60 @390 ascent
     hidden const VAL40_ASC = 42;     // value40 @390 ascent
     hidden const GRID_GAP = 14;      // half centre safety gap @390
+    // Highest PresetSlot.sizeGroup any layout uses (0 means ungrouped, so the
+    // cap array holds this many entries plus one). Raise it if a layout adds
+    // a group; a group id above it degrades silently to ungrouped.
+    hidden const MAX_SIZE_GROUP = 1;
 
     // Subclass hooks (base returns harmless defaults).
     function buildPalette(light as Boolean) as Palette {
@@ -153,10 +165,12 @@ class Theme {
     function decorate(dc as Graphics.Dc, light as Boolean, s as Float, layout as Number) as Void {}
 
     // Two small diamond "blips" at a layout-dependent y (Cockpit/Bridge use them).
-    // @390, scaled at draw. Returns 0 only for unknown layouts (none drawn).
+    // @390, scaled at draw. Returns 0 to mean "none drawn" — for unknown
+    // layouts, and deliberately for layout 4, whose compass E/W values own
+    // the midline the blips would otherwise sit on.
     function blipCy(layout as Number) as Number {
         if (layout == 5) { return 248; } // between hero and bottom row
-        if (layout == 4) { return 205; }
+        if (layout == 4) { return 0; }  // compass: E/W own the midline; no blip band
         if (layout == 3) { return 140; } // above the middle (centre) field
         if (layout == 2) { return 180; }
         if (layout == 1) { return 110; } // above the single centre value
@@ -179,12 +193,25 @@ class Theme {
     function presetSlots(layout as Number, fonts as Fonts) as Array<PresetSlot> {
         var C = Graphics.TEXT_JUSTIFY_CENTER;
         if (layout == 4) {
-            var vf = fonts.value64(); var a = 68;
+            // Compass N/E/S/W. N and S are both 88pt; E/W hug the midline
+            // edges and grow inward. 88 is the balance point: E/W are hard
+            // capped at 64 by the screen's width (two 5-char values at 76 want
+            // 424px on a 390px screen), so 104 on N/S made the flanks look like
+            // afterthoughts, while 76 gave up too much. S's baseline sits at
+            // 320, one pixel under the Cockpit corner brackets, which is the
+            // line the layout reads against. E and W share a size group so the
+            // two flanking values always render at the same cut even when one
+            // side's string is wider. Budgets are sized so every position fits
+            // an hours-prefix pair — see
+            // docs/superpowers/specs/2026-08-30-compass-4field-design.md.
+            var e = new PresetSlot(1, 378, 222, 80, 76, fonts.value76(), 178, 2, Graphics.TEXT_JUSTIFY_RIGHT, 289, 160);
+            var w = new PresetSlot(3, 12, 222, 80, 76, fonts.value76(), 178, 2, Graphics.TEXT_JUSTIFY_LEFT, 101, 160);
+            e.sizeGroup = 1; w.sizeGroup = 1;
             return [
-                new PresetSlot(0, 108, 146, a, 64, vf, 170, 1, C, 108, 94),
-                new PresetSlot(1, 282, 146, a, 64, vf, 170, 1, C, 282, 94),
-                new PresetSlot(2, 108, 300, a, 64, vf, 170, 2, C, 108, 248),
-                new PresetSlot(3, 282, 300, a, 64, vf, 170, 2, C, 282, 248),
+                new PresetSlot(0, 195, 150, 93, 88, fonts.value88(), 296, 0, C, 195, 70),
+                e,
+                new PresetSlot(2, 195, 320, 93, 88, fonts.value88(), 294, 1, C, 195, 254),
+                w,
             ];
         } else if (layout == 3) {
             var vf = fonts.value76(); var a = 80;
@@ -344,35 +371,46 @@ class Theme {
     // the default, so an unknown size lands there rather than failing.
     private function cutFont(sz as Number, fonts as Fonts) as Array {
         if (sz == 104) { return [fonts.value104(), 109]; }
+        else if (sz == 88) { return [fonts.value88(), 93]; }
         else if (sz == 76) { return [fonts.value76(), 80]; }
         else if (sz == 64) { return [fonts.value64(), 68]; }
         else if (sz == 52) { return [fonts.value52(), 55]; }
+        else if (sz == 44) { return [fonts.value44(), 47]; }
         return [fonts.value, 36];
     }
 
     // The small-prefix partner for a big cut: the largest ladder cut at or under
     // 0.7x it, which is where the 5-field pair sits (40/60 = 0.67). 34 is the
     // ladder floor and has no partner — 0 means "no pair", i.e. fall back to
-    // shrinking the whole value.
+    // shrinking the whole value. Three branches below deliberately break the
+    // 0.7x rule: 64 stays frozen at its pre-ladder partner 34 (no live budget
+    // lands in the 211-260px window where the 34-vs-44 partner choice changes
+    // the outcome); 44 — the ladder floor's newest neighbour — has only
+    // 34 left to pair with; and 88 takes 52 (0.59) rather than the 64 the rule
+    // would pick, because 88+64 overflows every live budget on every bucket
+    // while 88+52 fits `1:00:04` on all four. Don't "fix" any of them back
+    // onto the ratio.
     private function prefixCut(bigSize as Number) as Number {
         if (bigSize == 104) { return 64; }
+        else if (bigSize == 88) { return 52; }
         else if (bigSize == 76) { return 52; }
         else if (bigSize == 64) { return 34; }
         else if (bigSize == 52) { return 34; }
+        else if (bigSize == 44) { return 34; }
         return 0;
     }
 
     // Largest ladder pair, at or below startSize, whose [prefix][MM:SS] total fits
     // budgetPx. This is what keeps MM:SS at the layout's own size instead of
     // shrinking the whole value to make room for the hours. Returns
-    // [bigFont, bigAsc, smallFont, smallAsc], or null when no pair fits.
+    // [bigFont, bigAsc, smallFont, smallAsc, bigSize], or null when no pair fits.
     private function fitDurationPair(dc as Graphics.Dc, str as String, budgetPx as Number,
                                      startSize as Number, fonts as Fonts) as Array or Null {
         var first = str.find(":");
         if (first == null) { return null; }
         var pre = str.substring(0, first + 1);
         var rest = str.substring(first + 1, str.length()) as String;
-        var sizes = [104, 76, 64, 52];
+        var sizes = [104, 88, 76, 64, 52, 44];
         for (var i = 0; i < sizes.size(); i++) {
             var sz = sizes[i];
             if (sz > startSize) { continue; }
@@ -383,25 +421,37 @@ class Theme {
             var fb = big[0] as WatchUi.FontResource;
             var fp = small[0] as WatchUi.FontResource;
             var w = dc.getTextWidthInPixels(pre, fp) + dc.getTextWidthInPixels(rest, fb);
-            if (w <= budgetPx) { return [fb, big[1], fp, small[1]]; }
+            if (w <= budgetPx) { return [fb, big[1], fp, small[1], sz]; }
         }
         return null;
     }
 
     // Largest ladder size <= target whose rendered width fits budgetPx. Shrink-only.
-    // Returns [font, ascent390]. Ladder: 104,76,64,52,34.
+    // Returns [font, ascent390, size]. Ladder: 104,88,76,64,52,44,34.
     private function fitValueFont(dc as Graphics.Dc, str as String, budgetPx as Number,
                                   startSize as Number, fonts as Fonts) as Array {
-        var sizes = [104, 76, 64, 52, 34];
+        var sizes = [104, 88, 76, 64, 52, 44, 34];
         for (var i = 0; i < sizes.size(); i++) {
             var sz = sizes[i];
             if (sz > startSize) { continue; }
             var cut = cutFont(sz, fonts);
             var f = cut[0] as WatchUi.FontResource;
-            if (dc.getTextWidthInPixels(str, f) <= budgetPx) { return cut; }
+            if (dc.getTextWidthInPixels(str, f) <= budgetPx) { return [cut[0], cut[1], sz]; }
         }
         // even the floor overflows: use the floor (34) and let it clip minimally
-        return [fonts.value, 36];
+        return [fonts.value, 36, 34];
+    }
+
+    // The cut a slot will actually land on, without drawing it — the pair's big
+    // size for an hours duration, otherwise the shrink-to-fit size. Size groups
+    // use this to agree on a common cut before anything is drawn.
+    private function resolvedSize(dc as Graphics.Dc, str as String, budgetPx as Number,
+                                  startSize as Number, fonts as Fonts) as Number {
+        if (isDuration(str)) {
+            var pair = fitDurationPair(dc, str, budgetPx, startSize, fonts);
+            if (pair != null) { return pair[4] as Number; }
+        }
+        return fitValueFont(dc, str, budgetPx, startSize, fonts)[2] as Number;
     }
 
     private function drawPreset(dc as Graphics.Dc, p as Palette, L as Layout, s as Float,
@@ -414,23 +464,55 @@ class Theme {
         }
         var lf = L.lblFont;
         var ps = presetSlots(layout, fonts);
+
+        // Format each slot's value once. Both the group pre-pass and the draw
+        // loop need it, and METRIC_CLOCK reads the system clock on every call —
+        // formatting twice could straddle a minute rollover and size a slot
+        // from a string it never draws. null marks an Off slot.
+        var vals = new [ps.size()];
+        for (var i = 0; i < ps.size(); i++) {
+            var vid = slots[ps[i].slot];
+            vals[i] = (vid == 0) ? null : m.format(vid);
+        }
+
+        // Size groups: resolve every grouped slot's own best cut first, then cap
+        // the whole group at the smallest of them, so partners stay matched.
+        // groupCap[g] is the agreed start size for group g; index 0 is unused
+        // because 0 means "ungrouped", so the array holds MAX_SIZE_GROUP + 1
+        // entries and a group id beyond it degrades to ungrouped.
+        var groupCap = new [MAX_SIZE_GROUP + 1];
+        for (var i = 0; i < groupCap.size(); i++) { groupCap[i] = 0; }
+        for (var i = 0; i < ps.size(); i++) {
+            var d = ps[i];
+            if (d.sizeGroup == 0 || d.sizeGroup >= groupCap.size()) { continue; }
+            if (vals[i] == null) { continue; } // Off slots don't constrain their partners
+            var gsz = resolvedSize(dc, vals[i] as String, rnd(d.widthBudget * s), d.size, fonts);
+            if (groupCap[d.sizeGroup] == 0 || gsz < groupCap[d.sizeGroup]) {
+                groupCap[d.sizeGroup] = gsz;
+            }
+        }
+
         for (var i = 0; i < ps.size(); i++) {
             var d = ps[i];
             var id = slots[d.slot];
             if (id == 0) { continue; } // Off
             var color = (d.role == 0) ? p.hero : (d.role == 1 ? p.sval : p.lap);
-            var vstr = m.format(id);
+            var vstr = vals[i] as String;
             var budget = rnd(d.widthBudget * s);
+            var start = d.size;
+            if (d.sizeGroup != 0 && d.sizeGroup < groupCap.size() && groupCap[d.sizeGroup] != 0) {
+                start = groupCap[d.sizeGroup];
+            }
             // A duration with an hours part draws as a small prefix + full-size
             // MM:SS; everything else (and a duration too wide for any pair)
             // shrinks whole.
-            var pair = isDuration(vstr) ? fitDurationPair(dc, vstr, budget, d.size, fonts) : null;
+            var pair = isDuration(vstr) ? fitDurationPair(dc, vstr, budget, start, fonts) : null;
             if (pair != null) {
                 drawDurationGroup(dc, s, vstr, rnd(d.x * s), rnd(d.baseY * s), d.just, color,
                                   pair[0] as WatchUi.FontResource, pair[1] as Number,
                                   pair[2] as WatchUi.FontResource, pair[3] as Number);
             } else {
-                var fit = fitValueFont(dc, vstr, budget, d.size, fonts);
+                var fit = fitValueFont(dc, vstr, budget, start, fonts);
                 txt(dc, rnd(d.x * s), rnd(d.baseY * s), rnd((fit[1] as Number) * s), fit[0] as WatchUi.FontResource, color, vstr, d.just);
             }
             if (showLabels && lf != null) {

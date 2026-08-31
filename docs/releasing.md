@@ -24,9 +24,10 @@ feature branch merges.
 
 ## Before releasing — listing assets
 
-Release notes and store assets live in **three** places; keep them in sync
-*before* cutting the tag, so the tagged tree matches the shipped build (don't
-refresh them after the fact — that forces a tag re-cut):
+Release notes and store assets live in **three** places, plus a pre-release
+check to run; keep the three in sync *before* cutting the tag, so the tagged
+tree matches the shipped build (don't refresh them after the fact — that
+forces a tag re-cut):
 
 - **`CHANGELOG.md`** — the GitHub Release notes source. Add a `## [X.Y.Z]`
   section (move items out of `Unreleased`). *`release.sh` refuses to run
@@ -37,6 +38,14 @@ refresh them after the fact — that forces a tag re-cut):
 - **`store/screenshots/` + `store/hero.png`** — regenerate if the app's
   appearance changed this version, then rebuild the hero (`store/gen_hero.sh`).
   Not machine-checkable — this one is on you.
+- **Peak memory** — `monkeyc` cannot check RAM. Before cutting a release, take
+  a peak-memory reading in the simulator's Memory viewer on `fr965`: once with
+  the 4-field layout at a past-one-hour pose (the worst case — the shrink
+  ladder has probed and loaded every font cut by then), and again after
+  switching layouts mid-activity from 5-field to 4-field (loaded font cuts are
+  never freed, so they accumulate across the switch). Confirm both readings
+  are clear of the 256 KB data-field budget (`source/Theme.mc`). Not
+  machine-checkable — this one is on you.
 
 ## Cutting a release
 

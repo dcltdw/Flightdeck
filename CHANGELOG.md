@@ -10,12 +10,13 @@ There is no version field in the Connect IQ manifest; the git tag is the version
 
 ## [Unreleased]
 
-- Times past an hour keep their size on the 3-, 2- and 1-field layouts: the
-  hours now render as a small prefix (`1:` beside a full-size `00:04`) instead
-  of the whole value shrinking to fit. The 5-field layout already did this. The
-  4-field layout still shrinks the whole value — its slots are too narrow for
-  the prefix at any size, and it picks the behaviour up when those slots are
-  redesigned.
+- Times past an hour keep their size on the 4-, 3-, 2- and 1-field layouts:
+  the hours now render as a small prefix (`1:` beside a full-size `00:04`)
+  instead of the whole value shrinking to fit. The 5-field layout already did
+  this.
+- The 4-field layout is now arranged as a compass: one large value at the
+  top, one at each side, and one at the bottom, with much bigger type than
+  the old four-corner grid. Times past an hour keep their size there too.
 
 ## [0.1.5] - 2026-08-06
 

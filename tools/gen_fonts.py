@@ -57,10 +57,12 @@ REF_SPECS = [
     ("title", 13, UPPER, 0),
     ("value52", 52, DIGITS + ":.-", 0),
     ("value76", 76, DIGITS + ":.-", 0),
+    ("value88", 88, DIGITS + ":.-", 0),
     ("value104", 104, DIGITS + ":.-", 0),
     ("value64", 64, DIGITS + ":.-", 0),
     ("value60", 60, DIGITS + ":.-", 0),
     ("value40", 40, DIGITS + ":.-", 0),
+    ("value44", 44, DIGITS + ":.-", 0),
 ]
 
 # transparent margin baked around each rendered glyph before trimming
@@ -220,11 +222,13 @@ ASC_CONSTANTS = {
     "label": "*Theme.mc L.lblAsc",
     "title": "Bridge/CockpitTheme.mc L.titleAsc",
     "value52": "*Theme.mc L.valAsc",
-    "value64": "Theme.mc presetSlots() layout 4",
-    "value76": "Theme.mc presetSlots() layout 3",
+    "value64": "Theme.mc cutFont() ladder",
+    "value76": "Theme.mc presetSlots() layouts 4 and 3",
+    "value88": "Theme.mc cutFont() ladder",
     "value104": "Theme.mc presetSlots() layouts 2 and 1",
     "value60": "Theme.mc VAL60_ASC",
     "value40": "Theme.mc VAL40_ASC",
+    "value44": "Theme.mc cutFont() ladder",
 }
 
 
